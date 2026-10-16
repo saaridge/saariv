@@ -1,7 +1,6 @@
 import datetime
 import os
 import sqlite3
-from typing import Optional
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
@@ -10,7 +9,7 @@ from flask_mail import Mail, Message
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "saariv-early-access-secret-key-2025")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "saariv-waitlist-secret-key-2025")
 
 # Mail Configuration
 app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -28,20 +27,19 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "waitlist.db"
 
 
 def init_db():
-    """Initialize SQLite database for early access signups."""
+    """Initialize SQLite database for waitlist signups."""
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS early_access (
+            CREATE TABLE IF NOT EXISTS waitlist (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL,
-                role TEXT,
+                profile_type TEXT,
                 profile_url TEXT,
                 primary_bot TEXT,
-                hourly_rate TEXT,
-                use_case TEXT,
+                story_focus TEXT,
                 ip_address TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 status TEXT DEFAULT 'pending'
@@ -69,26 +67,25 @@ def mail_configured() -> bool:
     return password.lower() not in placeholders
 
 
-def send_early_access_notification(data: dict) -> bool:
-    """Send email notification to admin upon new early access application."""
+def send_waitlist_notification(data: dict) -> bool:
+    """Send email notification to admin upon new waitlist signup."""
     if not mail_configured():
         app.logger.warning("Mail credentials not configured. Skipping email dispatch.")
         return False
 
-    subject = f"🚀 New Saariv Early Access Request: {data.get('name', 'Applicant')} ({data.get('role', 'Advisor')})"
+    subject = f"✨ New Saariv Waitlist Signup: {data.get('name', 'Applicant')} ({data.get('profile_type', 'Creator')})"
     body = (
-        f"A new professional has requested early access to Saariv!\n\n"
+        f"A new creator has joined the Saariv waitlist!\n\n"
         f"----------------------------------------\n"
         f"Full Name:     {data.get('name')}\n"
         f"Email:         {data.get('email')}\n"
-        f"Role / Niche:  {data.get('role') or '(not specified)'}\n"
-        f"LinkedIn / URL:{data.get('profile_url') or '(not provided)'}\n"
-        f"Primary Bot:   {data.get('primary_bot') or 'ChatGPT / Claude / Gemini'}\n"
-        f"1:1 Rate:      {data.get('hourly_rate') or '(not specified)'}\n"
-        f"Focus / Problem Solved:\n{data.get('use_case') or '(not provided)'}\n"
+        f"Category:      {data.get('profile_type') or '(not specified)'}\n"
+        f"Profile / URL: {data.get('profile_url') or '(not provided)'}\n"
+        f"Chatbot(s):    {data.get('primary_bot') or 'ChatGPT / Grok / Gemini / Claude'}\n"
+        f"Story / Lived Experience:\n{data.get('story_focus') or '(not provided)'}\n"
         f"Submitted At:  {datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
         f"----------------------------------------\n\n"
-        f"Saariv Platform: Connect AI Chat History -> Monetizable Persona Link."
+        f"Saariv: AI Avatars from Lived Experiences & Chat History"
     )
 
     try:
@@ -107,7 +104,7 @@ def send_early_access_notification(data: dict) -> bool:
 
 @app.route("/", methods=["GET"])
 def index():
-    """Render Saariv Early Access Landing Page."""
+    """Render Saariv Waitlist & Interactive Playground."""
     return render_template("index.html")
 
 
@@ -117,16 +114,16 @@ def health():
     return jsonify(
         status="ok",
         app="saariv",
-        version="1.0.0",
+        version="1.1.0",
         mail_ready=mail_configured(),
     )
 
 
+@app.route("/api/waitlist", methods=["POST"])
 @app.route("/api/early-access", methods=["POST"])
 @app.route("/waitlist", methods=["POST"])
-@app.route("/message", methods=["POST"])
-def submit_early_access():
-    """Capture early access application from the form or JSON payload."""
+def submit_waitlist():
+    """Capture waitlist application from form or JSON."""
     if request.is_json:
         payload = request.get_json() or {}
     else:
@@ -134,17 +131,16 @@ def submit_early_access():
 
     name = (payload.get("name") or "").strip()
     email = (payload.get("email") or "").strip()
-    role = (payload.get("role") or "").strip()
+    profile_type = (payload.get("profile_type") or payload.get("role") or "").strip()
     profile_url = (payload.get("profile_url") or "").strip()
     primary_bot = (payload.get("primary_bot") or "").strip()
-    hourly_rate = (payload.get("hourly_rate") or "").strip()
-    use_case = (payload.get("use_case") or payload.get("message") or "").strip()
+    story_focus = (payload.get("story_focus") or payload.get("use_case") or payload.get("message") or "").strip()
     ip_addr = request.remote_addr or ""
 
     if not name or not email:
         return jsonify(
             ok=False,
-            message="Please provide both your name and email address to apply for early access.",
+            message="Please provide both your name and email address to join the waitlist.",
         ), 400
 
     if "@" not in email or "." not in email:
@@ -156,11 +152,10 @@ def submit_early_access():
     applicant_data = {
         "name": name,
         "email": email,
-        "role": role,
+        "profile_type": profile_type,
         "profile_url": profile_url,
         "primary_bot": primary_bot,
-        "hourly_rate": hourly_rate,
-        "use_case": use_case,
+        "story_focus": story_focus,
     }
 
     # Save to SQLite database
@@ -170,25 +165,25 @@ def submit_early_access():
             cursor = conn.cursor()
             cursor.execute(
                 """
-                INSERT INTO early_access (name, email, role, profile_url, primary_bot, hourly_rate, use_case, ip_address)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO waitlist (name, email, profile_type, profile_url, primary_bot, story_focus, ip_address)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (name, email, role, profile_url, primary_bot, hourly_rate, use_case, ip_addr),
+                (name, email, profile_type, profile_url, primary_bot, story_focus, ip_addr),
             )
             conn.commit()
             row_id = cursor.lastrowid
     except Exception as e:
-        app.logger.error(f"Error persisting early access lead: {e}")
+        app.logger.error(f"Error persisting waitlist entry: {e}")
 
-    # Dispatch email in background / inline
-    email_sent = send_early_access_notification(applicant_data)
+    # Dispatch email
+    email_sent = send_waitlist_notification(applicant_data)
 
-    base_count = 148  # Initial early access queue offset
+    base_count = 340  # Realistic waitlist offset
     position = base_count + (row_id or 1)
 
     return jsonify(
         ok=True,
-        message="You're on the early access list! We'll review your profile and send your persona creation invite shortly.",
+        message="You are on the waitlist! We will notify you as soon as your batch is unlocked.",
         waitlist_number=position,
         name=name,
         email_sent=email_sent,
@@ -201,79 +196,81 @@ def waitlist_count():
     try:
         with sqlite3.connect(DB_PATH) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM early_access")
+            cursor.execute("SELECT COUNT(*) FROM waitlist")
             count = cursor.fetchone()[0]
     except Exception:
         count = 0
-    return jsonify(total_advisors=148 + count)
+    return jsonify(total_creators=340 + count)
 
 
 @app.route("/api/simulate-persona", methods=["POST"])
 def simulate_persona():
-    """Simulate an advisor's AI persona response for the interactive website demo."""
+    """Simulate avatar responses in the Saariv Playground."""
     data = request.get_json() or {}
-    persona_id = data.get("persona_id", "elena")
+    avatar_id = data.get("persona_id", "aarav")
     user_query = (data.get("query") or "").strip()
 
-    # Pre-calibrated mock persona responses demonstrating the distilled knowledge & voice
-    personas = {
-        "elena": {
-            "name": "Elena Rostova",
-            "title": "B2B SaaS Growth Consultant",
-            "hourly_rate": "$350/hr",
-            "source": "1,420+ Claude & ChatGPT Chats ingested",
+    # Pre-calibrated avatars representing Founders, Migrants (out of India), and Consultants
+    avatars = {
+        "aarav": {
+            "name": "Aarav Sharma",
+            "tagline": "Migrated from Pune to Amsterdam • Senior Tech Lead",
+            "category": "Global Expat & Migration Story",
+            "fee_per_q": "$8.00 / question",
+            "chats_source": "Synthesized from 1,120 ChatGPT & Claude chats on EU Blue Card, housing & salary negotiations",
             "default_response": (
-                "Based on the B2B GTM framework I developed through 50+ enterprise rollouts:\n\n"
-                "1. **Audit your ACV vs Sales Cycle**: If your contract value is under $12k/yr, ditch outbound SDRs immediately. Transition to product-led onboarding with an automated reverse trial.\n"
-                "2. **The 30-Day Churn Diagnostic**: Check week-2 feature adoption. 78% of churn happens because the customer never hit their 'first milestone value' before day 14.\n\n"
-                "💡 *Would you like me to analyze your specific pricing tier and generate a customized retention playbook?*"
+                "Here is my direct experience relocating from Pune to Amsterdam on an EU Blue Card:\n\n"
+                "1. **Job Hunting Strategy**: Skip LinkedIn 'Easy Apply'. Target Dutch companies registered with IND as Recognized Sponsors. Highlight your distributed system ownership—European engineering managers care deeply about async communication and unit test discipline.\n\n"
+                "2. **The 30% Ruling Reality**: Apply immediately upon signing the contract. It increases your net take-home by ~25%, which is critical because Amsterdam rental deposits often require 2 months upfront plus guarantor proof.\n\n"
+                "3. **What I wish I knew earlier**: Don't rent inside the canal ring initially. Look at Haarlem, Utrecht, or Amstelveen—commutes on the NS train are 18 minutes and you save €600/month."
             ),
         },
-        "david": {
-            "name": "David Chen",
-            "title": "Fractional CTO & Systems Architect",
-            "hourly_rate": "$400/hr",
-            "source": "2,150+ Gemini & ChatGPT Chats ingested",
+        "pooja": {
+            "name": "Pooja Mehra",
+            "tagline": "D2C Founder • Scaled Organic Wellness from 0 to ₹8 Cr ARR",
+            "category": "Founder Journey & Living Biography",
+            "fee_per_q": "$12.00 / question",
+            "chats_source": "Synthesized from 840 Gemini & ChatGPT chats on vendor negotiations, CAC hurdles & angel rounds",
             "default_response": (
-                "Reviewing this against my distributed architecture principles:\n\n"
-                "1. **Premature Microservices Trap**: If your engineering team is under 15 engineers, stay on a modular monolith. Splitting prematurely incurs a 40% network latency tax and massive DevOps overhead.\n"
-                "2. **Database Bottlenecks**: Implement read-replicas and Redis caching on write-heavy endpoints before re-architecting your schemas.\n\n"
-                "💡 *Want me to review your stack diagram or run an automated latency checklist for your application?*"
+                "From our journey bootstrapping from a Delhi apartment to ₹8 Cr ARR:\n\n"
+                "1. **Our Worst Manufacturing Mistake**: In year 1, we ordered ₹15L of custom glass packaging from a single vendor with zero SLA penalties. When 40% cracked during monsoon transit, our margins collapsed. Always split batch manufacturing 60/40 across two independent suppliers.\n\n"
+                "2. **Meta CAC Survival**: When our Blended CAC spiked from ₹220 to ₹580 post-iOS14, we stopped running broad video ads. We built a WhatsApp replenishment engine for 60-day reorders. Repeat purchase rate went from 14% to 38%.\n\n"
+                "3. **Angel Pitch Reality**: Indian angel syndicates care about gross margin after courier COD returns. If your RTO (Return to Origin) is above 18%, fix logistics before pitching."
             ),
         },
-        "marcus": {
-            "name": "Marcus Vance",
-            "title": "Seed-to-Series A Pitch & GTM Advisor",
-            "hourly_rate": "$300/hr",
-            "source": "980+ Grok & Claude Chats ingested",
+        "kabir": {
+            "name": "Dr. Kabir Sen",
+            "tagline": "Healthcare Digital Transformation Consultant • Ex-NHS Advisor",
+            "category": "Independent Specialist Consultant",
+            "fee_per_q": "$25.00 / consultation",
+            "chats_source": "Synthesized from 1,600 Claude & Grok chats on clinical workflow compliance & HL7/FHIR integration",
             "default_response": (
-                "Here is how tier-1 VCs will evaluate this slide deck:\n\n"
-                "1. **The 'Why Now' Anchor**: Never start with TAM slides. Start with the tectonic regulatory or AI shift that makes your solution viable today when it wasn't 18 months ago.\n"
-                "2. **Pipeline Velocity**: Show Cohort Net Revenue Retention (NRR). An NRR above 125% beats a flat 20% MoM top-line growth every single time.\n\n"
-                "💡 *Upload your deck outline or tell me your current ARR and I'll simulate a 5-question partner meeting interrogation.*"
+                "My advisory framework for hospitals digitizing patient intake:\n\n"
+                "1. **The Clinician Adoption Hurdle**: Never impose digital documentation that adds more than 3 clicks per patient chart. Doctors will simply create paper workarounds.\n\n"
+                "2. **FHIR Interoperability Pitfall**: Legacy EHR systems charge extortionate API integration fees. Require vendors to sign open standard compliance before signing multi-year licenses.\n\n"
+                "3. **Risk Containment**: Conduct a 30-day shadow pilot in one ambulatory ward before rolling out hospital-wide."
             ),
         },
     }
 
-    selected = personas.get(persona_id, personas["elena"])
+    selected = avatars.get(avatar_id, avatars["aarav"])
 
-    # If the user typed a specific question, customize the reply
     if user_query:
         reply = (
-            f"Regarding: *\"{user_query}\"*\n\n"
-            f"Here is how I approach this in my 1-on-1 advisory sessions:\n\n"
-            f"• **Core Principle**: Avoid tackling the symptom. Focus on the root constraint where 20% of the friction generates 80% of client hesitation.\n"
-            f"• **Actionable Blueprint**: 1) Document your current baseline metrics, 2) Test an asymmetric pilot with 3 pilot clients, 3) Institutionalize the winning playbook.\n\n"
-            f"⚡ *This insight was generated from {selected['name']}'s personalized Saariv model. Ready for a tailored deep-dive session?*"
+            f"Answering your question based on my real journey (*\"{user_query}\"*):\n\n"
+            f"• **Direct Takeaway**: In my own experience navigating this exact situation, the biggest trap was overcomplicating the first move. Focus on the core bottleneck first.\n"
+            f"• **How I Handled It**: I documented baseline numbers, reached out directly to 3 peers who had done it 12 months before me, and negotiated terms before committing capital or moving cities.\n\n"
+            f"💡 *This response was generated from {selected['name']}'s personal AI avatar. In the live version, users pay {selected['fee_per_q']} to ask deeper questions, deposited directly to {selected['name']}.*"
         )
     else:
         reply = selected["default_response"]
 
     return jsonify(
         name=selected["name"],
-        title=selected["title"],
-        hourly_rate=selected["hourly_rate"],
-        source=selected["source"],
+        tagline=selected["tagline"],
+        category=selected["category"],
+        fee_per_q=selected["fee_per_q"],
+        chats_source=selected["chats_source"],
         reply=reply,
     )
 

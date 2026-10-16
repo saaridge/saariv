@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Saariv — Asynchronous Advisory Powered by Your AI Knowledge</title>
-  <meta name="description" content="Saariv transforms your accumulated chat history from ChatGPT, Claude, and Gemini into an asynchronous advisory persona. Monetize your counsel with zero upfront cost.">
+  <title>Saariv — Turn Your Lived Experience into an AI Avatar That Earns</title>
+  <meta name="description" content="Create an AI avatar from your chats with ChatGPT, Claude, Grok, and Gemini. Share your journey as a founder, immigrant, consultant, or living biography. Earn money when people ask questions.">
   
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f4f6' stroke-width='2'><rect x='3' y='3' width='18' height='18' rx='4'/><path d='M9 9h6M9 13h4M9 17h2'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f4f6' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 8v8M8 12h8'/></svg>">
   
-  <!-- Google Fonts: Inter & Newsreader for editorial authority -->
+  <!-- Google Fonts: Inter & Newsreader for editorial credibility -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
@@ -41,7 +41,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- Professional Stylesheet -->
+  <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body class="bg-[#090a0f] text-[#f4f4f6] font-sans antialiased selection:bg-zinc-700 selection:text-white">
@@ -52,28 +52,29 @@
   <!-- Navigation -->
   <header class="sticky top-0 z-50 backdrop-blur-md bg-[#090a0f]/90 border-b border-white/[0.06]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <!-- Wordmark -->
-      <a href="/" class="flex items-center gap-2.5 group">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2.5">
         <span class="w-6 h-6 rounded-md bg-white flex items-center justify-center text-black font-semibold text-xs tracking-tighter">
           S
         </span>
         <span class="text-base font-semibold tracking-tight text-white font-sans">saariv</span>
-        <span class="text-[11px] text-zinc-500 font-mono tracking-wider ml-1">/ ADVISORY</span>
+        <span class="text-[11px] text-zinc-500 font-mono tracking-wider ml-1">/ AVATARS</span>
       </a>
 
       <!-- Navigation Links -->
       <nav class="hidden md:flex items-center gap-7 text-xs font-medium text-zinc-400">
-        <a href="#pipeline" class="hover:text-zinc-200 transition-colors">Ingestion Pipeline</a>
-        <a href="#terminal" class="hover:text-zinc-200 transition-colors">Advisor Terminal</a>
-        <a href="#economics" class="hover:text-zinc-200 transition-colors">Unit Economics</a>
-        <a href="#security" class="hover:text-zinc-200 transition-colors">Data Privacy</a>
+        <a href="#how-it-works" class="hover:text-zinc-200 transition-colors">How It Works</a>
+        <a href="#monetization-flow" class="hover:text-zinc-200 transition-colors">Experience to Earnings</a>
+        <a href="#playground" class="hover:text-zinc-200 transition-colors">Playground</a>
+        <a href="#audiences" class="hover:text-zinc-200 transition-colors">Who It's For</a>
+        <a href="#biography" class="hover:text-zinc-200 transition-colors">Living Biographies</a>
         <a href="#faq" class="hover:text-zinc-200 transition-colors">FAQ</a>
       </nav>
 
       <!-- CTA -->
       <div class="flex items-center gap-3">
-        <a href="#apply" class="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-medium text-zinc-900 bg-white hover:bg-zinc-200 rounded-md transition-all">
-          Apply for Early Access
+        <a href="#waitlist" class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-medium text-zinc-900 bg-white hover:bg-zinc-200 rounded-md transition-all">
+          Join Waitlist
         </a>
       </div>
     </div>
@@ -81,554 +82,539 @@
 
   <!-- Hero Section -->
   <section class="relative z-10 pt-20 pb-16 md:pt-28 md:pb-24 px-4 sm:px-6 max-w-5xl mx-auto text-center">
-    <!-- Status Indicator -->
+    <!-- Waitlist Status Pill -->
     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs font-mono mb-8">
       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-      <span class="text-zinc-400">Advisory Partner Cohort</span>
+      <span class="text-zinc-400">Private Waitlist</span>
       <span class="text-zinc-600">/</span>
-      <span>Private Early Access</span>
+      <span>Founders, Immigrants, Consultants & Storytellers</span>
     </div>
 
     <!-- Editorial Headline -->
     <h1 class="text-4xl sm:text-6xl font-normal tracking-tight text-white font-serif max-w-4xl mx-auto leading-[1.15]">
-      Monetize your accumulated advisory counsel.
-      <span class="block italic text-zinc-400 mt-2 font-serif">Without trading calendar hours.</span>
+      Turn your lived experience into an AI Avatar
+      <span class="block italic text-zinc-400 mt-2 font-serif">that answers questions and earns for you.</span>
     </h1>
 
     <!-- Subhead -->
-    <p class="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto font-sans leading-relaxed">
-      You’ve invested hundreds of hours exploring strategies and formulating frameworks inside <strong class="text-zinc-200 font-medium">ChatGPT, Claude, and Gemini</strong>. Saariv distills that knowledge into a verified, asynchronous advisory link. Post it on LinkedIn and earn whenever clients seek your guidance.
+    <p class="mt-6 text-base sm:text-lg text-zinc-400 max-w-3xl mx-auto font-sans leading-relaxed">
+      Whether you scaled a startup, migrated out of India to build a life abroad, or advise enterprise clients—your real conversations inside <strong class="text-zinc-200 font-medium">ChatGPT, Claude, Gemini, and Grok</strong> already capture your true journey. Saariv turns them into an interactive personal avatar. Share your link on LinkedIn or bios, test in our private Playground, and earn whenever people ask questions.
     </p>
 
-    <!-- Economic Terms Row -->
+    <!-- Value Prop Highlights -->
     <div class="mt-8 flex flex-wrap items-center justify-center gap-y-2 gap-x-6 text-xs text-zinc-400 font-mono">
       <span class="flex items-center gap-1.5">
         <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
-        Zero Upfront Cost
+        Zero Upfront Payment
       </span>
       <span class="text-zinc-700">•</span>
       <span class="flex items-center gap-1.5">
         <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
-        12% Platform Revenue Share
+        Commission-Only When You Earn
       </span>
       <span class="text-zinc-700">•</span>
       <span class="flex items-center gap-1.5">
         <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
-        You Keep 88% Net
+        Private Playground to Test Before Going Live
       </span>
       <span class="text-zinc-700">•</span>
       <span class="flex items-center gap-1.5">
         <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
-        Zero Training on Public Models
+        Interactive Living Biography Link
       </span>
     </div>
 
     <!-- Actions -->
     <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="#apply" class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-black bg-white hover:bg-zinc-200 rounded-md transition-all flex items-center justify-center gap-2">
-        Request Early Access
+      <a href="#waitlist" class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-black bg-white hover:bg-zinc-200 rounded-md transition-all flex items-center justify-center gap-2">
+        Join the Waitlist
         <i data-lucide="arrow-right" class="w-4 h-4"></i>
       </a>
-      <a href="#terminal" class="w-full sm:w-auto px-5 py-3 text-sm font-medium text-zinc-300 hover:text-white bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 rounded-md transition-all flex items-center justify-center gap-2">
-        View Advisor Terminal
+      <a href="#playground" class="w-full sm:w-auto px-5 py-3 text-sm font-medium text-zinc-300 hover:text-white bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 rounded-md transition-all flex items-center justify-center gap-2">
+        Test in Playground
       </a>
     </div>
 
     <!-- Supported Ingestion Engines -->
-    <div class="mt-20 pt-8 border-t border-white/[0.06] max-w-3xl mx-auto">
+    <div class="mt-16 pt-8 border-t border-white/[0.06] max-w-3xl mx-auto">
       <p class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 mb-6">
-        Supports native conversational archives from
+        Works with your existing conversational history from
       </p>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono text-zinc-400">
         <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-300 font-semibold">OpenAI</span>
+          <span class="text-zinc-200 font-semibold">ChatGPT</span>
           <span class="text-zinc-600">/</span>
-          <span>ChatGPT</span>
+          <span>OpenAI</span>
         </div>
         <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-300 font-semibold">Anthropic</span>
+          <span class="text-zinc-200 font-semibold">Claude</span>
           <span class="text-zinc-600">/</span>
-          <span>Claude</span>
+          <span>Anthropic</span>
         </div>
         <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-300 font-semibold">Google</span>
+          <span class="text-zinc-200 font-semibold">Gemini</span>
           <span class="text-zinc-600">/</span>
-          <span>Gemini</span>
+          <span>Google</span>
         </div>
         <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-300 font-semibold">xAI</span>
+          <span class="text-zinc-200 font-semibold">Grok</span>
           <span class="text-zinc-600">/</span>
-          <span>Grok</span>
+          <span>xAI</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Live Advisory Terminal Preview -->
-  <section id="terminal" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-      <div>
-        <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Interactive Preview</span>
-        <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">The Asynchronous Client Terminal</h2>
-      </div>
-      <p class="text-xs text-zinc-400 max-w-md font-sans">
-        What prospective clients experience when they click your personal link on LinkedIn or your advisory bio.
+  <!-- Animated Experience-to-Earnings Section -->
+  <section id="monetization-flow" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+    <div class="mb-10">
+      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Monetization Engine</span>
+      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">How Lived Experience Turns into Income</h2>
+      <p class="text-xs text-zinc-400 max-w-xl mt-1">
+        People around the world ask questions about your journey. Your avatar provides answers grounded in your real chats, and you get paid automatically.
       </p>
     </div>
 
-    <!-- Terminal Frame -->
+    <!-- Live Animation Container -->
+    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <!-- Live Payout Toast -->
+      <div id="anim-payout-toast" class="hidden absolute top-4 right-4 z-20 px-3.5 py-2 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-xs font-mono animate-soft-in">
+        💰 +$8.00 received via Saariv
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Left: Lived Experience Capsule -->
+        <div class="lg:col-span-4 space-y-4">
+          <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 block">01 / Your Lived Experience</span>
+          <div class="p-4 rounded border border-zinc-800 bg-zinc-950/60 space-y-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">AS</span>
+              <div>
+                <h4 class="text-xs font-semibold text-white">Aarav's Relocation Journey</h4>
+                <p class="text-[10px] text-zinc-500 font-mono">Pune &rarr; Amsterdam • EU Blue Card</p>
+              </div>
+            </div>
+            <div class="text-[11px] text-zinc-400 space-y-1 font-mono pt-2 border-t border-zinc-900">
+              <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-400"></i> Visa & 30% Tax Ruling</div>
+              <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-400"></i> Amsterdam Housing Realities</div>
+              <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-400"></i> Tech Staff SWE Interview Prep</div>
+            </div>
+          </div>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Distilled from Aarav's chats in ChatGPT and Claude. He never has to answer repetitive LinkedIn DMs again.
+          </p>
+        </div>
+
+        <!-- Middle: Dynamic Incoming Question Animation -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500">02 / People Ask Questions</span>
+            <span class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Stream
+            </span>
+          </div>
+
+          <!-- Dynamic Inquiry Card -->
+          <div id="anim-inquiry-card" class="p-4 rounded border border-zinc-800 bg-zinc-900/40 space-y-3 transition-all duration-300">
+            <p id="anim-question" class="text-xs text-zinc-200 font-medium italic">
+              "How did you find housing in Amsterdam without local Dutch credit history?"
+            </p>
+            <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400 pt-2 border-t border-zinc-800/80">
+              <span id="anim-sender">Asked by Rohan K. (Pune, India) • 2 mins ago</span>
+              <span id="anim-fee" class="text-emerald-400 font-bold">+$8.00</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded bg-zinc-950/70 border border-zinc-900 text-[11px] font-mono text-zinc-400 flex items-center justify-between">
+            <span>Avatar Answer Delivery:</span>
+            <span class="text-zinc-200">Instantaneous (Asynchronous)</span>
+          </div>
+
+          <button onclick="triggerNextInquiry()" class="w-full py-2 px-3 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-mono text-zinc-300 transition-colors flex items-center justify-center gap-1.5">
+            <i data-lucide="play" class="w-3 h-3 text-zinc-400"></i>
+            Simulate Next Inbound Inquiry
+          </button>
+        </div>
+
+        <!-- Right: Real-Time Earnings Register -->
+        <div class="lg:col-span-3 rounded border border-zinc-800 bg-[#0d0f17] p-5 space-y-4">
+          <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block">03 / Creator Earnings</span>
+          
+          <div>
+            <span class="text-[10px] font-mono uppercase text-zinc-500 block">Total Revenue Deposited</span>
+            <div id="anim-total-earnings" class="text-3xl font-serif text-white font-normal mt-0.5">
+              $348.00
+            </div>
+            <span class="text-[10px] font-mono text-emerald-400">Direct to bank (Zero upfront fees)</span>
+          </div>
+
+          <div class="space-y-1.5 pt-3 border-t border-zinc-800/80 font-mono text-[11px]">
+            <div class="flex justify-between">
+              <span class="text-zinc-500">Inquiries Answered:</span>
+              <span id="anim-total-answered" class="text-zinc-200">42 questions</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-zinc-500">Time Expended:</span>
+              <span class="text-emerald-400 font-semibold">0 minutes</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-zinc-500">Platform Model:</span>
+              <span class="text-zinc-300">Commission cut only</span>
+            </div>
+          </div>
+
+          <a href="#waitlist" class="w-full py-2 px-3 rounded bg-white hover:bg-zinc-200 text-black text-xs font-medium transition-all text-center block">
+            Start Earning from Your Story
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Exact Process to Create an AI Avatar (The 8-Step Pipeline) -->
+  <section id="how-it-works" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+    <div class="mb-12">
+      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Creation Blueprint</span>
+      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">The Exact Process to Create Your AI Avatar</h2>
+      <p class="text-xs text-zinc-400 max-w-2xl mt-1">
+        You don't need coding skills or API keys. Follow this simple 2-prompt sequence to extract your stories and test them in the Playground.
+      </p>
+    </div>
+
+    <!-- Stepper Navigation -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+      <button onclick="showProcessStep(1)" class="process-step-btn active p-3 rounded border border-white bg-zinc-900 text-left transition-all">
+        <span class="text-[10px] font-mono text-zinc-400 block">STEP 01 & 02</span>
+        <span class="text-xs font-semibold text-white">Discovery Prompt</span>
+      </button>
+      <button onclick="showProcessStep(2)" class="process-step-btn p-3 rounded border border-zinc-800 text-zinc-500 text-left hover:text-zinc-300 transition-all">
+        <span class="text-[10px] font-mono text-zinc-400 block">STEP 03 & 04</span>
+        <span class="text-xs font-semibold">Select Topics</span>
+      </button>
+      <button onclick="showProcessStep(3)" class="process-step-btn p-3 rounded border border-zinc-800 text-zinc-500 text-left hover:text-zinc-300 transition-all">
+        <span class="text-[10px] font-mono text-zinc-400 block">STEP 05 & 06</span>
+        <span class="text-xs font-semibold">Deep Extraction</span>
+      </button>
+      <button onclick="showProcessStep(4)" class="process-step-btn p-3 rounded border border-zinc-800 text-zinc-500 text-left hover:text-zinc-300 transition-all">
+        <span class="text-[10px] font-mono text-zinc-400 block">STEP 07 & 08</span>
+        <span class="text-xs font-semibold">Playground & Go Live</span>
+      </button>
+    </div>
+
+    <!-- Stepper Content Card -->
+    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] p-6 sm:p-8">
+      <div class="max-w-3xl space-y-4">
+        <h3 id="step-title" class="text-lg font-serif text-white">
+          Step 1 & 2: Get Saariv Discovery Prompt & Run in Chatbots
+        </h3>
+        <p id="step-desc" class="text-xs text-zinc-400 leading-relaxed">
+          Saariv generates a specialized discovery prompt. You copy it and paste it into whichever chatbots you regularly use (ChatGPT, Claude, Gemini, Grok, etc.). The prompt commands the LLM to scan your conversational context and synthesize topics.
+        </p>
+
+        <!-- Prompt Snippet Box -->
+        <div class="p-4 rounded border border-zinc-800/80 bg-zinc-950 font-mono text-xs text-zinc-300 whitespace-pre-line leading-relaxed" id="step-snippet">
+[Saariv Discovery Prompt Preview]
+"Analyze our entire conversation history across all threads. Identify all major topics, frameworks, personal milestones, migration journeys, career pivots, and business lessons where I shared deep domain knowledge or lived experience. Output as a clean structured list of Topics & Subtopics eligible for advisory."
+        </div>
+      </div>
+    </div>
+
+    <!-- Process Summary Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 text-xs font-mono">
+      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
+        <span class="text-zinc-500 text-[10px] block mb-1">01. PROMPT DISCOVERY</span>
+        <p class="text-zinc-300">Paste Saariv prompt into ChatGPT, Grok, Claude, or Gemini to extract topics.</p>
+      </div>
+      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
+        <span class="text-zinc-500 text-[10px] block mb-1">02. TOPIC CURATION</span>
+        <p class="text-zinc-300">Paste output in Saariv and pick the specific stories you want the public to access.</p>
+      </div>
+      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
+        <span class="text-zinc-500 text-[10px] block mb-1">03. PLAYGROUND TESTING</span>
+        <p class="text-zinc-300">Ask your avatar questions in the private Playground to verify tone and answers.</p>
+      </div>
+      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
+        <span class="text-zinc-500 text-[10px] block mb-1">04. GO LIVE & EARN</span>
+        <p class="text-zinc-300">Publish your link to social media. Earn per question without manual calls.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Avatar Playground (Test Before Going Live) -->
+  <section id="playground" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 mb-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>Interactive Playground</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">Test Your Avatar in the Playground</h2>
+      </div>
+      <p class="text-xs text-zinc-400 max-w-md font-sans">
+        Before sharing your link with the public, test your avatar in the playground. Experience how it answers from your lived experience.
+      </p>
+    </div>
+
+    <!-- Playground Shell -->
     <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] shadow-2xl overflow-hidden">
-      <!-- Browser / App Header -->
+      <!-- Playground Header Bar -->
       <div class="px-4 py-3 border-b border-zinc-800/80 bg-zinc-950/80 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
           <div class="ml-2 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 font-mono text-[11px] text-zinc-300 flex items-center gap-2">
-            <i data-lucide="lock" class="w-3 h-3 text-zinc-400"></i>
-            <span id="terminal-url">saariv.com/advisory/elena-rostova</span>
+            <i data-lucide="compass" class="w-3 h-3 text-zinc-400"></i>
+            <span id="playground-handle">saariv.com/@aarav-sharma</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-3 text-[11px] font-mono text-zinc-400">
-          <span class="flex items-center gap-1.5 text-emerald-400">
+        <div class="flex items-center gap-3 text-[11px] font-mono">
+          <span class="text-zinc-500">Playground Status:</span>
+          <span class="text-emerald-400 flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            Verified Persona
+            Ready to Test
           </span>
-          <span class="text-zinc-700">|</span>
-          <span id="terminal-payout-rate">Advisor Settlement: 88%</span>
+          <button onclick="openGoLiveModal()" class="px-2.5 py-1 rounded bg-white hover:bg-zinc-200 text-black font-semibold text-[11px] transition-colors">
+            Go Live &rarr;
+          </button>
         </div>
       </div>
 
-      <!-- Advisor Selector Bar -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-zinc-800 bg-zinc-950/30 text-xs">
-        <button onclick="selectPersona('elena')" id="tab-elena" class="persona-tab active py-3 px-4 text-left border-b-2 sm:border-b-0 sm:border-r border-white bg-zinc-900/40 text-white transition-all">
-          <div class="font-medium">Elena Rostova</div>
-          <div class="text-[11px] text-zinc-400">B2B SaaS Growth & GTM</div>
+      <!-- Avatar Selector Tabs -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-zinc-800 bg-zinc-950/40 text-xs">
+        <button onclick="selectPlaygroundAvatar('aarav')" id="tab-aarav" class="avatar-tab active py-3 px-4 text-left border-b-2 sm:border-b-0 sm:border-r border-white bg-zinc-900/60 text-white transition-all">
+          <div class="font-medium">Aarav Sharma</div>
+          <div class="text-[11px] text-zinc-400">Migrated India &rarr; Amsterdam</div>
         </button>
-        <button onclick="selectPersona('david')" id="tab-david" class="persona-tab py-3 px-4 text-left sm:border-r border-zinc-800 text-zinc-400 hover:text-zinc-200 transition-all">
-          <div class="font-medium">David Chen</div>
-          <div class="text-[11px] text-zinc-500">Fractional CTO & Architecture</div>
+        <button onclick="selectPlaygroundAvatar('pooja')" id="tab-pooja" class="avatar-tab py-3 px-4 text-left sm:border-r border-zinc-800 text-zinc-400 hover:text-zinc-200 transition-all">
+          <div class="font-medium">Pooja Mehra</div>
+          <div class="text-[11px] text-zinc-500">Bootstrapped D2C Founder</div>
         </button>
-        <button onclick="selectPersona('marcus')" id="tab-marcus" class="persona-tab py-3 px-4 text-left text-zinc-400 hover:text-zinc-200 transition-all">
-          <div class="font-medium">Marcus Vance</div>
-          <div class="text-[11px] text-zinc-500">Venture Strategy & Pitch Counsel</div>
+        <button onclick="selectPlaygroundAvatar('kabir')" id="tab-kabir" class="avatar-tab py-3 px-4 text-left text-zinc-400 hover:text-zinc-200 transition-all">
+          <div class="font-medium">Dr. Kabir Sen</div>
+          <div class="text-[11px] text-zinc-500">Healthcare Specialist Consultant</div>
         </button>
       </div>
 
-      <!-- Terminal Body -->
+      <!-- Playground Interactive Body -->
       <div class="p-5 sm:p-7 space-y-6">
-        <!-- Ingestion Metadata Card -->
-        <div class="p-3.5 rounded bg-zinc-900/40 border border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div class="flex items-center gap-2 text-zinc-300">
-            <i data-lucide="database" class="w-4 h-4 text-zinc-400"></i>
-            <span id="persona-source" class="font-mono text-[11px]">Knowledge Base: 1,420 Claude & ChatGPT sessions synthesized</span>
+        <!-- Avatar Profile Header -->
+        <div class="p-4 rounded bg-zinc-900/40 border border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="playground-name" class="font-semibold text-white text-sm">Aarav Sharma</h3>
+              <span id="playground-category" class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300">
+                Global Expat & Migration Story
+              </span>
+            </div>
+            <p id="playground-tagline" class="text-xs text-zinc-400 mt-1">
+              Migrated from Pune to Amsterdam • Senior Tech Lead
+            </p>
+            <p id="playground-source" class="text-[11px] font-mono text-zinc-500 mt-1">
+              Trained on 1,120 ChatGPT & Claude chats on EU Blue Card, relocation & tech hiring
+            </p>
           </div>
-          <div class="flex items-center gap-2 font-mono text-[11px]">
-            <span class="text-zinc-500">1:1 Zoom Rate:</span>
-            <span id="persona-rate" class="text-zinc-200 font-semibold">$350/hr</span>
-            <span class="text-zinc-700">•</span>
-            <span class="text-zinc-500">Async Session:</span>
-            <span id="persona-async-fee" class="text-emerald-400 font-semibold">$45</span>
+          <div class="text-right font-mono text-[11px]">
+            <span class="text-zinc-500 block">Live Question Fee:</span>
+            <span id="playground-fee" class="text-emerald-400 font-bold text-sm">$8.00 / question</span>
           </div>
         </div>
 
-        <!-- Sample Client Inquiries -->
+        <!-- Sample Questions Chips -->
         <div>
-          <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 block mb-2">Simulate Client Advisory Inquiry:</span>
+          <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 block mb-2">
+            Ask a test question from their real journey:
+          </span>
           <div class="flex flex-wrap gap-2" id="prompt-chips">
-            <!-- Dynamically populated -->
+            <!-- Populated dynamically -->
           </div>
         </div>
 
-        <!-- Conversation Output Area -->
-        <div class="rounded border border-zinc-800/90 bg-zinc-950/70 p-5 font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line" id="persona-response-box">
-          Loading persona knowledge model...
+        <!-- Simulated Response Box -->
+        <div class="rounded border border-zinc-800/90 bg-zinc-950/80 p-5 font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line" id="playground-response-box">
+          Loading playground avatar...
         </div>
 
-        <!-- Live Inquiry Input -->
-        <form onsubmit="handleSimulatorSubmit(event)" class="flex flex-col sm:flex-row gap-2.5 pt-2">
-          <input type="text" id="sim-input" placeholder="Type a specific advisory question to test this persona's response..." class="flex-1 form-input rounded px-3.5 py-2.5 text-xs text-white placeholder-zinc-500">
-          <button type="submit" id="sim-submit-btn" class="px-4 py-2.5 bg-zinc-200 hover:bg-white text-zinc-900 text-xs font-medium rounded transition-all flex items-center justify-center gap-1.5">
-            <span>Query Persona</span>
+        <!-- Custom Question Input -->
+        <form onsubmit="handlePlaygroundSubmit(event)" class="flex flex-col sm:flex-row gap-2.5 pt-2">
+          <input type="text" id="playground-input" placeholder="Ask this avatar about their journey, mistakes, or advice..." class="flex-1 form-input rounded px-3.5 py-2.5 text-xs text-white placeholder-zinc-500">
+          <button type="submit" id="playground-submit-btn" class="px-4 py-2.5 bg-zinc-200 hover:bg-white text-zinc-900 text-xs font-medium rounded transition-all flex items-center justify-center gap-1.5">
+            <span>Ask in Playground</span>
             <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i>
           </button>
         </form>
-
-        <!-- Simulated Settlement Ledger -->
-        <div class="pt-4 border-t border-zinc-800/80 flex flex-wrap items-center justify-between text-[11px] font-mono text-zinc-400 gap-2">
-          <span>Client Transaction: <strong>$45.00</strong></span>
-          <span>Saariv Commission (12%): <strong>-$5.40</strong></span>
-          <span class="text-emerald-400 font-semibold">Advisor Direct Deposit: <strong>+$39.60</strong></span>
-          <span class="text-zinc-500">Calendar time spent: 0 min</span>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- Unit Economics & Revenue Model -->
-  <section id="economics" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+  <!-- Diverse Audiences: Founders, Immigrants, Consultants, Biographies -->
+  <section id="audiences" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
     <div class="mb-10">
-      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Unit Economics</span>
-      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">Projected Practice Economics</h2>
-      <p class="text-xs text-zinc-400 max-w-xl mt-1">
-        Model the additional monthly cash flow unlocked by offering asynchronous guidance to qualified followers who cannot afford or schedule your full 1-on-1 calls.
-      </p>
+      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Who It's For</span>
+      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">Built for Anyone with Lived Wisdom to Share</h2>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- Sliders Column -->
-      <div class="lg:col-span-7 rounded-lg border border-zinc-800 bg-surface-card p-6 space-y-6">
-        <!-- Slider 1 -->
-        <div>
-          <div class="flex justify-between text-xs font-mono mb-2">
-            <span class="text-zinc-400">Current 1:1 Advisory Hourly Rate</span>
-            <span class="text-white font-semibold" id="val-hourly-rate">$250 / hr</span>
-          </div>
-          <input type="range" min="100" max="1000" step="50" value="250" id="slider-hourly-rate" oninput="calculateEarnings()">
-          <div class="flex justify-between text-[10px] text-zinc-500 font-mono mt-1">
-            <span>$100/hr</span>
-            <span>$1,000/hr</span>
-          </div>
-        </div>
-
-        <!-- Slider 2 -->
-        <div>
-          <div class="flex justify-between text-xs font-mono mb-2">
-            <span class="text-zinc-400">Monthly High-Intent Profile / Bio Visits</span>
-            <span class="text-white font-semibold" id="val-views">2,500 visits</span>
-          </div>
-          <input type="range" min="500" max="15000" step="250" value="2500" id="slider-views" oninput="calculateEarnings()">
-          <div class="flex justify-between text-[10px] text-zinc-500 font-mono mt-1">
-            <span>500 visits</span>
-            <span>15,000 visits</span>
-          </div>
-        </div>
-
-        <!-- Slider 3 -->
-        <div>
-          <div class="flex justify-between text-xs font-mono mb-2">
-            <span class="text-zinc-400">Asynchronous Consultation Fee</span>
-            <span class="text-white font-semibold" id="val-session-fee">$45 / session</span>
-          </div>
-          <input type="range" min="20" max="150" step="5" value="45" id="slider-session-fee" oninput="calculateEarnings()">
-          <div class="flex justify-between text-[10px] text-zinc-500 font-mono mt-1">
-            <span>$20</span>
-            <span>$150</span>
-          </div>
-        </div>
-
-        <div class="pt-4 border-t border-zinc-800/80 text-[11px] text-zinc-500 font-mono leading-relaxed">
-          * Assumes conservative 1.6% conversion on high-intent inbound visitors who seek specific problem diagnosis.
-        </div>
-      </div>
-
-      <!-- Financial Ledger Column -->
-      <div class="lg:col-span-5 rounded-lg border border-zinc-800 bg-[#0d0f15] p-6 space-y-5">
-        <div class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 border-b border-zinc-800 pb-3">
-          Monthly Settlement Breakdown
-        </div>
-
-        <div class="space-y-3 font-mono text-xs">
-          <div class="flex justify-between">
-            <span class="text-zinc-400">Estimated Inquiries:</span>
-            <span class="text-zinc-200" id="calc-inquiries">40 consultations</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-zinc-400">Gross Monthly Volume:</span>
-            <span class="text-zinc-200" id="calc-gross">$1,800.00</span>
-          </div>
-          <div class="flex justify-between text-zinc-500">
-            <span>Saariv Platform Share (12%):</span>
-            <span id="calc-fee">-$216.00</span>
-          </div>
-        </div>
-
-        <div class="pt-4 border-t border-zinc-800">
-          <span class="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block mb-1">Advisor Net Monthly Payout</span>
-          <div class="text-3xl font-serif text-white font-normal" id="calc-earnings">
-            $1,584.00
-          </div>
-          <span class="text-[11px] font-mono text-emerald-400 mt-1 block">
-            Transferred via Stripe Connect
-          </span>
-        </div>
-
-        <div class="p-3 rounded bg-zinc-900/60 border border-zinc-800/80 font-mono text-[11px] space-y-1">
-          <div class="flex justify-between">
-            <span class="text-zinc-400">Calendar Hours Saved:</span>
-            <span class="text-zinc-200" id="calc-hours-saved">~18 hours</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-zinc-400">Upfront Software Cost:</span>
-            <span class="text-emerald-400">$0.00</span>
-          </div>
-        </div>
-
-        <a href="#apply" class="w-full py-2.5 px-4 bg-zinc-200 hover:bg-white text-zinc-900 font-medium text-xs rounded transition-all text-center block">
-          Apply as Founding Advisor
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Ingestion Pipeline Architecture -->
-  <section id="pipeline" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="mb-12">
-      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Architecture</span>
-      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">How the Ingestion Pipeline Operates</h2>
-      <p class="text-xs text-zinc-400 max-w-xl mt-1">
-        A rigorous 4-step synthesis process designed specifically for advisory IP and confidentiality.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- Step 1 -->
-      <div class="p-5 rounded-lg border border-zinc-800 bg-surface-card flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-mono text-zinc-500 block mb-3">01 / ARCHIVE UPLOAD</span>
-          <h3 class="text-sm font-semibold text-white mb-2">Ingest Chat History</h3>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Upload your native export (e.g. ChatGPT <code class="text-zinc-300">conversations.json</code> or Claude project data) or sync via our client tool.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Supports 4 major LLMs
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="p-5 rounded-lg border border-zinc-800 bg-surface-card flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-mono text-zinc-500 block mb-3">02 / SANITIZATION</span>
-          <h3 class="text-sm font-semibold text-white mb-2">PII Neutralization</h3>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Automated redactors strip client identities, financial accounts, tokens, and personal credentials prior to framework extraction.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-emerald-500">
-          Zero-knowledge filtering
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="p-5 rounded-lg border border-zinc-800 bg-surface-card flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-mono text-zinc-500 block mb-3">03 / DISTILLATION</span>
-          <h3 class="text-sm font-semibold text-white mb-2">Cognitive Extraction</h3>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Discards trivial chitchat and isolates recurring diagnostics, prioritization criteria, and unique mental models that define your counsel.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Framework vector indexing
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="p-5 rounded-lg border border-zinc-800 bg-surface-card flex flex-col justify-between">
-        <div>
-          <span class="text-xs font-mono text-zinc-500 block mb-3">04 / DEPLOYMENT</span>
-          <h3 class="text-sm font-semibold text-white mb-2">Private Advisory Link</h3>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Deploy your link (<code class="text-zinc-300">saariv.com/@handle</code>) to LinkedIn. Clients engage, pay, and receive structured guidance.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-emerald-500">
-          12% revenue-share settlement
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Advisory Disciplines -->
-  <section class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="mb-10">
-      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Who We Serve</span>
-      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">Built for High-Trust Advisory Disciplines</h2>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+      <!-- 1. Indian Migrants & Expats -->
       <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
-        <h3 class="text-sm font-semibold text-white font-sans">Executive Leadership Coaches</h3>
+        <div class="flex items-center gap-2">
+          <i data-lucide="globe" class="w-4 h-4 text-zinc-300"></i>
+          <h3 class="text-sm font-semibold text-white font-sans">People Who Migrated Out of India</h3>
+        </div>
         <p class="text-zinc-400 leading-relaxed">
-          Scale your conflict-resolution playbooks, 360-review preparation, and executive presence guidance beyond existing 1-on-1 calendar caps.
+          If you moved from India to Europe, the US, Canada, the UK, or Singapore, you get pinged weekly: <em>"How did you get the visa? How is the tax? How did you find an apartment?"</em> Stop spending your weekends writing the same replies. Put your Saariv avatar in your bio and earn while helping fellow aspirants.
         </p>
         <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Typical rate: $250 - $600 / hr
+          Topics: Visa hurdles, rental deposits, tax rulings, tech interview bars
         </div>
       </div>
 
+      <!-- 2. Founders & Operators -->
       <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
-        <h3 class="text-sm font-semibold text-white font-sans">Strategy & Functional Consultants</h3>
+        <div class="flex items-center gap-2">
+          <i data-lucide="rocket" class="w-4 h-4 text-zinc-300"></i>
+          <h3 class="text-sm font-semibold text-white font-sans">Startup Founders & Solopreneurs</h3>
+        </div>
         <p class="text-zinc-400 leading-relaxed">
-          Product, marketing, and operational leaders who field constant "pick your brain" requests on LinkedIn. Turn unsolicited inbound into paid micro-sessions.
+          You've made expensive mistakes with suppliers, survived brutal CAC spikes, and pitched angels. Your raw problem-solving notes in your AI chats are worth thousands to junior founders. Turn them into an interactive advisory avatar that earns on autopilot.
         </p>
         <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Typical rate: $200 - $450 / hr
+          Topics: 0 to 1 traction, supplier contract gotchas, angel fundraising
         </div>
       </div>
 
-      <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
-        <h3 class="text-sm font-semibold text-white font-sans">Fractional CTOs & Tech Advisors</h3>
+      <!-- 3. Living Biographies -->
+      <div id="biography" class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-zinc-300"></i>
+          <h3 class="text-sm font-semibold text-white font-sans">Interactive Living Biographies</h3>
+        </div>
         <p class="text-zinc-400 leading-relaxed">
-          Provide instant architecture reviews, cloud cost triage, and engineering hiring rubrics to founders globally across all timezones.
+          Instead of a static memoir or LinkedIn 'About' section, give people an interactive living biography. Anyone can visit your link and ask specific questions about your career transitions, personal philosophies, and key life decisions.
         </p>
         <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Typical rate: $300 - $750 / hr
+          Topics: Life transitions, career pivots, personal resilience playbooks
+        </div>
+      </div>
+
+      <!-- 4. Consultants & Domain Advisors -->
+      <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="briefcase" class="w-4 h-4 text-zinc-300"></i>
+          <h3 class="text-sm font-semibold text-white font-sans">Consultants & Domain Advisors</h3>
+        </div>
+        <p class="text-zinc-400 leading-relaxed">
+          Monetize your framework library without getting stuck in 60-minute Zoom calendar ping-pong. Provide asynchronous advisory sessions to clients globally with zero upfront software costs.
+        </p>
+        <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
+          Topics: System architecture, clinical workflows, enterprise GTM
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Data Security & Privacy -->
-  <section id="security" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] p-8">
-      <div class="max-w-xl mb-8">
-        <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1">Confidentiality Standards</span>
-        <h2 class="text-2xl font-serif text-white">Your Intellectual Property Remains Yours</h2>
-        <p class="text-xs text-zinc-400 mt-2 leading-relaxed">
-          We operate as a private sovereign execution layer for your advisory practice.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
-        <div class="space-y-1.5">
-          <span class="font-medium text-white block">No Public Foundation Training</span>
-          <p class="text-zinc-400 text-[11px] leading-relaxed">
-            Your conversational data is never used to fine-tune or train third-party public LLMs.
-          </p>
-        </div>
-        <div class="space-y-1.5">
-          <span class="font-medium text-white block">Deterministic Guardrails</span>
-          <p class="text-zinc-400 text-[11px] leading-relaxed">
-            You explicitly configure boundary rules, escalation triggers, and out-of-scope policies.
-          </p>
-        </div>
-        <div class="space-y-1.5">
-          <span class="font-medium text-white block">Full IP Ownership</span>
-          <p class="text-zinc-400 text-[11px] leading-relaxed">
-            You retain 100% ownership of your persona, frameworks, and client relationships at all times.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Early Access Application Section -->
-  <section id="apply" class="relative z-10 py-20 px-4 sm:px-6 max-w-3xl mx-auto">
+  <!-- Join Waitlist Form Section -->
+  <section id="waitlist" class="relative z-10 py-20 px-4 sm:px-6 max-w-3xl mx-auto">
     <div class="rounded-lg border border-zinc-800 bg-[#0d0f17] p-8 sm:p-10 shadow-2xl">
-      <!-- Form Header -->
+      <!-- Header -->
       <div class="mb-8 border-b border-zinc-800 pb-6">
         <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 mb-3">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Founding Advisor Intake</span>
+          <span>Waitlist Registration</span>
         </div>
         <h2 class="text-2xl sm:text-3xl font-serif text-white font-normal">
-          Apply for Founding Advisor Access
+          Join the Saariv Waitlist
         </h2>
         <p class="text-xs text-zinc-400 mt-1.5">
-          Advisory partners receive zero upfront platform fees, priority persona synthesis, and dedicated ingestion onboarding.
+          Join 340+ founders, global expats, and advisors. We will notify you when your creation batch is unlocked. No upfront payment—we only take a commission when your customers pay.
         </p>
       </div>
 
       <!-- Success Notification -->
-      <div id="form-success" class="hidden mb-6 p-5 rounded border border-emerald-500/30 bg-emerald-950/20 text-xs font-mono">
+      <div id="waitlist-success" class="hidden mb-6 p-5 rounded border border-emerald-500/30 bg-emerald-950/20 text-xs font-mono">
         <div class="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
           <i data-lucide="check" class="w-4 h-4"></i>
-          <span>Application Successfully Received</span>
+          <span>You Have Joined the Waitlist!</span>
         </div>
-        <p class="text-zinc-300 text-[11px] mb-2" id="success-message">
-          We will review your practice details and issue your private ingestion invitation.
+        <p class="text-zinc-300 text-[11px] mb-2" id="waitlist-success-msg">
+          We will review your profile and send your prompt extraction package shortly.
         </p>
-        <span class="text-zinc-500 text-[10px]">Queue Reference: #<strong id="queue-num" class="text-zinc-300">149</strong></span>
+        <span class="text-zinc-500 text-[10px]">Your Queue Position: #<strong id="waitlist-queue-num" class="text-zinc-300">341</strong></span>
       </div>
 
       <!-- Error Notification -->
-      <div id="form-error" class="hidden mb-6 p-4 rounded border border-red-500/30 bg-red-950/20 text-xs font-mono text-red-300">
-        <span id="error-message">Unable to submit application. Please review required fields.</span>
+      <div id="waitlist-error" class="hidden mb-6 p-4 rounded border border-red-500/30 bg-red-950/20 text-xs font-mono text-red-300">
+        <span id="waitlist-error-message">Unable to join waitlist. Please verify your fields.</span>
       </div>
 
-      <!-- Application Form -->
-      <form id="early-access-form" onsubmit="handleFormSubmit(event)" class="space-y-5 text-xs">
+      <!-- Form -->
+      <form id="waitlist-form" onsubmit="handleWaitlistSubmit(event)" class="space-y-5 text-xs">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
               Full Name <span class="text-zinc-200">*</span>
             </label>
-            <input type="text" id="name" name="name" required placeholder="Elena Rostova" class="w-full form-input rounded px-3 py-2.5 text-xs">
+            <input type="text" id="name" name="name" required placeholder="Aarav Sharma" class="w-full form-input rounded px-3 py-2.5 text-xs">
           </div>
           <div>
             <label for="email" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Professional Email <span class="text-zinc-200">*</span>
+              Email Address <span class="text-zinc-200">*</span>
             </label>
-            <input type="email" id="email" name="email" required placeholder="elena@rostova.io" class="w-full form-input rounded px-3 py-2.5 text-xs">
+            <input type="email" id="email" name="email" required placeholder="aarav@amsterdamtech.nl" class="w-full form-input rounded px-3 py-2.5 text-xs">
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="role" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Primary Practice Area
+            <label for="profile_type" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+              Your Primary Journey / Story
             </label>
-            <select id="role" name="role" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
-              <option value="Executive & Leadership Coaching">Executive & Leadership Coaching</option>
-              <option value="B2B Strategy & GTM Consulting">B2B Strategy & GTM Consulting</option>
-              <option value="Fractional CTO & Tech Advisory">Fractional CTO & Tech Advisory</option>
-              <option value="Startup Mentorship & Venture Strategy">Startup Mentorship & Venture Strategy</option>
-              <option value="Career & Executive Placement">Career & Executive Placement</option>
-              <option value="Independent Consultant / Other">Independent Consultant / Other</option>
+            <select id="profile_type" name="profile_type" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
+              <option value="Migrated Out of India / Global Expat">Migrated Out of India / Global Expat Story</option>
+              <option value="Startup Founder / Business Builder">Startup Founder / Business Builder</option>
+              <option value="Consultant / Specialist Advisor">Consultant / Specialist Advisor</option>
+              <option value="Living Biography / Life Story">Living Biography / Personal Story</option>
+              <option value="Career Transition & Mentorship">Career Transition & Mentorship</option>
+              <option value="Other Lived Experience">Other Lived Experience</option>
             </select>
           </div>
           <div>
             <label for="profile_url" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              LinkedIn Profile or Website
+              LinkedIn / Twitter / Website URL
             </label>
-            <input type="url" id="profile_url" name="profile_url" placeholder="https://linkedin.com/in/yourprofile" class="w-full form-input rounded px-3 py-2.5 text-xs">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="primary_bot" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Primary Chat Environment Used
-            </label>
-            <select id="primary_bot" name="primary_bot" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
-              <option value="ChatGPT (OpenAI)">ChatGPT (OpenAI)</option>
-              <option value="Claude (Anthropic)">Claude (Anthropic)</option>
-              <option value="Gemini (Google)">Gemini (Google)</option>
-              <option value="Grok (xAI)">Grok (xAI)</option>
-              <option value="Multiple Environments">Multiple Environments</option>
-            </select>
-          </div>
-          <div>
-            <label for="hourly_rate" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Typical 1-on-1 Hourly Rate
-            </label>
-            <select id="hourly_rate" name="hourly_rate" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
-              <option value="$100 - $250 / hr">$100 - $250 / hr</option>
-              <option value="$250 - $500 / hr" selected>$250 - $500 / hr</option>
-              <option value="$500 - $1,000 / hr">$500 - $1,000 / hr</option>
-              <option value="$1,000+ / hr">$1,000+ / hr</option>
-              <option value="Monthly Retainer Only">Monthly Retainer Model</option>
-            </select>
+            <input type="url" id="profile_url" name="profile_url" placeholder="https://linkedin.com/in/aarav" class="w-full form-input rounded px-3 py-2.5 text-xs">
           </div>
         </div>
 
         <div>
-          <label for="use_case" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-            What core decisions or frameworks do clients typically seek your counsel for?
+          <label for="primary_bot" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+            Chatbots You Regularly Use
           </label>
-          <textarea id="use_case" name="use_case" rows="3" placeholder="e.g. Diagnosing enterprise churn, resolving founder conflict, evaluating system architecture changes..." class="w-full form-input rounded px-3 py-2.5 text-xs"></textarea>
+          <select id="primary_bot" name="primary_bot" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
+            <option value="ChatGPT (OpenAI)">ChatGPT (OpenAI)</option>
+            <option value="Claude (Anthropic)">Claude (Anthropic)</option>
+            <option value="Gemini (Google)">Gemini (Google)</option>
+            <option value="Grok (xAI)">Grok (xAI)</option>
+            <option value="Multiple Chatbots">Multiple Chatbots</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="story_focus" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+            What specific stories, lessons, or advice do people frequently ask you about?
+          </label>
+          <textarea id="story_focus" name="story_focus" rows="3" placeholder="e.g. Navigating Netherlands Blue Card, managing D2C supplier failures, clinical health tech audits, or early career lessons..." class="w-full form-input rounded px-3 py-2.5 text-xs"></textarea>
         </div>
 
         <div class="pt-2">
-          <button type="submit" id="submit-btn" class="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-black font-medium text-xs rounded transition-all flex items-center justify-center gap-2">
-            <span id="btn-text">Submit Partner Application</span>
+          <button type="submit" id="waitlist-submit-btn" class="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-black font-medium text-xs rounded transition-all flex items-center justify-center gap-2">
+            <span id="waitlist-btn-text">Join Waitlist</span>
             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </button>
           <p class="text-center text-[10px] text-zinc-500 font-mono mt-3">
-            Zero upfront fees • 12% revenue-share only on client transactions • Strict data isolation
+            Zero upfront payment • Commission-only when you earn • Strict privacy & control
           </p>
         </div>
       </form>
@@ -638,44 +624,56 @@
   <!-- FAQ Section -->
   <section id="faq" class="relative z-10 py-16 px-4 sm:px-6 max-w-3xl mx-auto">
     <div class="mb-10">
-      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1">Common Inquiries</span>
+      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1">Common Questions</span>
       <h2 class="text-2xl font-serif text-white">Frequently Asked Questions</h2>
     </div>
 
     <div class="space-y-3 text-xs">
       <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
         <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>How does Saariv extract my frameworks from chat archives?</span>
+          <span>How does the prompt-based extraction process work?</span>
           <span class="ml-4 transition-transform group-open:rotate-180">
             <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
           </span>
         </summary>
         <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          All major platforms provide full data archives. Saariv’s ingestion pipeline parses these threads, applies automated PII stripping, and isolates the decision heuristics, evaluation rubrics, and diagnostic patterns that define your advisory style.
+          You paste Saariv's Discovery Prompt into your chatbots. It generates the topics and subtopics over which you've had deep chats. You copy that output into Saariv and select only the topics you wish to share. Saariv then generates a second Deep Extraction Prompt for those topics. You paste that into your chatbots, copy the output back into Saariv, and test your avatar in the Playground.
         </p>
       </details>
 
       <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
         <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>How does the 12% revenue share model work?</span>
+          <span>What is the Playground?</span>
           <span class="ml-4 transition-transform group-open:rotate-180">
             <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
           </span>
         </summary>
         <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          There are zero upfront or recurring SaaS subscription fees. When a client pays for an asynchronous consultation through your link, Saariv retains 12% to cover LLM inference and infrastructure, and 88% is settled directly to your bank account via Stripe Connect.
+          The Playground is your private sandbox environment where you can ask your avatar questions, inspect its tone, and verify its accuracy before going live. Only when you're 100% satisfied do you click 'Go Live' to generate your public link.
         </p>
       </details>
 
       <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
         <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>Can clients still book my premium 1-on-1 Zoom sessions?</span>
+          <span>How does monetization work without upfront payment?</span>
           <span class="ml-4 transition-transform group-open:rotate-180">
             <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
           </span>
         </summary>
         <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          Yes. Saariv acts as an effective top-of-funnel qualifier. Clients who receive initial automated guidance can easily escalate to your full calendar rate for high-touch bespoke engagements.
+          You never pay an upfront setup fee or monthly SaaS subscription. You set your own price per question (e.g. $8, $15, or $50). When a follower or customer pays to ask a question, we take a modest commission cut to cover hosting and AI inference, and the rest is deposited straight to your account.
+        </p>
+      </details>
+
+      <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
+          <span>Can I use this purely as a Living Biography?</span>
+          <span class="ml-4 transition-transform group-open:rotate-180">
+            <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
+          </span>
+        </summary>
+        <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
+          Yes! Many creators use Saariv as an interactive Living Biography where friends, family, or community members can come and explore their personal milestones, life transitions, and lessons learned through interactive conversations.
         </p>
       </details>
     </div>
@@ -686,12 +684,13 @@
     <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 font-mono">
       <div class="flex items-center gap-2">
         <span class="text-zinc-200 font-semibold font-sans">saariv</span>
-        <span>• Asynchronous Advisory Architecture</span>
+        <span>• AI Avatars from Lived Experiences</span>
       </div>
       <div class="flex items-center gap-5">
-        <a href="#pipeline" class="hover:text-zinc-300 transition-colors">Pipeline</a>
-        <a href="#terminal" class="hover:text-zinc-300 transition-colors">Terminal</a>
-        <a href="#economics" class="hover:text-zinc-300 transition-colors">Economics</a>
+        <a href="#how-it-works" class="hover:text-zinc-300 transition-colors">How It Works</a>
+        <a href="#playground" class="hover:text-zinc-300 transition-colors">Playground</a>
+        <a href="#audiences" class="hover:text-zinc-300 transition-colors">Who It's For</a>
+        <a href="#waitlist" class="hover:text-zinc-300 transition-colors">Waitlist</a>
         <a href="/health" class="hover:text-emerald-400 transition-colors">Health</a>
       </div>
       <div>

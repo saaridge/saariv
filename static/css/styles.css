@@ -1,35 +1,25 @@
 /* Saariv Professional Design System
-   Inspired by high-end editorial and financial platforms (Stripe, Linear, Substack, Maven)
-   Palettes: Deep Obsidian (#090a0f), Zinc Slate (#181920), Warm Ivory (#f4f4f5), Muted Stone (#a1a1aa)
+   Tailored for Founders, Global Migrants, Consultants, and Living Biographies
 */
 
 :root {
   --bg-primary: #090a0f;
   --bg-surface: #11131a;
   --bg-surface-elevated: #161922;
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(255, 255, 255, 0.16);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
   --text-primary: #f4f4f6;
   --text-secondary: #9496a1;
   --text-muted: #5e606c;
 }
 
-/* Subtle ambient spotlight (very soft, no tacky neon blobs) */
+/* Subtle ambient spotlight */
 .subtle-spotlight {
   background: radial-gradient(
     circle at 50% 0%,
-    rgba(99, 102, 241, 0.08) 0%,
+    rgba(255, 255, 255, 0.04) 0%,
     rgba(17, 19, 26, 0) 70%
   );
-}
-
-/* Fine hairline borders */
-.hairline-border {
-  border: 1px solid var(--border-subtle);
-}
-
-.hairline-border:hover {
-  border-color: var(--border-hover);
 }
 
 /* Custom Minimalist Scrollbar */
@@ -48,37 +38,42 @@
   background: #3f4152;
 }
 
-/* Financial Calculator Range Sliders */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 4px;
-  background: #222430;
-  border-radius: 9999px;
+/* Form input styles */
+.form-input {
+  background-color: #11131a;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #f4f4f6;
+  transition: all 0.15s ease-in-out;
+}
+
+.form-input:focus {
   outline: none;
-  transition: background 0.2s ease;
+  border-color: rgba(255, 255, 255, 0.35);
+  background-color: #141720;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #f4f4f6;
-  cursor: pointer;
-  border: 2px solid #090a0f;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  transition: transform 0.1s ease, background 0.15s ease;
+.form-input::placeholder {
+  color: #555765;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  background: #ffffff;
+/* Pulse animation for live transaction */
+@keyframes incomeFlash {
+  0% {
+    background-color: rgba(16, 185, 129, 0.25);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: rgba(16, 185, 129, 0.06);
+    transform: scale(1);
+  }
 }
 
-/* Subtle fade in */
+.animate-income-flash {
+  animation: incomeFlash 0.6s ease-out;
+}
+
+/* Smooth fade in */
 @keyframes softFadeIn {
   from {
     opacity: 0;
@@ -94,21 +89,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
   animation: softFadeIn 0.25s ease-out forwards;
 }
 
-/* Form input focus styles */
-.form-input {
-  background-color: #11131a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #f4f4f6;
-  transition: all 0.15s ease-in-out;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-  background-color: #141720;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-.form-input::placeholder {
-  color: #555765;
+/* Step connector line */
+.step-line {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 0;
 }
