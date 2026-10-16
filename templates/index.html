@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saariv — Turn Your AI Chat History into a Monetizable Persona</title>
+  <meta name="description" content="Saariv turns your personal AI chats from ChatGPT, Claude, Gemini & Grok into an interactive AI Persona. Share your personal link on LinkedIn and earn 24/7 without being deeply involved. Zero upfront payment, revenue share on earnings.">
+  <meta name="keywords" content="Saariv, AI twin, personal AI persona, monetize expertise, executive coaching AI, consultant AI, chatgpt export, claude export, advisory monetization">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: {
+              purple: '#a855f7',
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+            },
+            dark: {
+              bg: '#080c14',
+              card: '#0e1526',
+              border: '#1e293b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-[#080c14] text-slate-100 font-sans antialiased overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <!-- Ambient Glow Effects -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="ambient-glow -top-40 left-1/2 -translate-x-1/2 w-[750px] h-[450px] bg-indigo-600/20 blur-[130px] rounded-full"></div>
+    <div class="ambient-glow top-1/3 -left-40 w-[500px] h-[500px] bg-purple-600/15 blur-[140px] rounded-full"></div>
+    <div class="ambient-glow top-2/3 -right-40 w-[600px] h-[500px] bg-cyan-600/15 blur-[150px] rounded-full"></div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#080c14]/80 border-b border-slate-800/80 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+          <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-2xl font-bold tracking-tight font-display bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">saariv</span>
+          <span class="text-[10px] uppercase tracking-widest text-indigo-400 font-semibold -mt-1">Persona Engine</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+        <a href="#simulator" class="hover:text-white transition-colors">Live Preview</a>
+        <a href="#calculator" class="hover:text-white transition-colors">Earnings Calculator</a>
+        <a href="#audiences" class="hover:text-white transition-colors">Who It's For</a>
+        <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+      </nav>
+
+      <!-- CTA Buttons -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Zero Upfront Fee</span>
+        </div>
+        <a href="#early-access" class="relative inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.02] active:scale-[0.98] border border-indigo-400/30">
+          Request Early Access
+          <i data-lucide="arrow-right" class="w-4 h-4 ml-1.5"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative z-10 pt-16 pb-20 md:pt-24 md:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+    <!-- Early Access Announcement Pill -->
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs sm:text-sm font-medium mb-8 backdrop-blur-md hover:border-indigo-500/60 transition-all">
+      <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+      <span class="font-semibold text-white">Private Beta Opening</span>
+      <span class="text-indigo-400/80">•</span>
+      <span>Exclusive for Coaches, Consultants & Advisors</span>
+      <i data-lucide="sparkles" class="w-4 h-4 text-indigo-300 ml-1"></i>
+    </div>
+
+    <!-- Main Headline -->
+    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-display max-w-5xl mx-auto leading-[1.12]">
+      Turn Your AI Chats into a <br class="hidden sm:block">
+      <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">Monetizable Persona Link</span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="mt-6 text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
+      You've spent hundreds of hours thinking and solving tough problems with <strong class="text-white font-semibold">ChatGPT, Claude, Gemini & Grok</strong>. Saariv distills your chats into an interactive, monetizable AI Persona. Post your personal link on LinkedIn and earn hands-free without exhausting your calendar.
+    </p>
+
+    <!-- Value Prop Highlights -->
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-y-3 gap-x-6 text-xs sm:text-sm text-slate-400">
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span>No upfront payment</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span>Pure commission cut on earnings</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span>Zero technical setup required</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span>100% IP & privacy protection</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="#early-access" class="w-full sm:w-auto px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 rounded-xl shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 border border-indigo-300/30">
+        <i data-lucide="zap" class="w-5 h-5 text-yellow-300"></i>
+        Join Early Access Queue
+      </a>
+      <a href="#simulator" class="w-full sm:w-auto px-7 py-4 text-base font-semibold text-slate-200 bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-700/80 transition-all flex items-center justify-center gap-2">
+        <i data-lucide="play" class="w-4 h-4 text-indigo-400"></i>
+        Try Interactive Simulation
+      </a>
+    </div>
+
+    <!-- Supported Platforms Grid -->
+    <div class="mt-16 pt-10 border-t border-slate-800/80 max-w-4xl mx-auto">
+      <p class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-6">
+        Supports one-click conversation exports from your favorite chatbots
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <!-- ChatGPT -->
+        <div class="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">GPT</div>
+          <span class="text-sm font-semibold text-slate-200">ChatGPT</span>
+        </div>
+        <!-- Claude -->
+        <div class="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">CL</div>
+          <span class="text-sm font-semibold text-slate-200">Claude</span>
+        </div>
+        <!-- Gemini -->
+        <div class="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">GM</div>
+          <span class="text-sm font-semibold text-slate-200">Gemini</span>
+        </div>
+        <!-- Grok -->
+        <div class="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">GK</div>
+          <span class="text-sm font-semibold text-slate-200">Grok</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Preview / Shareable Link Showcase -->
+  <section class="relative z-10 py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+    <div class="rounded-3xl p-1 bg-gradient-to-b from-indigo-500/40 via-purple-500/20 to-slate-800/40 shadow-2xl shadow-indigo-950/50">
+      <div class="bg-[#0b1120] rounded-[22px] p-6 sm:p-10 border border-slate-800/80">
+        <!-- Mock Link Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+          <div class="flex items-center gap-3">
+            <span class="flex h-3 w-3 rounded-full bg-red-500/70"></span>
+            <span class="flex h-3 w-3 rounded-full bg-yellow-500/70"></span>
+            <span class="flex h-3 w-3 rounded-full bg-green-500/70"></span>
+            <div class="ml-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>saariv.com/@sarah-coaching</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400">Shareable to:</span>
+            <span class="px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-xs font-medium border border-blue-500/20">LinkedIn Bio</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700">Twitter / X</span>
+            <span class="px-2.5 py-1 rounded-md bg-pink-500/10 text-pink-400 text-xs font-medium border border-pink-500/20">Linktree</span>
+          </div>
+        </div>
+
+        <!-- Inner Persona Showcase -->
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-5 space-y-5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-medium">
+              <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
+              Your Personal Revenue Link
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold text-white font-display">
+              "Clients pay $45 for my AI advice, or book my full $350 1-on-1 session."
+            </h3>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              When prospective clients visit your LinkedIn, they don't have to wait 2 weeks for an open slot or pay thousands upfront. They can interact directly with your verified Saariv Persona anytime.
+            </p>
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-400">Client Payment:</span>
+                <span class="font-bold text-white">$45.00</span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-400">Saariv Success Commission (15%):</span>
+                <span class="text-slate-400">-$6.75</span>
+              </div>
+              <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-sm font-semibold">
+                <span class="text-emerald-400">Your Net Earnings:</span>
+                <span class="text-emerald-400 text-base font-bold">+$38.25 (Hands-free)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chatbot Visualizer -->
+          <div class="lg:col-span-7 bg-slate-950/80 rounded-2xl border border-slate-800 p-5 shadow-inner">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800/80">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                  SJ
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-white">Sarah Jenkins AI</h4>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Verified Persona</span>
+                  </div>
+                  <p class="text-xs text-slate-400">Distilled from 840+ coaching conversations</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-medium border border-indigo-500/30">
+                $45 / Session
+              </span>
+            </div>
+
+            <!-- Dialogue -->
+            <div class="py-4 space-y-3 text-xs sm:text-sm">
+              <div class="p-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 max-w-[85%] ml-auto">
+                <span class="text-[10px] text-slate-400 block mb-1">Potential Client asks:</span>
+                "Sarah, our engineering team is pushing back on executive OKRs. How do I align them without micro-managing?"
+              </div>
+              <div class="p-3.5 rounded-xl bg-indigo-950/40 text-slate-200 border border-indigo-800/40 max-w-[90%]">
+                <div class="flex items-center gap-1.5 text-indigo-300 font-semibold text-xs mb-1.5">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>Sarah's Persona Guidance:</span>
+                </div>
+                "In my executive advisory engagements, I apply the <em>'Intent Over Output'</em> protocol. Instead of dictating sprint milestones, give engineering the business dilemma..."
+                <div class="mt-3 pt-2 border-t border-indigo-900/50 flex flex-wrap gap-2 items-center justify-between">
+                  <span class="text-[11px] text-slate-400">Need direct human follow-up?</span>
+                  <button class="px-2.5 py-1 rounded bg-indigo-600 text-white font-medium text-xs hover:bg-indigo-500 transition-colors">
+                    Upgrade to 1:1 Call ($350)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Persona Simulator Section -->
+  <section id="simulator" class="relative z-10 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
+        Interactive Demo
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-display">
+        Test Drive a Saariv Persona
+      </h2>
+      <p class="mt-3 text-slate-300 text-base sm:text-lg">
+        See how real advisors turn their AI thinking into an interactive experience for their paying clients.
+      </p>
+    </div>
+
+    <!-- Simulator Shell -->
+    <div class="max-w-4xl mx-auto bg-dark-card rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+      <!-- Tabs for Advisors -->
+      <div class="grid grid-cols-3 border-b border-slate-800 text-center bg-slate-950/60" id="persona-tabs">
+        <button onclick="selectPersona('elena')" id="tab-elena" class="persona-tab active py-4 px-3 flex flex-col sm:flex-row items-center justify-center gap-2 border-b-2 border-indigo-500 bg-indigo-950/20 text-white transition-all">
+          <div class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-xs">ER</div>
+          <div class="text-left">
+            <div class="text-xs sm:text-sm font-bold">Elena Rostova</div>
+            <div class="text-[10px] sm:text-xs text-slate-400">SaaS Growth Consultant</div>
+          </div>
+        </button>
+
+        <button onclick="selectPersona('david')" id="tab-david" class="persona-tab py-4 px-3 flex flex-col sm:flex-row items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-white transition-all">
+          <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs">DC</div>
+          <div class="text-left">
+            <div class="text-xs sm:text-sm font-bold">David Chen</div>
+            <div class="text-[10px] sm:text-xs text-slate-400">Fractional CTO</div>
+          </div>
+        </button>
+
+        <button onclick="selectPersona('marcus')" id="tab-marcus" class="persona-tab py-4 px-3 flex flex-col sm:flex-row items-center justify-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-white transition-all">
+          <div class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">MV</div>
+          <div class="text-left">
+            <div class="text-xs sm:text-sm font-bold">Marcus Vance</div>
+            <div class="text-[10px] sm:text-xs text-slate-400">Pitch & GTM Mentor</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Simulator Active Content -->
+      <div class="p-6 sm:p-8">
+        <!-- Persona Meta Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-slate-800/80 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="persona-name" class="text-xl font-bold text-white">Elena Rostova</h3>
+              <span id="persona-title" class="text-xs text-slate-400">• B2B SaaS Growth Consultant</span>
+            </div>
+            <p id="persona-source" class="text-xs text-indigo-400 mt-1 flex items-center gap-1.5">
+              <i data-lucide="database" class="w-3.5 h-3.5"></i>
+              Trained on 1,420+ Claude & ChatGPT Chats ingested
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-400">Normal 1:1 Rate:</span>
+            <span id="persona-rate" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-white font-bold text-xs">$350/hr</span>
+          </div>
+        </div>
+
+        <!-- Sample Questions / Prompts -->
+        <div class="mb-4">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Try a simulated prompt:</span>
+          <div class="flex flex-wrap gap-2" id="prompt-chips">
+            <button onclick="applyPrompt('How do I reduce churn for our $50/mo SaaS?')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 transition-colors">
+              "How do I reduce churn for our $50/mo SaaS?"
+            </button>
+            <button onclick="applyPrompt('Should we hire outbound SDRs or invest in Product-Led Growth?')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 transition-colors">
+              "Should we hire outbound SDRs or invest in PLG?"
+            </button>
+            <button onclick="applyPrompt('What is the ideal pricing model for enterprise pilots?')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 transition-colors">
+              "Enterprise pilot pricing strategies?"
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulated Response Box -->
+        <div class="p-5 rounded-xl bg-slate-950/80 border border-slate-800/90 text-slate-200 text-sm leading-relaxed mb-6 font-mono whitespace-pre-line" id="persona-response-box">
+Based on the B2B GTM framework I developed through 50+ enterprise rollouts:
+
+1. **Audit your ACV vs Sales Cycle**: If your contract value is under $12k/yr, ditch outbound SDRs immediately. Transition to product-led onboarding with an automated reverse trial.
+2. **The 30-Day Churn Diagnostic**: Check week-2 feature adoption. 78% of churn happens because the customer never hit their 'first milestone value' before day 14.
+
+💡 *Would you like me to analyze your specific pricing tier and generate a customized retention playbook?*
+        </div>
+
+        <!-- Interactive Question Input -->
+        <form onsubmit="handleSimulatorSubmit(event)" class="flex flex-col sm:flex-row gap-3">
+          <input type="text" id="sim-input" placeholder="Type a scenario or question for this persona..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+          <button type="submit" id="sim-submit-btn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+            <span>Ask Persona</span>
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Earnings & Commission Calculator -->
+  <section id="calculator" class="relative z-10 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="max-w-4xl mx-auto rounded-3xl p-1 bg-gradient-to-r from-indigo-500/30 via-purple-500/20 to-cyan-500/30">
+      <div class="bg-dark-card rounded-[22px] p-6 sm:p-12 border border-slate-800">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3">
+            <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>
+            Revenue Share Model
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-display">
+            Calculate Your Untapped Revenue
+          </h2>
+          <p class="mt-2 text-slate-300 text-sm sm:text-base">
+            No subscription fees. No upfront cost. Saariv only earns a modest platform commission when you get paid.
+          </p>
+        </div>
+
+        <!-- Sliders Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div class="space-y-6">
+            <!-- Slider 1: 1:1 Rate -->
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-2">
+                <span class="text-slate-300">Your Current 1-on-1 Rate:</span>
+                <span class="text-indigo-400 font-bold font-mono" id="val-hourly-rate">$250 / hr</span>
+              </div>
+              <input type="range" min="50" max="800" step="25" value="250" id="slider-hourly-rate" oninput="calculateEarnings()" class="w-full accent-indigo-500 cursor-pointer">
+              <span class="text-[11px] text-slate-400">Typical Zoom advisory fee</span>
+            </div>
+
+            <!-- Slider 2: Profile Visitors / Followers -->
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-2">
+                <span class="text-slate-300">Monthly LinkedIn Profile Views:</span>
+                <span class="text-indigo-400 font-bold font-mono" id="val-views">3,500 views</span>
+              </div>
+              <input type="range" min="500" max="25000" step="500" value="3500" id="slider-views" oninput="calculateEarnings()" class="w-full accent-indigo-500 cursor-pointer">
+              <span class="text-[11px] text-slate-400">High-intent followers who can't afford $250+ full calls</span>
+            </div>
+
+            <!-- Slider 3: Async Session Fee -->
+            <div>
+              <div class="flex justify-between text-sm font-semibold mb-2">
+                <span class="text-slate-300">Your Saariv Persona Session Fee:</span>
+                <span class="text-indigo-400 font-bold font-mono" id="val-session-fee">$39 / session</span>
+              </div>
+              <input type="range" min="15" max="150" step="5" value="39" id="slider-session-fee" oninput="calculateEarnings()" class="w-full accent-indigo-500 cursor-pointer">
+              <span class="text-[11px] text-slate-400">Accessible micro-advisory pricing that converts 5x higher</span>
+            </div>
+          </div>
+
+          <!-- Calculated Output Card -->
+          <div class="rounded-2xl p-6 bg-slate-950/80 border border-slate-800 text-center relative overflow-hidden">
+            <div class="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">
+              Estimated Monthly Passive Earnings
+            </div>
+            <div class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 font-mono my-3" id="calc-earnings">
+              $2,320 / mo
+            </div>
+            <p class="text-xs text-slate-400 max-w-xs mx-auto">
+              Net income deposited directly to you without scheduling calendar calls.
+            </p>
+
+            <div class="mt-6 pt-6 border-t border-slate-800/80 grid grid-cols-2 gap-4 text-left">
+              <div>
+                <span class="text-[11px] text-slate-400 block">Hours Saved:</span>
+                <span class="text-sm font-bold text-white font-mono" id="calc-hours-saved">~24 hrs/month</span>
+              </div>
+              <div>
+                <span class="text-[11px] text-slate-400 block">Platform Cut:</span>
+                <span class="text-sm font-bold text-emerald-400">Only when paid</span>
+              </div>
+            </div>
+
+            <a href="#early-access" class="mt-6 w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl text-xs sm:text-sm transition-all block">
+              Lock In Free Early Access
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="relative z-10 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
+        Simple 4-Step Process
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-display">
+        From AI Chat History to Hands-Free Revenue
+      </h2>
+      <p class="mt-3 text-slate-300 text-base sm:text-lg">
+        You've already done the intellectual work. Here is how Saariv activates it.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Step 1 -->
+      <div class="p-6 rounded-2xl bg-dark-card border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold text-lg mb-5">
+            01
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Export Your Chats</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Download your conversational data from ChatGPT, Claude, Gemini, or Grok. We safely isolate your frameworks, advice, and thinking style.
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-indigo-400 font-medium">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Zero private data leaked</span>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="p-6 rounded-2xl bg-dark-card border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-lg mb-5">
+            02
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Persona Synthesis</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Our engine builds your high-fidelity Persona. Calibrate tone, set guardrails, and specify the exact problems you solve.
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-purple-400 font-medium">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Full guardrail control</span>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="p-6 rounded-2xl bg-dark-card border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold text-lg mb-5">
+            03
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Get Your Personal Link</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Receive your branded <code class="text-cyan-300">saariv.com/@yourname</code> link. Add it to your LinkedIn profile, Twitter bio, newsletter, or portfolio.
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-cyan-400 font-medium">
+          <i data-lucide="share-2" class="w-4 h-4"></i>
+          <span>One-click bio link</span>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="p-6 rounded-2xl bg-dark-card border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-lg mb-5">
+            04
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Earn 24/7 on Autopilot</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Followers and clients pay for asynchronous guidance. We take our commission cut and transfer your earnings directly to your bank.
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs text-emerald-400 font-medium">
+          <i data-lucide="banknote" class="w-4 h-4"></i>
+          <span>Direct payout transfers</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who It Is For Section -->
+  <section id="audiences" class="relative z-10 py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
+        Tailored Profiles
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-display">
+        Built for Everyone Who Does 1-on-1 Advisory
+      </h2>
+      <p class="mt-3 text-slate-300 text-base sm:text-lg">
+        If people book your time for guidance, diagnosis, or problem-solving, Saariv scales your intellect.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Card 1 -->
+      <div class="p-8 rounded-2xl bg-dark-card border border-slate-800 hover:border-indigo-500/40 transition-all">
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mb-6">
+          <i data-lucide="award" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Executive & Leadership Coaches</h3>
+        <p class="text-sm text-slate-400 leading-relaxed mb-4">
+          Stop repeating the same mindset frameworks and conflict-resolution playbooks. Let your persona conduct initial leadership diagnostics before they book your high-ticket retainer.
+        </p>
+        <ul class="text-xs text-slate-300 space-y-2 border-t border-slate-800/80 pt-4">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Conflict resolution playbooks</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Executive presence coaching</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 24/7 client check-ins</li>
+        </ul>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-8 rounded-2xl bg-dark-card border border-slate-800 hover:border-purple-500/40 transition-all">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center mb-6">
+          <i data-lucide="briefcase" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Consultants & Domain Experts</h3>
+        <p class="text-sm text-slate-400 leading-relaxed mb-4">
+          Product managers, marketing strategists, and finance specialists who get pinged daily on LinkedIn: "Can I pick your brain for 15 minutes?" Now you send your Saariv link.
+        </p>
+        <ul class="text-xs text-slate-300 space-y-2 border-t border-slate-800/80 pt-4">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Monetize "pick your brain" DMs</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Audit checklists & frameworks</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Pre-qualify high-ticket clients</li>
+        </ul>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-8 rounded-2xl bg-dark-card border border-slate-800 hover:border-cyan-500/40 transition-all">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center mb-6">
+          <i data-lucide="rocket" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Startup Mentors & Tech Advisors</h3>
+        <p class="text-sm text-slate-400 leading-relaxed mb-4">
+          Give founders instant teardowns of their fundraising decks, system architectures, or pricing models while reserving your calendar for equity-stage advisory.
+        </p>
+        <ul class="text-xs text-slate-300 space-y-2 border-t border-slate-800/80 pt-4">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Pitch deck critique on demand</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Distributed system audits</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Global reach across all timezones</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Table: Traditional vs Generic vs Saariv -->
+  <section class="relative z-10 py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-3xl font-extrabold text-white font-display">Why Saariv Wins</h2>
+      <p class="text-slate-400 text-sm mt-2">Compare your options for scaling knowledge.</p>
+    </div>
+
+    <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-dark-card">
+      <table class="w-full text-left text-sm text-slate-300">
+        <thead class="bg-slate-900/80 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+          <tr>
+            <th class="py-4 px-6 font-semibold">Feature</th>
+            <th class="py-4 px-6 font-semibold text-slate-400">Calendly + 1:1 Calls</th>
+            <th class="py-4 px-6 font-semibold text-slate-400">Generic ChatGPT Bot</th>
+            <th class="py-4 px-6 font-semibold text-indigo-400 bg-indigo-950/30">Saariv Persona</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          <tr>
+            <td class="py-4 px-6 font-medium text-white">Your Calendar Time Required</td>
+            <td class="py-4 px-6 text-red-400">100% of the session</td>
+            <td class="py-4 px-6 text-emerald-400">0%</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold bg-indigo-950/20">0% (Hands-free)</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-6 font-medium text-white">Reflects Your True Voice & Insight</td>
+            <td class="py-4 px-6 text-emerald-400">Yes</td>
+            <td class="py-4 px-6 text-red-400">Generic / Hallucinates</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold bg-indigo-950/20">Cloned from your chats</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-6 font-medium text-white">Monetization Built-In</td>
+            <td class="py-4 px-6 text-slate-400">Manual invoicing</td>
+            <td class="py-4 px-6 text-red-400">No payment flow</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold bg-indigo-950/20">Automatic payouts</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-6 font-medium text-white">Upfront Setup Cost</td>
+            <td class="py-4 px-6 text-slate-400">$30+/mo SaaS fees</td>
+            <td class="py-4 px-6 text-slate-400">$20+/mo API tokens</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold bg-indigo-950/20">$0 Upfront (Commission only)</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-6 font-medium text-white">Scale Capacity</td>
+            <td class="py-4 px-6 text-red-400">Capped at ~20 hrs/week</td>
+            <td class="py-4 px-6 text-emerald-400">Unlimited</td>
+            <td class="py-4 px-6 text-emerald-400 font-bold bg-indigo-950/20">Unlimited (Global 24/7)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Early Access Form Section -->
+  <section id="early-access" class="relative z-10 py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+    <div class="rounded-3xl p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-2xl shadow-indigo-600/20">
+      <div class="bg-[#0b1120] rounded-[22px] p-8 sm:p-12 border border-slate-800">
+        <!-- Form Header -->
+        <div class="text-center max-w-xl mx-auto mb-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-3">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            Limited Beta Cohort
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-display">
+            Request Early Access to Saariv
+          </h2>
+          <p class="mt-2 text-slate-300 text-sm sm:text-base">
+            Be among the first 250 coaches & consultants to launch their personal AI twin and monetize on autopilot.
+          </p>
+        </div>
+
+        <!-- Success Toast / Alert (Hidden by default) -->
+        <div id="form-success" class="hidden mb-8 p-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-center animate-fade-in">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="check-circle" class="w-6 h-6"></i>
+          </div>
+          <h4 class="text-lg font-bold text-white mb-1">You're in the Early Access Queue!</h4>
+          <p class="text-sm text-slate-300 mb-3" id="success-message">
+            We received your details and will send your persona setup link soon.
+          </p>
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono">
+            <span>Priority Queue Number: #<strong id="queue-num">149</strong></span>
+          </div>
+        </div>
+
+        <!-- Error Toast (Hidden by default) -->
+        <div id="form-error" class="hidden mb-6 p-4 rounded-xl bg-red-950/40 border border-red-500/40 text-red-300 text-sm text-center">
+          <span id="error-message">Something went wrong. Please check your fields and try again.</span>
+        </div>
+
+        <!-- Form Elements -->
+        <form id="early-access-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Full Name -->
+            <div>
+              <label for="name" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Your Full Name <span class="text-indigo-400">*</span>
+              </label>
+              <input type="text" id="name" name="name" required placeholder="Elena Rostova" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+            </div>
+
+            <!-- Email Address -->
+            <div>
+              <label for="email" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Email Address <span class="text-indigo-400">*</span>
+              </label>
+              <input type="email" id="email" name="email" required placeholder="elena@growthconsulting.io" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Role / Profession -->
+            <div>
+              <label for="role" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Your Primary Specialty / Role
+              </label>
+              <select id="role" name="role" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="Executive / Leadership Coach">Executive / Leadership Coach</option>
+                <option value="Business / Strategy Consultant">Business / Strategy Consultant</option>
+                <option value="Technical / Fractional CTO Advisor">Technical / Fractional CTO Advisor</option>
+                <option value="Startup Mentor / Angel Advisor">Startup Mentor / Angel Advisor</option>
+                <option value="Career / Mindset Mentor">Career / Mindset Mentor</option>
+                <option value="Fitness / Nutrition Consultant">Fitness / Nutrition Consultant</option>
+                <option value="Solopreneur / Other">Solopreneur / Other</option>
+              </select>
+            </div>
+
+            <!-- LinkedIn or Website -->
+            <div>
+              <label for="profile_url" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                LinkedIn Profile or Website URL
+              </label>
+              <input type="url" id="profile_url" name="profile_url" placeholder="https://linkedin.com/in/yourprofile" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Chatbot Used -->
+            <div>
+              <label for="primary_bot" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Chatbot You Use Most For Brainstorming
+              </label>
+              <select id="primary_bot" name="primary_bot" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="ChatGPT (OpenAI)">ChatGPT (OpenAI)</option>
+                <option value="Claude (Anthropic)">Claude (Anthropic)</option>
+                <option value="Gemini (Google)">Gemini (Google)</option>
+                <option value="Grok (xAI)">Grok (xAI)</option>
+                <option value="Multiple Chatbots">Multiple Chatbots</option>
+              </select>
+            </div>
+
+            <!-- Hourly Booking Rate -->
+            <div>
+              <label for="hourly_rate" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Current 1:1 Booking Session Rate
+              </label>
+              <select id="hourly_rate" name="hourly_rate" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                <option value="Under $100 / hr">Under $100 / hr</option>
+                <option value="$100 - $250 / hr" selected>$100 - $250 / hr</option>
+                <option value="$250 - $500 / hr">$250 - $500 / hr</option>
+                <option value="$500+ / hr">$500+ / hr</option>
+                <option value="I charge monthly retainer only">Monthly retainer model</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Specific Problem Solved / Message -->
+          <div>
+            <label for="use_case" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              What specific advice or problems do clients come to you for?
+            </label>
+            <textarea id="use_case" name="use_case" rows="3" placeholder="e.g. Clients ask for B2B pricing teardowns, hiring evaluation rubrics, or conflict management steps..." class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button type="submit" id="submit-btn" class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl text-base shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 border border-indigo-400/30">
+              <span id="btn-text">Apply for Early Access</span>
+              <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+            <p class="text-center text-[11px] text-slate-400 mt-3">
+              🔒 No credit card required • Zero upfront cost • Revenue share only when clients pay you
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="relative z-10 py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
+        Got Questions?
+      </div>
+      <h2 class="text-3xl font-extrabold text-white font-display">
+        Frequently Asked Questions
+      </h2>
+    </div>
+
+    <div class="space-y-4">
+      <!-- FAQ 1 -->
+      <details class="group bg-dark-card rounded-2xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex items-center justify-between cursor-pointer font-bold text-white text-base">
+          <span>How does Saariv extract my persona from ChatGPT, Claude, Gemini or Grok?</span>
+          <span class="ml-4 flex-shrink-0 transition-transform group-open:rotate-180">
+            <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-400"></i>
+          </span>
+        </summary>
+        <p class="mt-4 text-slate-300 text-sm leading-relaxed">
+          All major LLMs let you export your chat history in one click as JSON or text. Saariv parses these discussions, identifying your recurring mental models, diagnosis questions, tone of voice, and specialized frameworks. It strips out casual chitchat and isolates your advisory DNA.
+        </p>
+      </details>
+
+      <!-- FAQ 2 -->
+      <details class="group bg-dark-card rounded-2xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex items-center justify-between cursor-pointer font-bold text-white text-base">
+          <span>Is my private information or personal conversations safe?</span>
+          <span class="ml-4 flex-shrink-0 transition-transform group-open:rotate-180">
+            <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-400"></i>
+          </span>
+        </summary>
+        <p class="mt-4 text-slate-300 text-sm leading-relaxed">
+          Absolutely. Your raw data is never exposed publicly or sold to third parties. Our synthesis pipeline applies zero-knowledge sanitization to strip credit card numbers, personal identifiers, passwords, and private notes. You also receive full guardrail controls to set boundaries on what your persona discusses.
+        </p>
+      </details>
+
+      <!-- FAQ 3 -->
+      <details class="group bg-dark-card rounded-2xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex items-center justify-between cursor-pointer font-bold text-white text-base">
+          <span>How does the pricing work if there's no upfront cost?</span>
+          <span class="ml-4 flex-shrink-0 transition-transform group-open:rotate-180">
+            <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-400"></i>
+          </span>
+        </summary>
+        <p class="mt-4 text-slate-300 text-sm leading-relaxed">
+          We believe in true alignment. You never pay a monthly subscription fee. When a client books or pays for guidance through your Saariv link, we automatically take a modest commission cut (15%), and you receive the remaining 85% directly into your bank account. If you don't earn, we don't earn.
+        </p>
+      </details>
+
+      <!-- FAQ 4 -->
+      <details class="group bg-dark-card rounded-2xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex items-center justify-between cursor-pointer font-bold text-white text-base">
+          <span>Where do I post my Saariv link?</span>
+          <span class="ml-4 flex-shrink-0 transition-transform group-open:rotate-180">
+            <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-400"></i>
+          </span>
+        </summary>
+        <p class="mt-4 text-slate-300 text-sm leading-relaxed">
+          Anywhere your audience finds you! Most coaches and consultants put it directly in their LinkedIn bio ("Ask my AI twin 24/7 at saariv.com/@myname"), Twitter/X bio, Substack newsletter footer, Linktree, or portfolio website.
+        </p>
+      </details>
+
+      <!-- FAQ 5 -->
+      <details class="group bg-dark-card rounded-2xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex items-center justify-between cursor-pointer font-bold text-white text-base">
+          <span>Can clients still book my live 1-on-1 calls?</span>
+          <span class="ml-4 flex-shrink-0 transition-transform group-open:rotate-180">
+            <i data-lucide="chevron-down" class="w-5 h-5 text-indigo-400"></i>
+          </span>
+        </summary>
+        <p class="mt-4 text-slate-300 text-sm leading-relaxed">
+          Yes! In fact, Saariv is the ultimate top-of-funnel conversion tool. Clients who get value from your AI persona can click a single button to upgrade and book your full 1-on-1 Zoom session at your standard premium rate.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-slate-800/80 bg-slate-950/60 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center">
+          <i data-lucide="layers" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-bold text-lg font-display text-white">saariv</span>
+        <span class="text-xs text-slate-400">• The Personal AI Twin for Advisors & Coaches</span>
+      </div>
+
+      <div class="flex items-center gap-6 text-xs text-slate-400">
+        <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+        <a href="#simulator" class="hover:text-white transition-colors">Live Simulation</a>
+        <a href="#calculator" class="hover:text-white transition-colors">Revenue Calculator</a>
+        <a href="#early-access" class="hover:text-white transition-colors">Early Access</a>
+        <a href="/health" class="hover:text-emerald-400 transition-colors">System Health</a>
+      </div>
+
+      <div class="text-xs text-slate-400">
+        &copy; 2025 Saariv. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/static/js/main.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
