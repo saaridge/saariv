@@ -29,7 +29,9 @@ app.config["MAIL_DEFAULT_SENDER"] = os.getenv(
 
 mail = Mail(app)
 MAIL_TO = os.getenv("MAIL_TO", "mohit.rohatgi.mec10@gmail.com")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "mock-openai-key-saariv")
+def get_openai_api_key() -> str:
+    """Read OpenAI API key from environment."""
+    return os.getenv("OPENAI_API_KEY", "").strip()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "waitlist.db")
@@ -204,11 +206,11 @@ def generate_rag_answer(query: str, retrieved_chunks: List[Dict[str, Any]], prof
     creator_name = f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip() or "Creator"
     primary_chunk = retrieved_chunks[0]
 
-    # Check if a real non-mock OpenAI API key is configured
+    api_key = get_openai_api_key()
     is_real_openai_key = (
-        OPENAI_API_KEY
-        and not OPENAI_API_KEY.startswith("mock-")
-        and len(OPENAI_API_KEY) > 20
+        api_key
+        and not api_key.startswith("mock-")
+        and len(api_key) > 20
     )
 
     if is_real_openai_key:
@@ -239,7 +241,7 @@ def generate_rag_answer(query: str, retrieved_chunks: List[Dict[str, Any]], prof
                 data=req_data,
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {OPENAI_API_KEY}"
+                    "Authorization": f"Bearer {api_key}"
                 }
             )
             with urllib.request.urlopen(req, timeout=12) as response:
@@ -290,6 +292,7 @@ def health():
         app="saariv",
         version="1.2.0",
         mail_ready=mail_configured(),
+        openai_configured=bool(get_openai_api_key()),
         rag_ready=True,
     )
 
