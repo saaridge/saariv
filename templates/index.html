@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Saariv — Turn Your Lived Experience into an AI Avatar That Earns</title>
-  <meta name="description" content="Create an AI avatar from your chats with ChatGPT, Claude, Grok, and Gemini. Share your journey as a founder, immigrant, consultant, or living biography. Earn money when people ask questions.">
+  <title>Saariv — Living Biography & AI Avatars from Lived Experience</title>
+  <meta name="description" content="Create your Living Biography. Turn your chats with ChatGPT, Claude, Grok, and Gemini into an interactive AI Avatar. Test in the playground with real RAG retrieval and earn from your journey.">
   
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f4f6' stroke-width='2'><circle cx='12' cy='12' r='10'/><path d='M12 8v8M8 12h8'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f4f6' stroke-width='2'><path d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z'/><path d='M6 6h10M6 10h10M6 14h6'/></svg>">
   
-  <!-- Google Fonts: Inter & Newsreader for editorial credibility -->
+  <!-- Google Fonts: Inter & Newsreader for editorial authority -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
@@ -49,6 +49,16 @@
   <!-- Subtle Top Spotlight -->
   <div class="fixed top-0 left-0 right-0 h-[480px] pointer-events-none subtle-spotlight z-0"></div>
 
+  <!-- Living Biography Announcement Top Bar -->
+  <div class="relative z-50 bg-zinc-900/90 border-b border-white/[0.08] py-2 px-4 text-center text-xs font-mono text-zinc-300">
+    <span class="inline-flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-white font-semibold">Living Biography:</span>
+      <span>Turn your personal journey into an interactive avatar that answers questions & earns for you</span>
+      <a href="#try-saariv" class="text-white underline hover:text-zinc-200 ml-1 font-sans">Try Saariv &rarr;</a>
+    </span>
+  </div>
+
   <!-- Navigation -->
   <header class="sticky top-0 z-50 backdrop-blur-md bg-[#090a0f]/90 border-b border-white/[0.06]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -58,114 +68,450 @@
           S
         </span>
         <span class="text-base font-semibold tracking-tight text-white font-sans">saariv</span>
-        <span class="text-[11px] text-zinc-500 font-mono tracking-wider ml-1">/ AVATARS</span>
+        <span class="text-[11px] text-zinc-500 font-mono tracking-wider ml-1">/ LIVING BIOGRAPHY</span>
       </a>
 
       <!-- Navigation Links -->
       <nav class="hidden md:flex items-center gap-7 text-xs font-medium text-zinc-400">
-        <a href="#how-it-works" class="hover:text-zinc-200 transition-colors">How It Works</a>
+        <a href="#try-saariv" class="text-white font-semibold hover:text-zinc-200 transition-colors">Onboarding Journey</a>
         <a href="#monetization-flow" class="hover:text-zinc-200 transition-colors">Experience to Earnings</a>
-        <a href="#playground" class="hover:text-zinc-200 transition-colors">Playground</a>
         <a href="#audiences" class="hover:text-zinc-200 transition-colors">Who It's For</a>
-        <a href="#biography" class="hover:text-zinc-200 transition-colors">Living Biographies</a>
         <a href="#faq" class="hover:text-zinc-200 transition-colors">FAQ</a>
       </nav>
 
-      <!-- CTA -->
+      <!-- Primary Action: Try Saariv -->
       <div class="flex items-center gap-3">
-        <a href="#waitlist" class="inline-flex items-center justify-center px-4 py-1.5 text-xs font-medium text-zinc-900 bg-white hover:bg-zinc-200 rounded-md transition-all">
-          Join Waitlist
+        <a href="#try-saariv" class="inline-flex items-center justify-center px-4 py-2 text-xs font-semibold text-zinc-900 bg-white hover:bg-zinc-200 rounded-md transition-all shadow-sm">
+          Try Saariv
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative z-10 pt-20 pb-16 md:pt-28 md:pb-24 px-4 sm:px-6 max-w-5xl mx-auto text-center">
-    <!-- Waitlist Status Pill -->
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs font-mono mb-8">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-      <span class="text-zinc-400">Private Waitlist</span>
+  <!-- Hero Section with Living Biography Positioning -->
+  <section class="relative z-10 pt-16 pb-14 md:pt-24 md:pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+    <!-- Living Biography Pill -->
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-zinc-300 text-xs font-mono mb-6">
+      <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i>
+      <span class="text-zinc-200 font-semibold">Living Biography & Personal AI Avatars</span>
       <span class="text-zinc-600">/</span>
-      <span>Founders, Immigrants, Consultants & Storytellers</span>
+      <span>Founders, Global Expats & Consultants</span>
     </div>
 
-    <!-- Editorial Headline -->
+    <!-- Main Headline -->
     <h1 class="text-4xl sm:text-6xl font-normal tracking-tight text-white font-serif max-w-4xl mx-auto leading-[1.15]">
-      Turn your lived experience into an AI Avatar
-      <span class="block italic text-zinc-400 mt-2 font-serif">that answers questions and earns for you.</span>
+      Turn your lived experience into an interactive
+      <span class="block italic text-zinc-400 mt-1 font-serif">Living Biography that answers questions & earns.</span>
     </h1>
 
     <!-- Subhead -->
     <p class="mt-6 text-base sm:text-lg text-zinc-400 max-w-3xl mx-auto font-sans leading-relaxed">
-      Whether you scaled a startup, migrated out of India to build a life abroad, or advise enterprise clients—your real conversations inside <strong class="text-zinc-200 font-medium">ChatGPT, Claude, Gemini, and Grok</strong> already capture your true journey. Saariv turns them into an interactive personal avatar. Share your link on LinkedIn or bios, test in our private Playground, and earn whenever people ask questions.
+      You've scaled startups, moved across continents, or advised high-stakes clients. Your deepest reflections and decision frameworks are already preserved in your chats with <strong class="text-zinc-200 font-medium">ChatGPT, Claude, Grok, and Gemini</strong>. Follow our step-by-step journey below to extract your wisdom, test your avatar in your private RAG playground, and earn when people ask questions.
     </p>
 
     <!-- Value Prop Highlights -->
     <div class="mt-8 flex flex-wrap items-center justify-center gap-y-2 gap-x-6 text-xs text-zinc-400 font-mono">
       <span class="flex items-center gap-1.5">
-        <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
         Zero Upfront Payment
       </span>
       <span class="text-zinc-700">•</span>
       <span class="flex items-center gap-1.5">
-        <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
         Commission-Only When You Earn
       </span>
       <span class="text-zinc-700">•</span>
       <span class="flex items-center gap-1.5">
-        <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
-        Private Playground to Test Before Going Live
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+        Private RAG Playground Before Sharing
       </span>
       <span class="text-zinc-700">•</span>
       <span class="flex items-center gap-1.5">
-        <i data-lucide="check" class="w-3.5 h-3.5 text-zinc-300"></i>
-        Interactive Living Biography Link
+        <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+        2-Prompt Zero-Code Extraction
       </span>
     </div>
 
-    <!-- Actions -->
+    <!-- Hero CTA Buttons -->
     <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-      <a href="#waitlist" class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-black bg-white hover:bg-zinc-200 rounded-md transition-all flex items-center justify-center gap-2">
-        Join the Waitlist
-        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      <a href="#try-saariv" class="w-full sm:w-auto px-7 py-3 text-sm font-semibold text-black bg-white hover:bg-zinc-200 rounded-md transition-all flex items-center justify-center gap-2">
+        Try Saariv (Step-by-Step)
+        <i data-lucide="arrow-down" class="w-4 h-4"></i>
       </a>
-      <a href="#playground" class="w-full sm:w-auto px-5 py-3 text-sm font-medium text-zinc-300 hover:text-white bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 rounded-md transition-all flex items-center justify-center gap-2">
-        Test in Playground
+      <a href="#monetization-flow" class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-zinc-300 hover:text-white bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 rounded-md transition-all flex items-center justify-center gap-2">
+        See How Creators Earn
       </a>
     </div>
+  </section>
 
-    <!-- Supported Ingestion Engines -->
-    <div class="mt-16 pt-8 border-t border-white/[0.06] max-w-3xl mx-auto">
-      <p class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 mb-6">
-        Works with your existing conversational history from
+  <!-- ============================================================ -->
+  <!-- THE USER ONBOARDING STEPPER JOURNEY ("Try Saariv") -->
+  <!-- ============================================================ -->
+  <section id="try-saariv" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
+    <div class="mb-10 text-center sm:text-left">
+      <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 mb-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span>Interactive Onboarding Journey</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">Create Your AI Avatar in 5 Steps</h2>
+      <p class="text-xs text-zinc-400 max-w-2xl mt-1">
+        Follow the stepper below to discover your conversation taxonomy, extract your unique experiences, and test your personal RAG playground.
       </p>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono text-zinc-400">
-        <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-200 font-semibold">ChatGPT</span>
-          <span class="text-zinc-600">/</span>
-          <span>OpenAI</span>
+    </div>
+
+    <!-- Stepper Progress Header -->
+    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] p-4 sm:p-6 mb-6 shadow-xl">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 text-left">
+        <!-- Step 1 Tab -->
+        <button onclick="goToStep(1)" id="stepper-tab-1" class="stepper-tab active p-3 rounded border border-white bg-zinc-900 text-white transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 01</span>
+          <span class="text-xs font-semibold block truncate">Basic Details</span>
+        </button>
+
+        <!-- Step 2 Tab -->
+        <button onclick="goToStep(2)" id="stepper-tab-2" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 02</span>
+          <span class="text-xs font-semibold block truncate">Topic Discovery</span>
+        </button>
+
+        <!-- Step 3 Tab -->
+        <button onclick="goToStep(3)" id="stepper-tab-3" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 03</span>
+          <span class="text-xs font-semibold block truncate">Select Topics</span>
+        </button>
+
+        <!-- Step 4 Tab -->
+        <button onclick="goToStep(4)" id="stepper-tab-4" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 04</span>
+          <span class="text-xs font-semibold block truncate">Experience Extract</span>
+        </button>
+
+        <!-- Step 5 Tab -->
+        <button onclick="goToStep(5)" id="stepper-tab-5" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left col-span-2 sm:col-span-1">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 05</span>
+          <span class="text-xs font-semibold block truncate">RAG Playground</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= STEP 1: BASIC DETAILS ================= -->
+    <div id="step-panel-1" class="step-panel rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 1 of 5</span>
+        <h3 class="text-xl font-serif text-white">Your Creator Profile</h3>
+        <p class="text-xs text-zinc-400 mt-1">
+          Provide your basic information. Your avatar will be associated with your identity and personal biography.
+        </p>
+      </div>
+
+      <form onsubmit="handleStep1Submit(event)" class="space-y-4 max-w-xl text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="step1_first_name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+              First Name <span class="text-zinc-200">*</span>
+            </label>
+            <input type="text" id="step1_first_name" required placeholder="Aarav" class="w-full form-input rounded px-3 py-2.5 text-xs">
+          </div>
+          <div>
+            <label for="step1_last_name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+              Last Name <span class="text-zinc-200">*</span>
+            </label>
+            <input type="text" id="step1_last_name" required placeholder="Sharma" class="w-full form-input rounded px-3 py-2.5 text-xs">
+          </div>
         </div>
-        <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-200 font-semibold">Claude</span>
-          <span class="text-zinc-600">/</span>
-          <span>Anthropic</span>
+
+        <div>
+          <label for="step1_email" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+            Email Address <span class="text-zinc-200">*</span>
+          </label>
+          <input type="email" id="step1_email" required placeholder="aarav.sharma@example.com" class="w-full form-input rounded px-3 py-2.5 text-xs">
         </div>
-        <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-200 font-semibold">Gemini</span>
-          <span class="text-zinc-600">/</span>
-          <span>Google</span>
+
+        <div>
+          <label for="step1_linkedin" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+            LinkedIn Profile URL
+          </label>
+          <input type="url" id="step1_linkedin" placeholder="https://linkedin.com/in/aarav-sharma" class="w-full form-input rounded px-3 py-2.5 text-xs">
         </div>
-        <div class="py-2.5 px-3 rounded border border-zinc-800/80 bg-zinc-950/40 flex items-center justify-center gap-2">
-          <span class="text-zinc-200 font-semibold">Grok</span>
-          <span class="text-zinc-600">/</span>
-          <span>xAI</span>
+
+        <div class="pt-4 flex items-center justify-between">
+          <span class="text-[11px] font-mono text-zinc-500">Saved securely to local session</span>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+            <span>Continue to Prompt 1</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
         </div>
+      </form>
+    </div>
+
+    <!-- ================= STEP 2: PROMPT 1 (TAXONOMY DISCOVERY) ================= -->
+    <div id="step-panel-2" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 2 of 5</span>
+        <h3 class="text-xl font-serif text-white">Generate Your Chatbot Taxonomy</h3>
+        <p class="text-xs text-zinc-400 mt-1">
+          Copy this discovery prompt and run it in whichever chatbots you use (ChatGPT, Claude, Grok, Gemini).
+        </p>
+      </div>
+
+      <!-- Instruction: Persistent Memory Reminder -->
+      <div class="mb-5 p-3.5 rounded border border-amber-500/30 bg-amber-950/20 text-xs font-mono text-amber-300 flex items-start gap-2.5">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0"></i>
+        <div>
+          <strong class="text-white block mb-0.5">Instruction Before Pasting:</strong>
+          Please ensure that <strong>persistent memory</strong> is turned on in your chatbot settings (e.g. ChatGPT Memory / Claude Projects) before you paste this prompt.
+        </div>
+      </div>
+
+      <!-- Prompt 1 Display Box -->
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-zinc-400">Prompt 1: Taxonomy & Topic Extractor</span>
+          <button onclick="copyPrompt('prompt1-content', 'copy-btn-1')" id="copy-btn-1" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[11px] font-mono text-zinc-200 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Prompt</span>
+          </button>
+        </div>
+        <div id="prompt1-content" class="p-4 rounded border border-zinc-800 bg-zinc-950/80 font-mono text-[11px] text-zinc-300 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">You are analyzing my full conversation history with you. Go through every conversation you have access to (persistent memory, past chat summaries, titles, excerpts, and this current chat) and build a complete taxonomy of everything I have discussed with you.
+
+TASK
+Extract every Domain, Subdomain, Topic, and Subtopic that appears in my conversations, and return them as a single JSON object.
+
+DEFINITIONS
+- Domain: a broad field (e.g., Software Engineering, Finance, Career, Health).
+- Subdomain: a specialization inside a domain (e.g., Backend Engineering inside Software Engineering).
+- Topic: a specific subject I asked about or worked on within a subdomain.
+- Subtopic: a specific question, concept, tool, decision, or problem inside a topic.
+
+RULES
+1. Cover everything. Include casual, one-off, and personal topics, not only professional ones.
+2. Use only evidence from my conversations. Do not invent topics or infer interests I never discussed.
+3. Merge near-duplicate topics, but keep distinct questions as separate subtopics.
+4. For each topic, include a short evidence note (what I asked or did) and an approximate date or period if known, otherwise "unknown".
+5. Add a "frequency" field per topic: "one-off", "occasional", or "recurring".
+6. Add a "confidence" field per topic: "high", "medium", or "low", based on how directly the evidence supports it.
+7. If your access to my history is partial, say so in the "coverage_notes" field and list what may be missing. Do not pretend to have seen everything.
+8. Do not include any personal identifiers (passwords, API keys, phone numbers, addresses).
+9. Output ONLY valid JSON. No markdown, no commentary before or after.
+
+OUTPUT FORMAT
+{
+  "metadata": {
+    "generated_on": "YYYY-MM-DD",
+    "source_scope": "what history you had access to",
+    "coverage_notes": "limitations or gaps",
+    "total_domains": 0,
+    "total_topics": 0
+  },
+  "domains": [
+    {
+      "domain": "Domain name",
+      "subdomains": [
+        {
+          "subdomain": "Subdomain name",
+          "topics": [
+            {
+              "topic": "Topic name",
+              "evidence": "One-line description of what I asked or did",
+              "period": "YYYY-MM or range or unknown",
+              "frequency": "one-off | occasional | recurring",
+              "confidence": "high | medium | low",
+              "subtopics": [
+                "Subtopic 1",
+                "Subtopic 2"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Before finalizing, check that no conversation topic is missing, that every topic sits under the correct domain and subdomain, and that the JSON is valid.</div>
+      </div>
+
+      <!-- Paste Space for Chatbot Output -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label for="step2_pasted_json" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider">
+            Paste the JSON Output from Your Chatbot:
+          </label>
+          <button onclick="loadSampleTaxonomy()" type="button" class="text-[11px] font-mono text-zinc-400 hover:text-white underline">
+            Load Sample Output (Test Instantly)
+          </button>
+        </div>
+        <textarea id="step2_pasted_json" rows="7" placeholder="Paste the generated JSON here..." class="w-full form-input font-mono text-[11px] rounded p-3 text-zinc-200"></textarea>
+      </div>
+
+      <div id="step2_error" class="hidden mt-3 p-3 rounded border border-red-500/30 bg-red-950/20 text-xs text-red-300 font-mono"></div>
+
+      <div class="pt-6 flex items-center justify-between">
+        <button onclick="goToStep(1)" type="button" class="text-xs font-mono text-zinc-400 hover:text-white">
+          &larr; Back
+        </button>
+        <button onclick="handleStep2Submit()" type="button" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+          <span>Validate & Select Topics</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= STEP 3: SELECT TOPICS ================= -->
+    <div id="step-panel-3" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 3 of 5</span>
+          <h3 class="text-xl font-serif text-white">Select Topics to Provide for Inquiries</h3>
+          <p class="text-xs text-zinc-400 mt-1">
+            Choose which topics and lived experiences you want people to be able to ask your avatar about.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleAllTopics(true)" class="px-2.5 py-1 rounded bg-zinc-800 text-[11px] font-mono text-zinc-300 hover:text-white">Select All</button>
+          <button onclick="toggleAllTopics(false)" class="px-2.5 py-1 rounded bg-zinc-800 text-[11px] font-mono text-zinc-300 hover:text-white">Deselect All</button>
+        </div>
+      </div>
+
+      <!-- Topics Checklist Container -->
+      <div id="topics-checklist" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+        <!-- Dynamically rendered checklist -->
+      </div>
+
+      <div class="pt-6 border-t border-zinc-800/80 flex items-center justify-between mt-6">
+        <button onclick="goToStep(2)" type="button" class="text-xs font-mono text-zinc-400 hover:text-white">
+          &larr; Back
+        </button>
+        <div class="flex items-center gap-3">
+          <span id="selected-counter" class="text-xs font-mono text-zinc-400">0 topics selected</span>
+          <button onclick="handleStep3Submit()" type="button" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+            <span>Generate Experience Prompt</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= STEP 4: PROMPT 2 (EXPERIENCE EXTRACTION) ================= -->
+    <div id="step-panel-4" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 4 of 5</span>
+        <h3 class="text-xl font-serif text-white">Extract Unique Lived Experiences</h3>
+        <p class="text-xs text-zinc-400 mt-1">
+          Saariv has generated Prompt 2 with your selected topics appended. Copy and paste it in your chatbot to extract your actual experiences.
+        </p>
+      </div>
+
+      <!-- Prompt 2 Display Box -->
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-zinc-400">Prompt 2: Lived Experience & Decision Extractor</span>
+          <button onclick="copyPrompt('prompt2-content', 'copy-btn-2')" id="copy-btn-2" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[11px] font-mono text-zinc-200 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Prompt</span>
+          </button>
+        </div>
+        <div id="prompt2-content" class="p-4 rounded border border-zinc-800 bg-zinc-950/80 font-mono text-[11px] text-zinc-300 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">Loading prompt with selected topics...</div>
+      </div>
+
+      <!-- Paste Space for Experience Output -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label for="step4_pasted_json" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider">
+            Paste the Chatbot Experience JSON Output:
+          </label>
+          <button onclick="loadSampleExperiences()" type="button" class="text-[11px] font-mono text-zinc-400 hover:text-white underline">
+            Load Sample Experience (Test Instantly)
+          </button>
+        </div>
+        <textarea id="step4_pasted_json" rows="7" placeholder="Paste the experience output JSON here..." class="w-full form-input font-mono text-[11px] rounded p-3 text-zinc-200"></textarea>
+      </div>
+
+      <div id="step4_error" class="hidden mt-3 p-3 rounded border border-red-500/30 bg-red-950/20 text-xs text-red-300 font-mono"></div>
+
+      <div class="pt-6 flex items-center justify-between">
+        <button onclick="goToStep(3)" type="button" class="text-xs font-mono text-zinc-400 hover:text-white">
+          &larr; Back
+        </button>
+        <button onclick="handleStep4Submit()" id="build-avatar-btn" type="button" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+          <span>Build My Avatar & Open Playground</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= STEP 5: PERSONAL RAG PLAYGROUND ================= -->
+    <div id="step-panel-5" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0c0e14] shadow-2xl overflow-hidden">
+      <!-- Playground Header -->
+      <div class="px-5 py-3.5 border-b border-zinc-800 bg-zinc-950 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div class="font-mono text-[11px] text-zinc-200 flex items-center gap-1.5">
+            <span id="rag-avatar-title" class="font-bold text-white">Your Living Biography Avatar</span>
+            <span class="text-zinc-600">/</span>
+            <span class="text-emerald-400">RAG Context Engine Active</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono text-zinc-400">Indexed in: <code class="text-zinc-300">tmp_profiles/</code></span>
+          <button onclick="goToStep(1)" class="px-2 py-1 rounded bg-zinc-800 text-[10px] font-mono text-zinc-300 hover:text-white">
+            Reset Profile
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 sm:p-8 space-y-6">
+        <!-- RAG Status Banner -->
+        <div class="p-4 rounded border border-zinc-800 bg-zinc-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div>
+            <span class="text-white font-semibold block text-sm" id="playground-creator-name">Aarav Sharma</span>
+            <p class="text-[11px] text-zinc-400 mt-0.5" id="playground-indexed-summary">
+              Lived experiences indexed and ready for retrieval.
+            </p>
+          </div>
+          <div class="font-mono text-[11px] text-zinc-400 bg-zinc-950 px-3 py-1.5 rounded border border-zinc-800">
+            Shareable link: <strong class="text-zinc-200" id="playground-share-link">saariv.com/@aarav-sharma</strong>
+          </div>
+        </div>
+
+        <!-- Sample Query Suggestions -->
+        <div>
+          <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 block mb-2">
+            Ask a question from your indexed experience:
+          </span>
+          <div class="flex flex-wrap gap-2" id="rag-prompt-chips">
+            <!-- Dynamically populated from indexed topics -->
+          </div>
+        </div>
+
+        <!-- RAG Answer Window -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+            <span>Avatar Response (Grounded in Your Data):</span>
+            <span id="retrieved-badge" class="hidden px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px]">
+              Retrieved from: <span id="retrieved-topic-name">Topic</span>
+            </span>
+          </div>
+          <div id="rag-response-box" class="p-5 rounded border border-zinc-800 bg-zinc-950/80 font-mono text-xs sm:text-sm text-zinc-200 leading-relaxed whitespace-pre-line min-h-[120px]">
+            Ask any question below to test how your Living Biography avatar retrieves the right context and answers strictly from your lived experience.
+          </div>
+        </div>
+
+        <!-- Question Submission Form -->
+        <form onsubmit="handleRagQuery(event)" class="flex flex-col sm:flex-row gap-2.5">
+          <input type="text" id="rag-query-input" placeholder="Type a question about your experience (e.g. 'What was your biggest lesson from Google L5?')..." class="flex-1 form-input rounded px-3.5 py-2.5 text-xs text-white placeholder-zinc-500">
+          <button type="submit" id="rag-query-btn" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center justify-center gap-1.5">
+            <span>Ask Avatar</span>
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          </button>
+        </form>
       </div>
     </div>
   </section>
 
-  <!-- Animated Experience-to-Earnings Section -->
+  <!-- ============================================================ -->
+  <!-- ANIMATED EXPERIENCE-TO-EARNINGS SHOWCASE -->
+  <!-- ============================================================ -->
   <section id="monetization-flow" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
     <div class="mb-10">
       <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Monetization Engine</span>
@@ -264,192 +610,17 @@
             </div>
           </div>
 
-          <a href="#waitlist" class="w-full py-2 px-3 rounded bg-white hover:bg-zinc-200 text-black text-xs font-medium transition-all text-center block">
-            Start Earning from Your Story
+          <a href="#try-saariv" class="w-full py-2 px-3 rounded bg-white hover:bg-zinc-200 text-black text-xs font-medium transition-all text-center block">
+            Start Your Living Biography
           </a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Exact Process to Create an AI Avatar (The 8-Step Pipeline) -->
-  <section id="how-it-works" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="mb-12">
-      <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Creation Blueprint</span>
-      <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">The Exact Process to Create Your AI Avatar</h2>
-      <p class="text-xs text-zinc-400 max-w-2xl mt-1">
-        You don't need coding skills or API keys. Follow this simple 2-prompt sequence to extract your stories and test them in the Playground.
-      </p>
-    </div>
-
-    <!-- Stepper Navigation -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
-      <button onclick="showProcessStep(1)" class="process-step-btn active p-3 rounded border border-white bg-zinc-900 text-left transition-all">
-        <span class="text-[10px] font-mono text-zinc-400 block">STEP 01 & 02</span>
-        <span class="text-xs font-semibold text-white">Discovery Prompt</span>
-      </button>
-      <button onclick="showProcessStep(2)" class="process-step-btn p-3 rounded border border-zinc-800 text-zinc-500 text-left hover:text-zinc-300 transition-all">
-        <span class="text-[10px] font-mono text-zinc-400 block">STEP 03 & 04</span>
-        <span class="text-xs font-semibold">Select Topics</span>
-      </button>
-      <button onclick="showProcessStep(3)" class="process-step-btn p-3 rounded border border-zinc-800 text-zinc-500 text-left hover:text-zinc-300 transition-all">
-        <span class="text-[10px] font-mono text-zinc-400 block">STEP 05 & 06</span>
-        <span class="text-xs font-semibold">Deep Extraction</span>
-      </button>
-      <button onclick="showProcessStep(4)" class="process-step-btn p-3 rounded border border-zinc-800 text-zinc-500 text-left hover:text-zinc-300 transition-all">
-        <span class="text-[10px] font-mono text-zinc-400 block">STEP 07 & 08</span>
-        <span class="text-xs font-semibold">Playground & Go Live</span>
-      </button>
-    </div>
-
-    <!-- Stepper Content Card -->
-    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] p-6 sm:p-8">
-      <div class="max-w-3xl space-y-4">
-        <h3 id="step-title" class="text-lg font-serif text-white">
-          Step 1 & 2: Get Saariv Discovery Prompt & Run in Chatbots
-        </h3>
-        <p id="step-desc" class="text-xs text-zinc-400 leading-relaxed">
-          Saariv generates a specialized discovery prompt. You copy it and paste it into whichever chatbots you regularly use (ChatGPT, Claude, Gemini, Grok, etc.). The prompt commands the LLM to scan your conversational context and synthesize topics.
-        </p>
-
-        <!-- Prompt Snippet Box -->
-        <div class="p-4 rounded border border-zinc-800/80 bg-zinc-950 font-mono text-xs text-zinc-300 whitespace-pre-line leading-relaxed" id="step-snippet">
-[Saariv Discovery Prompt Preview]
-"Analyze our entire conversation history across all threads. Identify all major topics, frameworks, personal milestones, migration journeys, career pivots, and business lessons where I shared deep domain knowledge or lived experience. Output as a clean structured list of Topics & Subtopics eligible for advisory."
-        </div>
-      </div>
-    </div>
-
-    <!-- Process Summary Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 text-xs font-mono">
-      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
-        <span class="text-zinc-500 text-[10px] block mb-1">01. PROMPT DISCOVERY</span>
-        <p class="text-zinc-300">Paste Saariv prompt into ChatGPT, Grok, Claude, or Gemini to extract topics.</p>
-      </div>
-      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
-        <span class="text-zinc-500 text-[10px] block mb-1">02. TOPIC CURATION</span>
-        <p class="text-zinc-300">Paste output in Saariv and pick the specific stories you want the public to access.</p>
-      </div>
-      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
-        <span class="text-zinc-500 text-[10px] block mb-1">03. PLAYGROUND TESTING</span>
-        <p class="text-zinc-300">Ask your avatar questions in the private Playground to verify tone and answers.</p>
-      </div>
-      <div class="p-4 rounded border border-zinc-800 bg-surface-card">
-        <span class="text-zinc-500 text-[10px] block mb-1">04. GO LIVE & EARN</span>
-        <p class="text-zinc-300">Publish your link to social media. Earn per question without manual calls.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- The Avatar Playground (Test Before Going Live) -->
-  <section id="playground" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-      <div>
-        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 mb-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Interactive Playground</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-serif font-normal text-white">Test Your Avatar in the Playground</h2>
-      </div>
-      <p class="text-xs text-zinc-400 max-w-md font-sans">
-        Before sharing your link with the public, test your avatar in the playground. Experience how it answers from your lived experience.
-      </p>
-    </div>
-
-    <!-- Playground Shell -->
-    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] shadow-2xl overflow-hidden">
-      <!-- Playground Header Bar -->
-      <div class="px-4 py-3 border-b border-zinc-800/80 bg-zinc-950/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-          <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-          <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-          <div class="ml-2 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 font-mono text-[11px] text-zinc-300 flex items-center gap-2">
-            <i data-lucide="compass" class="w-3 h-3 text-zinc-400"></i>
-            <span id="playground-handle">saariv.com/@aarav-sharma</span>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3 text-[11px] font-mono">
-          <span class="text-zinc-500">Playground Status:</span>
-          <span class="text-emerald-400 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            Ready to Test
-          </span>
-          <button onclick="openGoLiveModal()" class="px-2.5 py-1 rounded bg-white hover:bg-zinc-200 text-black font-semibold text-[11px] transition-colors">
-            Go Live &rarr;
-          </button>
-        </div>
-      </div>
-
-      <!-- Avatar Selector Tabs -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-zinc-800 bg-zinc-950/40 text-xs">
-        <button onclick="selectPlaygroundAvatar('aarav')" id="tab-aarav" class="avatar-tab active py-3 px-4 text-left border-b-2 sm:border-b-0 sm:border-r border-white bg-zinc-900/60 text-white transition-all">
-          <div class="font-medium">Aarav Sharma</div>
-          <div class="text-[11px] text-zinc-400">Migrated India &rarr; Amsterdam</div>
-        </button>
-        <button onclick="selectPlaygroundAvatar('pooja')" id="tab-pooja" class="avatar-tab py-3 px-4 text-left sm:border-r border-zinc-800 text-zinc-400 hover:text-zinc-200 transition-all">
-          <div class="font-medium">Pooja Mehra</div>
-          <div class="text-[11px] text-zinc-500">Bootstrapped D2C Founder</div>
-        </button>
-        <button onclick="selectPlaygroundAvatar('kabir')" id="tab-kabir" class="avatar-tab py-3 px-4 text-left text-zinc-400 hover:text-zinc-200 transition-all">
-          <div class="font-medium">Dr. Kabir Sen</div>
-          <div class="text-[11px] text-zinc-500">Healthcare Specialist Consultant</div>
-        </button>
-      </div>
-
-      <!-- Playground Interactive Body -->
-      <div class="p-5 sm:p-7 space-y-6">
-        <!-- Avatar Profile Header -->
-        <div class="p-4 rounded bg-zinc-900/40 border border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 id="playground-name" class="font-semibold text-white text-sm">Aarav Sharma</h3>
-              <span id="playground-category" class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300">
-                Global Expat & Migration Story
-              </span>
-            </div>
-            <p id="playground-tagline" class="text-xs text-zinc-400 mt-1">
-              Migrated from Pune to Amsterdam • Senior Tech Lead
-            </p>
-            <p id="playground-source" class="text-[11px] font-mono text-zinc-500 mt-1">
-              Trained on 1,120 ChatGPT & Claude chats on EU Blue Card, relocation & tech hiring
-            </p>
-          </div>
-          <div class="text-right font-mono text-[11px]">
-            <span class="text-zinc-500 block">Live Question Fee:</span>
-            <span id="playground-fee" class="text-emerald-400 font-bold text-sm">$8.00 / question</span>
-          </div>
-        </div>
-
-        <!-- Sample Questions Chips -->
-        <div>
-          <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 block mb-2">
-            Ask a test question from their real journey:
-          </span>
-          <div class="flex flex-wrap gap-2" id="prompt-chips">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Simulated Response Box -->
-        <div class="rounded border border-zinc-800/90 bg-zinc-950/80 p-5 font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line" id="playground-response-box">
-          Loading playground avatar...
-        </div>
-
-        <!-- Custom Question Input -->
-        <form onsubmit="handlePlaygroundSubmit(event)" class="flex flex-col sm:flex-row gap-2.5 pt-2">
-          <input type="text" id="playground-input" placeholder="Ask this avatar about their journey, mistakes, or advice..." class="flex-1 form-input rounded px-3.5 py-2.5 text-xs text-white placeholder-zinc-500">
-          <button type="submit" id="playground-submit-btn" class="px-4 py-2.5 bg-zinc-200 hover:bg-white text-zinc-900 text-xs font-medium rounded transition-all flex items-center justify-center gap-1.5">
-            <span>Ask in Playground</span>
-            <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i>
-          </button>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- Diverse Audiences: Founders, Immigrants, Consultants, Biographies -->
+  <!-- ============================================================ -->
+  <!-- AUDIENCE PILLARS -->
+  <!-- ============================================================ -->
   <section id="audiences" class="relative z-10 py-16 px-4 sm:px-6 max-w-5xl mx-auto">
     <div class="mb-10">
       <span class="text-xs font-mono uppercase tracking-widest text-zinc-500 block mb-1.5">Who It's For</span>
@@ -457,45 +628,45 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-      <!-- 1. Indian Migrants & Expats -->
+      <!-- 1. Living Biographies -->
+      <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i>
+          <h3 class="text-sm font-semibold text-white font-sans">Interactive Living Biographies</h3>
+        </div>
+        <p class="text-zinc-400 leading-relaxed">
+          Instead of a flat memoir or static bio, give people an interactive living biography. Anyone can visit your link and ask specific questions about your milestones, career decisions, and personal resilience playbooks.
+        </p>
+        <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
+          Topics: Life transitions, personal frameworks, hard-earned philosophies
+        </div>
+      </div>
+
+      <!-- 2. Indian Migrants & Expats -->
       <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
         <div class="flex items-center gap-2">
           <i data-lucide="globe" class="w-4 h-4 text-zinc-300"></i>
           <h3 class="text-sm font-semibold text-white font-sans">People Who Migrated Out of India</h3>
         </div>
         <p class="text-zinc-400 leading-relaxed">
-          If you moved from India to Europe, the US, Canada, the UK, or Singapore, you get pinged weekly: <em>"How did you get the visa? How is the tax? How did you find an apartment?"</em> Stop spending your weekends writing the same replies. Put your Saariv avatar in your bio and earn while helping fellow aspirants.
+          If you moved from India to Europe, the US, Canada, or Singapore, you receive constant messages asking about visa sponsorship, rental hunt realities, and tax rulings. Share your avatar link and earn while helping fellow aspirants.
         </p>
         <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Topics: Visa hurdles, rental deposits, tax rulings, tech interview bars
+          Topics: EU Blue Card, Netherlands 30% ruling, tech hiring hurdles
         </div>
       </div>
 
-      <!-- 2. Founders & Operators -->
+      <!-- 3. Founders & Operators -->
       <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
         <div class="flex items-center gap-2">
           <i data-lucide="rocket" class="w-4 h-4 text-zinc-300"></i>
-          <h3 class="text-sm font-semibold text-white font-sans">Startup Founders & Solopreneurs</h3>
+          <h3 class="text-sm font-semibold text-white font-sans">Startup Founders & Builders</h3>
         </div>
         <p class="text-zinc-400 leading-relaxed">
-          You've made expensive mistakes with suppliers, survived brutal CAC spikes, and pitched angels. Your raw problem-solving notes in your AI chats are worth thousands to junior founders. Turn them into an interactive advisory avatar that earns on autopilot.
+          You've solved brutal vendor issues, survived marketing CAC spikes, and pitched angels. Your problem-solving notes inside your AI chats are a masterclass for junior founders.
         </p>
         <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Topics: 0 to 1 traction, supplier contract gotchas, angel fundraising
-        </div>
-      </div>
-
-      <!-- 3. Living Biographies -->
-      <div id="biography" class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
-        <div class="flex items-center gap-2">
-          <i data-lucide="book-open" class="w-4 h-4 text-zinc-300"></i>
-          <h3 class="text-sm font-semibold text-white font-sans">Interactive Living Biographies</h3>
-        </div>
-        <p class="text-zinc-400 leading-relaxed">
-          Instead of a static memoir or LinkedIn 'About' section, give people an interactive living biography. Anyone can visit your link and ask specific questions about your career transitions, personal philosophies, and key life decisions.
-        </p>
-        <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Topics: Life transitions, career pivots, personal resilience playbooks
+          Topics: 0-to-1 traction, manufacturing mistakes, angel pitch metrics
         </div>
       </div>
 
@@ -503,120 +674,49 @@
       <div class="p-6 rounded-lg border border-zinc-800 bg-surface-card space-y-3">
         <div class="flex items-center gap-2">
           <i data-lucide="briefcase" class="w-4 h-4 text-zinc-300"></i>
-          <h3 class="text-sm font-semibold text-white font-sans">Consultants & Domain Advisors</h3>
+          <h3 class="text-sm font-semibold text-white font-sans">Specialist Consultants & Advisors</h3>
         </div>
         <p class="text-zinc-400 leading-relaxed">
-          Monetize your framework library without getting stuck in 60-minute Zoom calendar ping-pong. Provide asynchronous advisory sessions to clients globally with zero upfront software costs.
+          Monetize your framework library without getting stuck in calendar ping-pong. Provide asynchronous advisory sessions to clients globally with zero upfront software costs.
         </p>
         <div class="pt-3 border-t border-zinc-800/80 text-[11px] font-mono text-zinc-500">
-          Topics: System architecture, clinical workflows, enterprise GTM
+          Topics: System architecture, enterprise pilots, clinical workflows
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Join Waitlist Form Section -->
-  <section id="waitlist" class="relative z-10 py-20 px-4 sm:px-6 max-w-3xl mx-auto">
+  <!-- ============================================================ -->
+  <!-- WAITLIST NOTIFICATION SECTION -->
+  <!-- ============================================================ -->
+  <section id="waitlist" class="relative z-10 py-16 px-4 sm:px-6 max-w-3xl mx-auto">
     <div class="rounded-lg border border-zinc-800 bg-[#0d0f17] p-8 sm:p-10 shadow-2xl">
-      <!-- Header -->
-      <div class="mb-8 border-b border-zinc-800 pb-6">
-        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 mb-3">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span>Waitlist Registration</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-serif text-white font-normal">
-          Join the Saariv Waitlist
-        </h2>
-        <p class="text-xs text-zinc-400 mt-1.5">
-          Join 340+ founders, global expats, and advisors. We will notify you when your creation batch is unlocked. No upfront payment—we only take a commission when your customers pay.
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Waitlist Updates</span>
+        <h3 class="text-xl font-serif text-white">Join the Community Waitlist</h3>
+        <p class="text-xs text-zinc-400 mt-1">
+          Stay informed as we unlock new public link distribution channels and payment integrations.
         </p>
       </div>
 
-      <!-- Success Notification -->
-      <div id="waitlist-success" class="hidden mb-6 p-5 rounded border border-emerald-500/30 bg-emerald-950/20 text-xs font-mono">
-        <div class="flex items-center gap-2 text-emerald-400 font-semibold mb-1">
-          <i data-lucide="check" class="w-4 h-4"></i>
-          <span>You Have Joined the Waitlist!</span>
-        </div>
-        <p class="text-zinc-300 text-[11px] mb-2" id="waitlist-success-msg">
-          We will review your profile and send your prompt extraction package shortly.
-        </p>
-        <span class="text-zinc-500 text-[10px]">Your Queue Position: #<strong id="waitlist-queue-num" class="text-zinc-300">341</strong></span>
+      <div id="waitlist-success" class="hidden mb-6 p-4 rounded border border-emerald-500/30 bg-emerald-950/20 text-xs font-mono text-emerald-400">
+        You are registered on the waitlist! We will notify you when your public link is live.
       </div>
 
-      <!-- Error Notification -->
-      <div id="waitlist-error" class="hidden mb-6 p-4 rounded border border-red-500/30 bg-red-950/20 text-xs font-mono text-red-300">
-        <span id="waitlist-error-message">Unable to join waitlist. Please verify your fields.</span>
-      </div>
-
-      <!-- Form -->
-      <form id="waitlist-form" onsubmit="handleWaitlistSubmit(event)" class="space-y-5 text-xs">
+      <form onsubmit="handleWaitlistSubmit(event)" class="space-y-4 text-xs">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Full Name <span class="text-zinc-200">*</span>
-            </label>
-            <input type="text" id="name" name="name" required placeholder="Aarav Sharma" class="w-full form-input rounded px-3 py-2.5 text-xs">
+            <label for="wl_name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1">Name</label>
+            <input type="text" id="wl_name" name="name" required placeholder="Aarav Sharma" class="w-full form-input rounded px-3 py-2 text-xs">
           </div>
           <div>
-            <label for="email" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Email Address <span class="text-zinc-200">*</span>
-            </label>
-            <input type="email" id="email" name="email" required placeholder="aarav@amsterdamtech.nl" class="w-full form-input rounded px-3 py-2.5 text-xs">
+            <label for="wl_email" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1">Email</label>
+            <input type="email" id="wl_email" name="email" required placeholder="aarav@example.com" class="w-full form-input rounded px-3 py-2 text-xs">
           </div>
         </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="profile_type" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              Your Primary Journey / Story
-            </label>
-            <select id="profile_type" name="profile_type" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
-              <option value="Migrated Out of India / Global Expat">Migrated Out of India / Global Expat Story</option>
-              <option value="Startup Founder / Business Builder">Startup Founder / Business Builder</option>
-              <option value="Consultant / Specialist Advisor">Consultant / Specialist Advisor</option>
-              <option value="Living Biography / Life Story">Living Biography / Personal Story</option>
-              <option value="Career Transition & Mentorship">Career Transition & Mentorship</option>
-              <option value="Other Lived Experience">Other Lived Experience</option>
-            </select>
-          </div>
-          <div>
-            <label for="profile_url" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-              LinkedIn / Twitter / Website URL
-            </label>
-            <input type="url" id="profile_url" name="profile_url" placeholder="https://linkedin.com/in/aarav" class="w-full form-input rounded px-3 py-2.5 text-xs">
-          </div>
-        </div>
-
-        <div>
-          <label for="primary_bot" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-            Chatbots You Regularly Use
-          </label>
-          <select id="primary_bot" name="primary_bot" class="w-full form-input rounded px-3 py-2.5 text-xs text-white">
-            <option value="ChatGPT (OpenAI)">ChatGPT (OpenAI)</option>
-            <option value="Claude (Anthropic)">Claude (Anthropic)</option>
-            <option value="Gemini (Google)">Gemini (Google)</option>
-            <option value="Grok (xAI)">Grok (xAI)</option>
-            <option value="Multiple Chatbots">Multiple Chatbots</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="story_focus" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-            What specific stories, lessons, or advice do people frequently ask you about?
-          </label>
-          <textarea id="story_focus" name="story_focus" rows="3" placeholder="e.g. Navigating Netherlands Blue Card, managing D2C supplier failures, clinical health tech audits, or early career lessons..." class="w-full form-input rounded px-3 py-2.5 text-xs"></textarea>
-        </div>
-
-        <div class="pt-2">
-          <button type="submit" id="waitlist-submit-btn" class="w-full py-3 px-4 bg-white hover:bg-zinc-200 text-black font-medium text-xs rounded transition-all flex items-center justify-center gap-2">
-            <span id="waitlist-btn-text">Join Waitlist</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-          </button>
-          <p class="text-center text-[10px] text-zinc-500 font-mono mt-3">
-            Zero upfront payment • Commission-only when you earn • Strict privacy & control
-          </p>
-        </div>
+        <button type="submit" class="w-full py-2.5 px-4 bg-zinc-800 hover:bg-zinc-700 text-white font-medium text-xs rounded transition-all">
+          Get Waitlist Updates
+        </button>
       </form>
     </div>
   </section>
@@ -631,49 +731,37 @@
     <div class="space-y-3 text-xs">
       <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
         <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>How does the prompt-based extraction process work?</span>
+          <span>What is a Living Biography?</span>
           <span class="ml-4 transition-transform group-open:rotate-180">
             <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
           </span>
         </summary>
         <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          You paste Saariv's Discovery Prompt into your chatbots. It generates the topics and subtopics over which you've had deep chats. You copy that output into Saariv and select only the topics you wish to share. Saariv then generates a second Deep Extraction Prompt for those topics. You paste that into your chatbots, copy the output back into Saariv, and test your avatar in the Playground.
+          A Living Biography is an interactive, conversational representation of your life journey, decisions, and lessons. Instead of someone reading a static bio or LinkedIn profile, they can have a real conversation with your AI avatar, asking about your specific moves, challenges, and insights.
         </p>
       </details>
 
       <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
         <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>What is the Playground?</span>
+          <span>Why do I need to turn on persistent memory in my chatbot?</span>
           <span class="ml-4 transition-transform group-open:rotate-180">
             <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
           </span>
         </summary>
         <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          The Playground is your private sandbox environment where you can ask your avatar questions, inspect its tone, and verify its accuracy before going live. Only when you're 100% satisfied do you click 'Go Live' to generate your public link.
+          Prompt 1 instructs the chatbot to review your past discussions, summaries, and persistent memory across your entire conversation history to extract an accurate taxonomy. Enabling memory ensures the chatbot can search across all previous discussions rather than just a single blank thread.
         </p>
       </details>
 
       <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
         <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>How does monetization work without upfront payment?</span>
+          <span>How does the RAG system in the Playground work?</span>
           <span class="ml-4 transition-transform group-open:rotate-180">
             <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
           </span>
         </summary>
         <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          You never pay an upfront setup fee or monthly SaaS subscription. You set your own price per question (e.g. $8, $15, or $50). When a follower or customer pays to ask a question, we take a modest commission cut to cover hosting and AI inference, and the rest is deposited straight to your account.
-        </p>
-      </details>
-
-      <details class="group rounded border border-zinc-800 bg-surface-card p-4 [&_summary::-webkit-details-marker]:hidden">
-        <summary class="flex items-center justify-between cursor-pointer font-medium text-zinc-200">
-          <span>Can I use this purely as a Living Biography?</span>
-          <span class="ml-4 transition-transform group-open:rotate-180">
-            <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500"></i>
-          </span>
-        </summary>
-        <p class="mt-3 text-zinc-400 leading-relaxed font-sans">
-          Yes! Many creators use Saariv as an interactive Living Biography where friends, family, or community members can come and explore their personal milestones, life transitions, and lessons learned through interactive conversations.
+          When you complete Step 4, Saariv stores your extracted experiences in a local session folder and indexes each topic chunk. When you ask a question in the Playground, our RAG retrieval system searches your indexed chunks, extracts the exact matching experience, and generates an answer strictly grounded in your authentic story.
         </p>
       </details>
     </div>
@@ -684,13 +772,12 @@
     <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 font-mono">
       <div class="flex items-center gap-2">
         <span class="text-zinc-200 font-semibold font-sans">saariv</span>
-        <span>• AI Avatars from Lived Experiences</span>
+        <span>• Living Biography & AI Avatars</span>
       </div>
       <div class="flex items-center gap-5">
-        <a href="#how-it-works" class="hover:text-zinc-300 transition-colors">How It Works</a>
-        <a href="#playground" class="hover:text-zinc-300 transition-colors">Playground</a>
-        <a href="#audiences" class="hover:text-zinc-300 transition-colors">Who It's For</a>
-        <a href="#waitlist" class="hover:text-zinc-300 transition-colors">Waitlist</a>
+        <a href="#try-saariv" class="hover:text-zinc-300 transition-colors">Onboarding Journey</a>
+        <a href="#monetization-flow" class="hover:text-zinc-300 transition-colors">Monetization</a>
+        <a href="#audiences" class="hover:text-zinc-300 transition-colors">Audiences</a>
         <a href="/health" class="hover:text-emerald-400 transition-colors">Health</a>
       </div>
       <div>

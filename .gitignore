@@ -41,3 +41,7 @@ instance/
 Thumbs.db
 .idea/
 .vscode/
+
+# Temporary profile and RAG storage
+tmp_profiles/
+tmp/
