@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Try Saariv — Create Your Living Biography Avatar</title>
+  <meta name="description" content="Step-by-step creation of your Living Biography avatar from your chatbot history.">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f4f6' stroke-width='2'><path d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z'/><path d='M6 6h10M6 10h10M6 14h6'/></svg>">
+  
+  <!-- Google Fonts: Inter & Newsreader -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#090a0f',
+              card: '#11131a',
+              elevated: '#161922',
+              border: 'rgba(255, 255, 255, 0.08)',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-[#090a0f] text-[#f4f4f6] font-sans antialiased selection:bg-zinc-700 selection:text-white">
+
+  <!-- Subtle Top Spotlight -->
+  <div class="fixed top-0 left-0 right-0 h-[400px] pointer-events-none subtle-spotlight z-0"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-[#090a0f]/90 border-b border-white/[0.06]">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-md bg-white flex items-center justify-center text-black font-semibold text-xs tracking-tighter">
+          S
+        </span>
+        <span class="text-base font-semibold tracking-tight text-white font-sans">saariv</span>
+        <span class="text-[11px] text-zinc-500 font-mono tracking-wider ml-1">/ ONBOARDING</span>
+      </a>
+
+      <div class="flex items-center gap-4">
+        <a href="/" class="text-xs font-mono text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Back to Saariv Overview</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Stepper Container -->
+  <main class="relative z-10 py-10 px-4 sm:px-6 max-w-5xl mx-auto">
+    <!-- Header Title -->
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 mb-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span>Living Biography Creator</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-serif text-white">Create Your Personal AI Avatar</h1>
+      <p class="text-xs text-zinc-400 max-w-xl mt-1">
+        Follow the 5 steps below to extract your knowledge taxonomy, select topics, capture your lived experiences, and test your avatar in the playground.
+      </p>
+    </div>
+
+    <!-- Stepper Progress Bar -->
+    <div class="rounded-lg border border-zinc-800 bg-[#0c0e14] p-3 sm:p-4 mb-6 shadow-xl">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-left">
+        <!-- Step 1 Tab -->
+        <button onclick="goToStep(1)" id="stepper-tab-1" class="stepper-tab active p-3 rounded border border-white bg-zinc-900 text-white transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 01</span>
+          <span class="text-xs font-semibold block truncate">Basic Details</span>
+        </button>
+
+        <!-- Step 2 Tab -->
+        <button onclick="goToStep(2)" id="stepper-tab-2" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 02</span>
+          <span class="text-xs font-semibold block truncate">Topic Discovery</span>
+        </button>
+
+        <!-- Step 3 Tab -->
+        <button onclick="goToStep(3)" id="stepper-tab-3" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 03</span>
+          <span class="text-xs font-semibold block truncate">Select Topics</span>
+        </button>
+
+        <!-- Step 4 Tab -->
+        <button onclick="goToStep(4)" id="stepper-tab-4" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 04</span>
+          <span class="text-xs font-semibold block truncate">Experience Extract</span>
+        </button>
+
+        <!-- Step 5 Tab -->
+        <button onclick="goToStep(5)" id="stepper-tab-5" class="stepper-tab p-3 rounded border border-zinc-800 text-zinc-500 transition-all text-left col-span-2 sm:col-span-1">
+          <span class="text-[10px] font-mono text-zinc-400 block">STEP 05</span>
+          <span class="text-xs font-semibold block truncate">Playground</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STEP 1: BASIC DETAILS -->
+    <!-- ============================================================ -->
+    <div id="step-panel-1" class="step-panel rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 1 of 5</span>
+        <h2 class="text-xl font-serif text-white">Your Creator Profile</h2>
+        <p class="text-xs text-zinc-400 mt-1">
+          Enter your basic information. Your avatar will answer questions and represent your story under this name.
+        </p>
+      </div>
+
+      <form onsubmit="handleStep1Submit(event)" class="space-y-4 max-w-xl text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="step1_first_name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+              First Name <span class="text-zinc-200">*</span>
+            </label>
+            <input type="text" id="step1_first_name" required placeholder="Aarav" class="w-full form-input rounded px-3 py-2.5 text-xs">
+          </div>
+          <div>
+            <label for="step1_last_name" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+              Last Name <span class="text-zinc-200">*</span>
+            </label>
+            <input type="text" id="step1_last_name" required placeholder="Sharma" class="w-full form-input rounded px-3 py-2.5 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label for="step1_email" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+            Email Address <span class="text-zinc-200">*</span>
+          </label>
+          <input type="email" id="step1_email" required placeholder="aarav.sharma@example.com" class="w-full form-input rounded px-3 py-2.5 text-xs">
+        </div>
+
+        <div>
+          <label for="step1_linkedin" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+            LinkedIn Profile URL
+          </label>
+          <input type="url" id="step1_linkedin" placeholder="https://linkedin.com/in/aarav-sharma" class="w-full form-input rounded px-3 py-2.5 text-xs">
+        </div>
+
+        <div class="pt-6 border-t border-zinc-800/80 flex items-center justify-between">
+          <a href="/" class="text-xs font-mono text-zinc-500 hover:text-zinc-300 flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Cancel & Return to Home</span>
+          </a>
+          <button type="submit" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+            <span>Continue to Prompt 1</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STEP 2: PROMPT 1 (TAXONOMY DISCOVERY) -->
+    <!-- ============================================================ -->
+    <div id="step-panel-2" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 2 of 5</span>
+        <h2 class="text-xl font-serif text-white">Generate Your Chatbot Taxonomy</h2>
+        <p class="text-xs text-zinc-400 mt-1">
+          Copy this discovery prompt and run it in whichever chatbots you use (ChatGPT, Claude, Grok, Gemini).
+        </p>
+      </div>
+
+      <!-- Persistent Memory Instruction Banner -->
+      <div class="mb-5 p-4 rounded border border-amber-500/30 bg-amber-950/20 text-xs font-mono text-amber-300 flex items-start gap-3">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0"></i>
+        <div>
+          <strong class="text-white block mb-0.5">Instruction Before Pasting:</strong>
+          Please ensure that <strong>persistent memory is turned on</strong> in your chatbot settings (e.g. ChatGPT Memory / Claude Projects) before you paste this prompt.
+        </div>
+      </div>
+
+      <!-- Prompt 1 Display Box -->
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-zinc-400">Prompt 1: Taxonomy & Topic Extractor</span>
+          <button onclick="copyPrompt('prompt1-content', 'copy-btn-1')" id="copy-btn-1" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[11px] font-mono text-zinc-200 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Prompt 1</span>
+          </button>
+        </div>
+        <div id="prompt1-content" class="p-4 rounded border border-zinc-800 bg-zinc-950/80 font-mono text-[11px] text-zinc-300 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">You are analyzing my full conversation history with you. Go through every conversation you have access to (persistent memory, past chat summaries, titles, excerpts, and this current chat) and build a complete taxonomy of everything I have discussed with you.
+
+TASK
+Extract every Domain, Subdomain, Topic, and Subtopic that appears in my conversations, and return them as a single JSON object.
+
+DEFINITIONS
+- Domain: a broad field (e.g., Software Engineering, Finance, Career, Health).
+- Subdomain: a specialization inside a domain (e.g., Backend Engineering inside Software Engineering).
+- Topic: a specific subject I asked about or worked on within a subdomain.
+- Subtopic: a specific question, concept, tool, decision, or problem inside a topic.
+
+RULES
+1. Cover everything. Include casual, one-off, and personal topics, not only professional ones.
+2. Use only evidence from my conversations. Do not invent topics or infer interests I never discussed.
+3. Merge near-duplicate topics, but keep distinct questions as separate subtopics.
+4. For each topic, include a short evidence note (what I asked or did) and an approximate date or period if known, otherwise "unknown".
+5. Add a "frequency" field per topic: "one-off", "occasional", or "recurring".
+6. Add a "confidence" field per topic: "high", "medium", or "low", based on how directly the evidence supports it.
+7. If your access to my history is partial, say so in the "coverage_notes" field and list what may be missing. Do not pretend to have seen everything.
+8. Do not include any personal identifiers (passwords, API keys, phone numbers, addresses).
+9. Output ONLY valid JSON. No markdown, no commentary before or after.
+
+OUTPUT FORMAT
+{
+  "metadata": {
+    "generated_on": "YYYY-MM-DD",
+    "source_scope": "what history you had access to",
+    "coverage_notes": "limitations or gaps",
+    "total_domains": 0,
+    "total_topics": 0
+  },
+  "domains": [
+    {
+      "domain": "Domain name",
+      "subdomains": [
+        {
+          "subdomain": "Subdomain name",
+          "topics": [
+            {
+              "topic": "Topic name",
+              "evidence": "One-line description of what I asked or did",
+              "period": "YYYY-MM or range or unknown",
+              "frequency": "one-off | occasional | recurring",
+              "confidence": "high | medium | low",
+              "subtopics": [
+                "Subtopic 1",
+                "Subtopic 2"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Before finalizing, check that no conversation topic is missing, that every topic sits under the correct domain and subdomain, and that the JSON is valid.</div>
+      </div>
+
+      <!-- Paste Space for Chatbot Output -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label for="step2_pasted_json" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider">
+            Paste the JSON Output from Your Chatbot:
+          </label>
+          <button onclick="loadSampleTaxonomy()" type="button" class="text-[11px] font-mono text-zinc-400 hover:text-white underline">
+            Load Sample Output (Test Instantly)
+          </button>
+        </div>
+        <textarea id="step2_pasted_json" rows="7" placeholder="Paste the generated JSON here..." class="w-full form-input font-mono text-[11px] rounded p-3 text-zinc-200"></textarea>
+      </div>
+
+      <div id="step2_error" class="hidden mt-3 p-3 rounded border border-red-500/30 bg-red-950/20 text-xs text-red-300 font-mono"></div>
+
+      <!-- Back and Next Buttons -->
+      <div class="pt-6 border-t border-zinc-800/80 flex items-center justify-between mt-6">
+        <button onclick="goToStep(1)" type="button" class="px-4 py-2 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Back to Step 1 (Profile)</span>
+        </button>
+        <button onclick="handleStep2Submit()" type="button" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+          <span>Validate & Select Topics</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STEP 3: SELECT TOPICS (DOMAINS, SUBDOMAINS, TOPICS, SUBTOPICS) -->
+    <!-- ============================================================ -->
+    <div id="step-panel-3" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 3 of 5</span>
+          <h2 class="text-xl font-serif text-white">Select What to Include in Your Avatar</h2>
+          <p class="text-xs text-zinc-400 mt-1">
+            Domains, subdomains, topics, and subtopics are all individually selectable. Toggle entire sections or pick specific items.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleAllCheckboxes(true)" class="px-2.5 py-1 rounded bg-zinc-800 text-[11px] font-mono text-zinc-300 hover:text-white">Select All</button>
+          <button onclick="toggleAllCheckboxes(false)" class="px-2.5 py-1 rounded bg-zinc-800 text-[11px] font-mono text-zinc-300 hover:text-white">Deselect All</button>
+        </div>
+      </div>
+
+      <!-- Hierarchy Checklist Container -->
+      <div id="topics-checklist" class="space-y-4 max-h-[460px] overflow-y-auto pr-2">
+        <!-- Dynamically rendered hierarchy -->
+      </div>
+
+      <!-- Back and Next Buttons -->
+      <div class="pt-6 border-t border-zinc-800/80 flex items-center justify-between mt-6">
+        <button onclick="goToStep(2)" type="button" class="px-4 py-2 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Back to Step 2 (Discovery Prompt)</span>
+        </button>
+        <div class="flex items-center gap-3">
+          <span id="selected-counter" class="text-xs font-mono text-zinc-400">0 items selected</span>
+          <button onclick="handleStep3Submit()" type="button" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+            <span>Next: Extract Experiences</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STEP 4: PROMPT 2 (UNIQUE EXPERIENCES) -->
+    <!-- ============================================================ -->
+    <div id="step-panel-4" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0d0f17] p-6 sm:p-10 shadow-2xl">
+      <div class="mb-6 border-b border-zinc-800 pb-4">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">Step 4 of 5</span>
+        <h2 class="text-xl font-serif text-white">Extract Unique Lived Experiences</h2>
+        <p class="text-xs text-zinc-400 mt-1">
+          Saariv has generated Prompt 2 with your selected domains, subdomains, and topics appended. Copy and paste it in your chatbot to extract your actual experiences.
+        </p>
+      </div>
+
+      <!-- Prompt 2 Display Box -->
+      <div class="space-y-2 mb-6">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-zinc-400">Prompt 2: Lived Experience & Decision Extractor</span>
+          <button onclick="copyPrompt('prompt2-content', 'copy-btn-2')" id="copy-btn-2" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[11px] font-mono text-zinc-200 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy Prompt 2</span>
+          </button>
+        </div>
+        <div id="prompt2-content" class="p-4 rounded border border-zinc-800 bg-zinc-950/80 font-mono text-[11px] text-zinc-300 max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">Loading prompt with selected topics...</div>
+      </div>
+
+      <!-- Paste Space for Experience Output -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label for="step4_pasted_json" class="block font-mono text-[11px] text-zinc-400 uppercase tracking-wider">
+            Paste the Chatbot Experience JSON Output:
+          </label>
+          <button onclick="loadSampleExperiences()" type="button" class="text-[11px] font-mono text-zinc-400 hover:text-white underline">
+            Load Sample Experience (Test Instantly)
+          </button>
+        </div>
+        <textarea id="step4_pasted_json" rows="7" placeholder="Paste the experience output JSON here..." class="w-full form-input font-mono text-[11px] rounded p-3 text-zinc-200"></textarea>
+      </div>
+
+      <div id="step4_error" class="hidden mt-3 p-3 rounded border border-red-500/30 bg-red-950/20 text-xs text-red-300 font-mono"></div>
+
+      <!-- Back and Next Buttons -->
+      <div class="pt-6 border-t border-zinc-800/80 flex items-center justify-between mt-6">
+        <button onclick="goToStep(3)" type="button" class="px-4 py-2 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Back to Step 3 (Topic Selection)</span>
+        </button>
+        <button onclick="handleStep4Submit()" id="build-avatar-btn" type="button" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center gap-1.5">
+          <span>Build My Avatar & Open Playground</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STEP 5: PERSONAL PLAYGROUND (CLEAN UI, WITH BACK) -->
+    <!-- ============================================================ -->
+    <div id="step-panel-5" class="step-panel hidden rounded-lg border border-zinc-800 bg-[#0c0e14] shadow-2xl overflow-hidden">
+      <!-- Playground Header -->
+      <div class="px-5 py-3.5 border-b border-zinc-800 bg-zinc-950 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div class="font-mono text-[11px] text-zinc-200 flex items-center gap-1.5">
+            <span id="avatar-title" class="font-bold text-white">Your Living Biography Avatar</span>
+            <span class="text-zinc-600">/</span>
+            <span class="text-emerald-400">Active</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="goToStep(4)" class="px-3 py-1.5 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white flex items-center gap-1 transition-colors">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i>
+            <span>Back to Edit Experiences</span>
+          </button>
+          <button onclick="goToStep(3)" class="px-3 py-1.5 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white flex items-center gap-1 transition-colors">
+            <span>Modify Selected Topics</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 sm:p-8 space-y-6">
+        <!-- Creator Status Card -->
+        <div class="p-4 rounded border border-zinc-800 bg-zinc-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div>
+            <span class="text-white font-semibold block text-sm" id="playground-creator-name">Aarav Sharma</span>
+            <p class="text-[11px] text-zinc-400 mt-0.5" id="playground-indexed-summary">
+              Lived experiences indexed and ready for testing.
+            </p>
+          </div>
+          <div class="font-mono text-[11px] text-zinc-400 bg-zinc-950 px-3 py-1.5 rounded border border-zinc-800 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>Grounded in Your Authentic Experiences</span>
+          </div>
+        </div>
+
+        <!-- Sample Query Suggestions -->
+        <div>
+          <span class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 block mb-2">
+            Test a question from your indexed experience:
+          </span>
+          <div class="flex flex-wrap gap-2" id="playground-prompt-chips">
+            <!-- Dynamically populated from selected topics -->
+          </div>
+        </div>
+
+        <!-- Answer Window -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+            <span>Avatar Response:</span>
+            <span id="retrieved-badge" class="hidden px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px]">
+              Retrieved Topic: <span id="retrieved-topic-name">Topic</span>
+            </span>
+          </div>
+          <div id="playground-response-box" class="p-5 rounded border border-zinc-800 bg-zinc-950/80 font-mono text-xs sm:text-sm text-zinc-200 leading-relaxed whitespace-pre-line min-h-[120px]">
+            Ask any question below to test how your avatar retrieves and answers strictly from your authentic journey.
+          </div>
+        </div>
+
+        <!-- Question Submission Form -->
+        <form onsubmit="handlePlaygroundQuery(event)" class="flex flex-col sm:flex-row gap-2.5">
+          <input type="text" id="playground-query-input" placeholder="Type a question about your experience (e.g. 'What was your biggest lesson from Google L5?')..." class="flex-1 form-input rounded px-3.5 py-2.5 text-xs text-white placeholder-zinc-500">
+          <button type="submit" id="playground-query-btn" class="px-5 py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold text-xs rounded transition-all flex items-center justify-center gap-1.5">
+            <span>Ask Avatar</span>
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          </button>
+        </form>
+
+        <!-- Navigation Footer within Step 5 -->
+        <div class="pt-4 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono text-zinc-400">
+          <button onclick="goToStep(4)" class="hover:text-white flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Step 4 (Experiences)</span>
+          </button>
+          <button onclick="goToStep(1)" class="hover:text-white">
+            Restart Onboarding
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-white/[0.06] bg-[#07080c] py-8 px-4 sm:px-6 mt-16">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 font-mono">
+      <div class="flex items-center gap-2">
+        <span class="text-zinc-200 font-semibold font-sans">saariv</span>
+        <span>• Living Biography Creator</span>
+      </div>
+      <div class="flex items-center gap-5">
+        <a href="/" class="hover:text-zinc-300 transition-colors">Overview</a>
+        <a href="/health" class="hover:text-emerald-400 transition-colors">System Health</a>
+      </div>
+      <div>
+        &copy; 2025 Saariv Inc. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/static/js/main.js"></script>
+  <script>
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

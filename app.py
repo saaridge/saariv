@@ -280,8 +280,14 @@ def generate_rag_answer(query: str, retrieved_chunks: List[Dict[str, Any]], prof
 
 @app.route("/", methods=["GET"])
 def index():
-    """Render Saariv Living Biography & Onboarding Stepper."""
+    """Render Saariv Living Biography Landing Page."""
     return render_template("index.html")
+
+
+@app.route("/try", methods=["GET"])
+def try_saariv():
+    """Render the dedicated Try Saariv Onboarding & Playground page."""
+    return render_template("try.html")
 
 
 @app.route("/health", methods=["GET"])
