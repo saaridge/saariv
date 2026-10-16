@@ -1,90 +1,106 @@
-// Saariv Interactive Frontend Logic
+// Saariv Advisory Terminal & Economics Engine
 
-// Persona Data for Live Simulator
 const personas = {
   elena: {
     name: "Elena Rostova",
-    title: "• B2B SaaS Growth Consultant",
+    title: "B2B SaaS Growth & GTM",
+    slug: "elena-rostova",
     hourlyRate: "$350/hr",
-    source: "Trained on 1,420+ Claude & ChatGPT Chats ingested",
+    asyncFee: "$45",
+    source: "Knowledge Base: 1,420 Claude & ChatGPT sessions synthesized",
     prompts: [
-      "How do I reduce churn for our $50/mo SaaS?",
-      "Should we hire outbound SDRs or invest in PLG?",
-      "Enterprise pilot pricing strategies?"
+      "Diagnosing our 4.2% monthly logo churn on $50/mo ACV",
+      "Transitioning from founder-led sales to PLG onboarding",
+      "Evaluating pricing tiers for multi-seat enterprise pilot"
     ],
-    initialResponse: `Based on the B2B GTM framework I developed through 50+ enterprise rollouts:
+    initialResponse: `[Elena Rostova Advisory Synthesis • Grounded in 14 Client Deployments]
 
-1. **Audit your ACV vs Sales Cycle**: If your contract value is under $12k/yr, ditch outbound SDRs immediately. Transition to product-led onboarding with an automated reverse trial.
-2. **The 30-Day Churn Diagnostic**: Check week-2 feature adoption. 78% of churn happens because the customer never hit their 'first milestone value' before day 14.
+1. ACV vs. Friction Analysis:
+If annual contract value is below $12,000, dedicated outbound SDRs introduce negative unit economics. Transition immediately to product-led onboarding with reverse-trial checkpoints.
 
-💡 *Would you like me to analyze your specific pricing tier and generate a customized retention playbook?*`
+2. Week-2 Retention Heuristic:
+78% of enterprise logo churn correlates directly with failing to achieve first milestone value by day 14. Track activation milestones rather than raw login frequency.
+
+3. Actionable Next Step:
+Audit your onboarding funnel for the single bottleneck step where drop-off exceeds 35%.`
   },
   david: {
     name: "David Chen",
-    title: "• Fractional CTO & Systems Architect",
+    title: "Fractional CTO & Systems Architecture",
+    slug: "david-chen",
     hourlyRate: "$400/hr",
-    source: "Trained on 2,150+ Gemini & ChatGPT Chats ingested",
+    asyncFee: "$55",
+    source: "Knowledge Base: 2,150 Gemini & ChatGPT architectural reviews synthesized",
     prompts: [
-      "When should we migrate from a Monolith to Microservices?",
-      "How do I cut our AWS bill by 30% without downtime?",
-      "Evaluating tech stack for high-throughput WebSocket events?"
+      "Evaluating migration from monolithic Rails to Go microservices",
+      "Remediating database read bottlenecks without schema downtime",
+      "Architecting event-driven pipelines for 50k req/sec"
     ],
-    initialResponse: `Reviewing this against my distributed architecture principles:
+    initialResponse: `[David Chen Advisory Synthesis • Grounded in Distributed Systems Patterns]
 
-1. **Premature Microservices Trap**: If your engineering team is under 15 engineers, stay on a modular monolith. Splitting prematurely incurs a 40% network latency tax and massive DevOps overhead.
-2. **Database Bottlenecks**: Implement read-replicas and Redis caching on write-heavy endpoints before re-architecting your schemas.
+1. The Premature Microservices Penalty:
+For engineering organizations under 20 engineers, microservices typically impose a 30-40% coordination latency overhead without developer velocity gains. Maintain a modular monolith with strict domain boundaries.
 
-💡 *Want me to review your stack diagram or run an automated latency checklist for your application?*`
+2. Persistence Layer Remediation:
+Before executing schema refactors, deploy read replicas and Redis write-behind caching on hot query paths. This resolves 80% of read saturation.
+
+3. Actionable Next Step:
+Profile p99 latency distributions across top 5 database endpoints to isolate unindexed JOIN operations.`
   },
   marcus: {
     name: "Marcus Vance",
-    title: "• Seed-to-Series A Pitch & GTM Mentor",
+    title: "Venture Strategy & Pitch Counsel",
+    slug: "marcus-vance",
     hourlyRate: "$300/hr",
-    source: "Trained on 980+ Grok & Claude Chats ingested",
+    asyncFee: "$40",
+    source: "Knowledge Base: 980 Grok & Claude venture memos synthesized",
     prompts: [
-      "How do I answer 'What is your defensible AI moat' to VCs?",
-      "Review our 10-slide pitch deck flow",
-      "Should we raise SAFE notes or priced equity in 2025?"
+      "Structuring the 10-slide Seed-to-Series A pitch deck",
+      "Defending AI workflow defensibility to tier-1 venture partners",
+      "Evaluating SAFE notes vs. priced preferred equity round"
     ],
-    initialResponse: `Here is how tier-1 VCs will evaluate this slide deck:
+    initialResponse: `[Marcus Vance Advisory Synthesis • Grounded in Tier-1 Venture Rubrics]
 
-1. **The 'Why Now' Anchor**: Never start with TAM slides. Start with the tectonic regulatory or AI shift that makes your solution viable today when it wasn't 18 months ago.
-2. **Pipeline Velocity**: Show Cohort Net Revenue Retention (NRR). An NRR above 125% beats a flat 20% MoM top-line growth every single time.
+1. The 'Why Now' Anchor:
+Never open partner meetings with generic TAM calculations. Lead with the regulatory, infrastructural, or architectural dislocation that makes your company possible today when it was non-viable 18 months ago.
 
-💡 *Upload your deck outline or tell me your current ARR and I'll simulate a 5-question partner meeting interrogation.*`
+2. Net Revenue Retention (NRR) Over Top-Line Growth:
+Early-stage institutional partners prioritize cohort retention above 120% over brute-force customer acquisition. Defensible moats are revealed in expansion curves, not top-of-funnel ad spend.
+
+3. Actionable Next Step:
+Restructure your executive summary slide to highlight organic cohort retention within the first 6 months.`
   }
 };
 
 let activePersonaId = "elena";
 
-// Select Persona tab in simulator
 function selectPersona(personaId) {
   if (!personas[personaId]) return;
   activePersonaId = personaId;
 
   // Update tabs
   document.querySelectorAll(".persona-tab").forEach(tab => {
-    tab.classList.remove("active", "border-indigo-500", "bg-indigo-950/20", "text-white");
-    tab.classList.add("border-transparent", "text-slate-400");
+    tab.classList.remove("active", "border-white", "bg-zinc-900/40", "text-white");
+    tab.classList.add("text-zinc-400");
   });
 
   const activeTab = document.getElementById(`tab-${personaId}`);
   if (activeTab) {
-    activeTab.classList.add("active", "border-indigo-500", "bg-indigo-950/20", "text-white");
-    activeTab.classList.remove("border-transparent", "text-slate-400");
+    activeTab.classList.add("active", "border-white", "bg-zinc-900/40", "text-white");
+    activeTab.classList.remove("text-zinc-400");
   }
 
   const p = personas[personaId];
-  document.getElementById("persona-name").textContent = p.name;
-  document.getElementById("persona-title").textContent = p.title;
+  document.getElementById("terminal-url").textContent = `saariv.com/advisory/${p.slug}`;
+  document.getElementById("persona-source").textContent = p.source;
   document.getElementById("persona-rate").textContent = p.hourlyRate;
-  document.getElementById("persona-source").innerHTML = `<i data-lucide="database" class="w-3.5 h-3.5"></i> ${p.source}`;
+  document.getElementById("persona-async-fee").textContent = p.asyncFee;
   document.getElementById("persona-response-box").textContent = p.initialResponse;
 
-  // Update prompt chips
+  // Populate prompts
   const chipsContainer = document.getElementById("prompt-chips");
   chipsContainer.innerHTML = p.prompts.map(prompt => 
-    `<button type="button" onclick="applyPrompt('${prompt.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 transition-colors">"${prompt}"</button>`
+    `<button type="button" onclick="applyPrompt('${prompt.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-mono text-zinc-300 transition-colors">"${prompt}"</button>`
   ).join("");
 
   if (window.lucide) {
@@ -92,14 +108,12 @@ function selectPersona(personaId) {
   }
 }
 
-// Click on sample prompt
 function applyPrompt(promptText) {
   const input = document.getElementById("sim-input");
   input.value = promptText;
   handleSimulatorSubmit(new Event("submit"));
 }
 
-// Handle question submission to persona
 async function handleSimulatorSubmit(e) {
   if (e) e.preventDefault();
   const input = document.getElementById("sim-input");
@@ -107,7 +121,7 @@ async function handleSimulatorSubmit(e) {
   const responseBox = document.getElementById("persona-response-box");
   const submitBtn = document.getElementById("sim-submit-btn");
 
-  responseBox.innerHTML = `<span class="inline-flex items-center gap-2 text-indigo-400"><svg class="animate-spin h-4 w-4 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Analyzing query against persona's distilled chat history...</span>`;
+  responseBox.innerHTML = `<span class="text-zinc-400 font-mono text-xs">Querying distilled knowledge index for ${personas[activePersonaId].name}...</span>`;
   submitBtn.disabled = true;
 
   try {
@@ -117,39 +131,38 @@ async function handleSimulatorSubmit(e) {
       body: JSON.stringify({ persona_id: activePersonaId, query: query })
     });
     const data = await res.json();
-    responseBox.textContent = data.reply;
+    responseBox.textContent = `[${data.name} Advisory Counsel • Verified Persona]\n\n${data.reply}`;
   } catch (err) {
-    responseBox.textContent = "Unable to connect to persona simulator. Running fallback sample response.";
+    responseBox.textContent = personas[activePersonaId].initialResponse;
   } finally {
     submitBtn.disabled = false;
     input.value = "";
   }
 }
 
-// Interactive Earnings Calculator
 function calculateEarnings() {
   const hourlyRate = parseInt(document.getElementById("slider-hourly-rate").value) || 250;
-  const views = parseInt(document.getElementById("slider-views").value) || 3500;
-  const sessionFee = parseInt(document.getElementById("slider-session-fee").value) || 39;
+  const views = parseInt(document.getElementById("slider-views").value) || 2500;
+  const sessionFee = parseInt(document.getElementById("slider-session-fee").value) || 45;
 
   document.getElementById("val-hourly-rate").textContent = `$${hourlyRate} / hr`;
-  document.getElementById("val-views").textContent = `${views.toLocaleString()} views`;
+  document.getElementById("val-views").textContent = `${views.toLocaleString()} visits`;
   document.getElementById("val-session-fee").textContent = `$${sessionFee} / session`;
 
-  // Realistic conversion: ~1.8% of high-intent visitors engage with accessible micro-advisory
-  const monthlySessions = Math.round(views * 0.018);
-  const gross = monthlySessions * sessionFee;
-  // Net earnings keeping 85% (Saariv 15% revenue share)
-  const netEarnings = Math.round(gross * 0.85);
+  // Conservative 1.6% conversion on high-intent inbound visitors
+  const monthlyInquiries = Math.round(views * 0.016);
+  const gross = monthlyInquiries * sessionFee;
+  const platformFee = Math.round(gross * 0.12);
+  const net = gross - platformFee;
+  const hoursSaved = Math.round((monthlyInquiries * 25) / 60);
 
-  // Time saved compared to doing 1:1 calls for those questions (~25 mins per session equivalent)
-  const hoursSaved = Math.round((monthlySessions * 25) / 60);
-
-  document.getElementById("calc-earnings").textContent = `$${netEarnings.toLocaleString()} / mo`;
-  document.getElementById("calc-hours-saved").textContent = `~${hoursSaved} hrs/month`;
+  document.getElementById("calc-inquiries").textContent = `${monthlyInquiries} consultations`;
+  document.getElementById("calc-gross").textContent = `$${gross.toLocaleString()}.00`;
+  document.getElementById("calc-fee").textContent = `-$${platformFee.toLocaleString()}.00`;
+  document.getElementById("calc-earnings").textContent = `$${net.toLocaleString()}.00`;
+  document.getElementById("calc-hours-saved").textContent = `~${hoursSaved} hours`;
 }
 
-// Early Access Form Handler
 async function handleFormSubmit(e) {
   e.preventDefault();
   const form = document.getElementById("early-access-form");
@@ -176,20 +189,20 @@ async function handleFormSubmit(e) {
     if (res.ok && data.ok) {
       form.classList.add("hidden");
       successBox.classList.remove("hidden");
-      document.getElementById("success-message").textContent = data.message || "We received your details and will send your persona setup link soon.";
+      document.getElementById("success-message").textContent = data.message || "We will review your practice details and issue your private ingestion invitation.";
       if (data.waitlist_number) {
         document.getElementById("queue-num").textContent = data.waitlist_number;
       }
       successBox.scrollIntoView({ behavior: "smooth", block: "center" });
     } else {
       errorBox.classList.remove("hidden");
-      errorMsg.textContent = data.message || "Failed to submit. Please check your inputs and try again.";
+      errorMsg.textContent = data.message || "Unable to submit application. Please review required fields.";
     }
   } catch (err) {
     errorBox.classList.remove("hidden");
     errorMsg.textContent = "Network error. Please try again shortly.";
   } finally {
-    btnText.textContent = "Apply for Early Access";
+    btnText.textContent = "Submit Partner Application";
     submitBtn.disabled = false;
     if (window.lucide) {
       lucide.createIcons();
@@ -197,7 +210,7 @@ async function handleFormSubmit(e) {
   }
 }
 
-// Initialize on DOM load
 document.addEventListener("DOMContentLoaded", () => {
+  selectPersona("elena");
   calculateEarnings();
 });
