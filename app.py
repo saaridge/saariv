@@ -36,7 +36,9 @@ def get_openai_api_key() -> str:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "waitlist.db")
 TMP_DIR = os.path.join(BASE_DIR, "tmp_profiles")
+QUESTIONS_LOG_PATH = os.path.join(BASE_DIR, "tmp", "user_questions.jsonl")
 os.makedirs(TMP_DIR, exist_ok=True)
+os.makedirs(os.path.dirname(QUESTIONS_LOG_PATH), exist_ok=True)
 
 
 def init_db():
@@ -63,6 +65,65 @@ def init_db():
 
 
 init_db()
+
+
+def log_user_question(session_id: str, question: str, retrieved_topic: str = ""):
+    """Log user question to a JSONL file with automatic cleanup of old entries."""
+    try:
+        # Create log entry
+        log_entry = {
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "session_id": session_id,
+            "question": question,
+            "retrieved_topic": retrieved_topic
+        }
+        
+        # Append to JSONL file (one JSON object per line)
+        with open(QUESTIONS_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(log_entry) + "\n")
+        
+        # Clean up old entries (older than 1 week)
+        cleanup_old_questions()
+        
+    except Exception as e:
+        app.logger.warning(f"Failed to log user question: {e}")
+
+
+def cleanup_old_questions():
+    """Remove questions older than 1 week from the log file."""
+    if not os.path.exists(QUESTIONS_LOG_PATH):
+        return
+    
+    try:
+        # Read all questions
+        with open(QUESTIONS_LOG_PATH, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        if not lines:
+            return
+        
+        # Filter out questions older than 1 week
+        one_week_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
+        recent_lines = []
+        
+        for line in lines:
+            try:
+                entry = json.loads(line.strip())
+                timestamp_str = entry.get("timestamp", "")
+                if timestamp_str:
+                    timestamp = datetime.datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+                    if timestamp >= one_week_ago:
+                        recent_lines.append(line)
+            except Exception:
+                # Keep malformed entries to avoid data loss
+                recent_lines.append(line)
+        
+        # Write back only recent questions
+        with open(QUESTIONS_LOG_PATH, "w", encoding="utf-8") as f:
+            f.writelines(recent_lines)
+            
+    except Exception as e:
+        app.logger.warning(f"Failed to cleanup old questions: {e}")
 
 
 def mail_configured() -> bool:
@@ -331,6 +392,29 @@ def onboarding_step1():
     with open(os.path.join(user_folder, "profile.json"), "w", encoding="utf-8") as f:
         json.dump(profile_payload, f, indent=2)
 
+    # Send notification email about new trial user (silently, don't affect response)
+    if mail_configured():
+        try:
+            subject = f"🎯 New Saariv Trial: {first_name} {last_name}"
+            body = (
+                f"Someone just tried Saariv!\n\n"
+                f"----------------------------------------\n"
+                f"Name:   {first_name} {last_name}\n"
+                f"Email:  {email}\n"
+                f"LinkedIn: {linkedin_url or '(not provided)'}\n"
+                f"Time:   {datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+                f"Session ID: {session_id}\n"
+                f"----------------------------------------\n"
+            )
+            msg = Message(
+                subject=subject,
+                recipients=[MAIL_TO],
+                body=body,
+            )
+            mail.send(msg)
+        except Exception as e:
+            app.logger.warning(f"Failed to send trial notification email: {e}")
+
     return jsonify(ok=True, session_id=session_id, profile=profile_payload)
 
 
@@ -389,7 +473,18 @@ def onboarding_step4():
     data = request.get_json() or {}
     session_id = data.get("session_id", "demo-session")
     experiences_raw = data.get("experiences_json")
-    selected_topics = data.get("selected_topics", [])
+    selected_items = data.get("selected_items", {})
+    
+    # Support both old format (selected_topics) and new format (selected_items)
+    if not selected_items:
+        # Backward compatibility: convert old selected_topics to new format
+        selected_topics = data.get("selected_topics", [])
+        selected_items = {
+            "domains": [],
+            "subdomains": [],
+            "topics": selected_topics,
+            "subtopics": []
+        }
 
     user_folder = os.path.join(TMP_DIR, session_id)
     os.makedirs(user_folder, exist_ok=True)
@@ -408,8 +503,8 @@ def onboarding_step4():
     with open(os.path.join(user_folder, "experiences.json"), "w", encoding="utf-8") as f:
         json.dump(experiences_obj, f, indent=2)
 
-    with open(os.path.join(user_folder, "selected_topics.json"), "w", encoding="utf-8") as f:
-        json.dump(selected_topics, f, indent=2)
+    with open(os.path.join(user_folder, "selected_items.json"), "w", encoding="utf-8") as f:
+        json.dump(selected_items, f, indent=2)
 
     # Index chunks
     chunks = index_experiences_from_json(experiences_obj)
@@ -421,6 +516,257 @@ def onboarding_step4():
         session_id=session_id,
         indexed_count=len(chunks),
         sample_topics=[c["topic"] for c in chunks[:5]]
+    )
+
+
+def cleanup_old_sessions():
+    """Delete session folders created before today."""
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    deleted_count = 0
+    
+    if not os.path.exists(TMP_DIR):
+        return deleted_count
+    
+    for session_name in os.listdir(TMP_DIR):
+        session_path = os.path.join(TMP_DIR, session_name)
+        if not os.path.isdir(session_path):
+            continue
+        
+        try:
+            # Check the profile.json creation date
+            profile_file = os.path.join(session_path, "profile.json")
+            if os.path.exists(profile_file):
+                with open(profile_file, "r", encoding="utf-8") as f:
+                    profile_data = json.load(f)
+                    created_at_str = profile_data.get("created_at", "")
+                    if created_at_str:
+                        created_at = datetime.datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
+                        created_date = created_at.date()
+                        if created_date < today:
+                            # Delete the entire session folder
+                            import shutil
+                            shutil.rmtree(session_path)
+                            deleted_count += 1
+        except Exception as e:
+            app.logger.warning(f"Error checking session {session_name}: {e}")
+            continue
+    
+    return deleted_count
+
+
+@app.route("/api/onboarding/step5", methods=["POST"])
+def onboarding_step5():
+    """Add unique experience via text or file upload."""
+    data = request.get_json() or {}
+    session_id = data.get("session_id", "demo-session")
+    custom_experience = data.get("custom_experience", "")
+    topic_tag = data.get("topic_tag", "Unique Experience")
+
+    if not custom_experience:
+        return jsonify(ok=True, message="No unique experience provided, continuing to playground.")
+
+    # Clean up old sessions before adding new data
+    deleted_count = cleanup_old_sessions()
+    app.logger.info(f"Cleaned up {deleted_count} old session(s)")
+
+    user_folder = os.path.join(TMP_DIR, session_id)
+    os.makedirs(user_folder, exist_ok=True)
+
+    # Load existing experiences
+    exp_file = os.path.join(user_folder, "experiences.json")
+    if os.path.exists(exp_file):
+        try:
+            with open(exp_file, "r", encoding="utf-8") as f:
+                exp_data = json.load(f)
+        except Exception:
+            exp_data = {"domains": []}
+    else:
+        exp_data = {"domains": []}
+
+    # Add unique experience as a new domain/topic
+    custom_domain = {
+        "domain": "Unique Experiences",
+        "subdomains": [
+            {
+                "subdomain": topic_tag,
+                "topics": [
+                    {
+                        "topic": topic_tag,
+                        "experience": custom_experience,
+                        "unique_angle": "Manually added by user",
+                        "period": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m"),
+                        "confidence": "high",
+                        "subtopics": []
+                    }
+                ]
+            }
+        ]
+    }
+
+    # Check if Unique Experiences domain already exists
+    found = False
+    for domain in exp_data.get("domains", []):
+        if domain.get("domain") == "Unique Experiences":
+            # Add to existing domain
+            domain["subdomains"].append(custom_domain["subdomains"][0])
+            found = True
+            break
+    
+    if not found:
+        exp_data["domains"].append(custom_domain)
+
+    # Save updated experiences
+    with open(exp_file, "w", encoding="utf-8") as f:
+        json.dump(exp_data, f, indent=2)
+
+    # Re-index chunks
+    chunks = index_experiences_from_json(exp_data)
+    with open(os.path.join(user_folder, "chunks_index.json"), "w", encoding="utf-8") as f:
+        json.dump(chunks, f, indent=2)
+
+    return jsonify(
+        ok=True,
+        session_id=session_id,
+        message="Unique experience added successfully.",
+        indexed_count=len(chunks)
+    )
+
+
+def extract_text_from_docx(file_path: str) -> str:
+    """Extract text content from a DOCX file."""
+    try:
+        from docx import Document
+        doc = Document(file_path)
+        text_parts = []
+        for para in doc.paragraphs:
+            text_parts.append(para.text)
+        return "\n".join(text_parts)
+    except Exception as e:
+        app.logger.warning(f"Failed to extract DOCX text: {e}")
+        return ""
+
+
+def extract_text_from_pdf(file_path: str) -> str:
+    """Extract text content from a PDF file."""
+    try:
+        from PyPDF2 import PdfReader
+        reader = PdfReader(file_path)
+        text_parts = []
+        for page in reader.pages:
+            text_parts.append(page.extract_text() or "")
+        return "\n".join(text_parts)
+    except Exception as e:
+        app.logger.warning(f"Failed to extract PDF text: {e}")
+        return ""
+
+
+@app.route("/api/onboarding/step5-files", methods=["POST"])
+def onboarding_step5_files():
+    """Handle file uploads for unique experiences (DOCX, PDF, etc.)."""
+    session_id = request.form.get("session_id", "demo-session")
+    topic_tag = request.form.get("topic_tag", "Unique Experience")
+    custom_text = request.form.get("custom_experience", "")
+
+    # Clean up old sessions
+    cleanup_old_sessions()
+
+    user_folder = os.path.join(TMP_DIR, session_id)
+    os.makedirs(user_folder, exist_ok=True)
+
+    # Process uploaded files
+    all_text = custom_text
+    uploaded_files = request.files.getlist("files")
+    
+    for file in uploaded_files:
+        if not file.filename:
+            continue
+        
+        # Save temporarily to extract text
+        temp_path = os.path.join(user_folder, f"temp_{file.filename}")
+        file.save(temp_path)
+        
+        ext = file.filename.split('.')[-1].lower()
+        extracted = ""
+        
+        if ext == "docx" or ext == "doc":
+            extracted = extract_text_from_docx(temp_path)
+        elif ext == "pdf":
+            extracted = extract_text_from_pdf(temp_path)
+        else:
+            # Try to read as text
+            try:
+                with open(temp_path, "r", encoding="utf-8") as f:
+                    extracted = f.read()
+            except Exception:
+                pass
+        
+        # Clean up temp file
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
+        
+        if extracted:
+            all_text += f"\n\n--- Content from {file.filename} ---\n{extracted}"
+
+    if not all_text.strip():
+        return jsonify(ok=True, message="No content extracted from files.")
+
+    # Load existing experiences
+    exp_file = os.path.join(user_folder, "experiences.json")
+    if os.path.exists(exp_file):
+        try:
+            with open(exp_file, "r", encoding="utf-8") as f:
+                exp_data = json.load(f)
+        except Exception:
+            exp_data = {"domains": []}
+    else:
+        exp_data = {"domains": []}
+
+    # Add unique experience
+    custom_domain = {
+        "domain": "Unique Experiences",
+        "subdomains": [
+            {
+                "subdomain": topic_tag,
+                "topics": [
+                    {
+                        "topic": topic_tag,
+                        "experience": all_text,
+                        "unique_angle": "Uploaded from files",
+                        "period": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m"),
+                        "confidence": "high",
+                        "subtopics": []
+                    }
+                ]
+            }
+        ]
+    }
+
+    # Check if Unique Experiences domain already exists
+    found = False
+    for domain in exp_data.get("domains", []):
+        if domain.get("domain") == "Unique Experiences":
+            domain["subdomains"].append(custom_domain["subdomains"][0])
+            found = True
+            break
+    
+    if not found:
+        exp_data["domains"].append(custom_domain)
+
+    # Save and index
+    with open(exp_file, "w", encoding="utf-8") as f:
+        json.dump(exp_data, f, indent=2)
+
+    chunks = index_experiences_from_json(exp_data)
+    with open(os.path.join(user_folder, "chunks_index.json"), "w", encoding="utf-8") as f:
+        json.dump(chunks, f, indent=2)
+
+    return jsonify(
+        ok=True,
+        session_id=session_id,
+        message="Files processed successfully.",
+        indexed_count=len(chunks)
     )
 
 
@@ -505,6 +851,9 @@ def playground_rag_query():
 
     retrieved_topic = top_chunks[0]["topic"] if top_chunks else "General Knowledge"
     unique_angle = top_chunks[0].get("unique_angle", "") if top_chunks else ""
+
+    # Log the user question
+    log_user_question(session_id, query, retrieved_topic)
 
     return jsonify(
         ok=True,

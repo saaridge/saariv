@@ -17,34 +17,81 @@ let onboardingState = {
 };
 
 // ==========================================
-// STEPPER NAVIGATION & BACK BUTTONS
+// STEPPER NAVIGATION & PROGRESS BAR
 // ==========================================
 function goToStep(stepNum) {
   // Hide all panels
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 6; i++) {
     const panel = document.getElementById(`step-panel-${i}`);
-    const tab = document.getElementById(`stepper-tab-${i}`);
     if (panel) panel.classList.add("hidden");
-    if (tab) {
-      tab.classList.remove("border-white", "bg-zinc-900", "text-white");
-      tab.classList.add("border-zinc-800", "text-zinc-500");
-    }
   }
 
-  // Activate target panel
+  // Show target panel
   const activePanel = document.getElementById(`step-panel-${stepNum}`);
-  const activeTab = document.getElementById(`stepper-tab-${stepNum}`);
   if (activePanel) {
     activePanel.classList.remove("hidden");
+    activePanel.classList.add("animate-fade-in");
     activePanel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  if (activeTab) {
-    activeTab.classList.add("border-white", "bg-zinc-900", "text-white");
-    activeTab.classList.remove("border-zinc-800", "text-zinc-500");
-  }
+
+  // Update progress bar
+  updateProgressBar(stepNum);
+
+  // Reset loader states when navigating
+  resetLoaderStates();
 
   if (window.lucide) {
     lucide.createIcons();
+  }
+}
+
+function resetLoaderStates() {
+  // Reset Step 1 loader
+  const step1Btn = document.getElementById("step1-submit-btn");
+  const step1Text = document.getElementById("step1-btn-text");
+  const step1Loader = document.getElementById("step1-btn-loader");
+  const step1Arrow = document.getElementById("step1-btn-arrow");
+  if (step1Btn) step1Btn.disabled = false;
+  if (step1Text) step1Text.classList.remove("hidden");
+  if (step1Loader) step1Loader.classList.add("hidden");
+  if (step1Arrow) step1Arrow.classList.remove("hidden");
+
+  // Reset Step 5 loader
+  const step5Btn = document.getElementById("step5-submit-btn");
+  const step5Text = document.getElementById("step5-btn-text");
+  const step5Loader = document.getElementById("step5-btn-loader");
+  const step5Arrow = document.getElementById("step5-btn-arrow");
+  if (step5Btn) step5Btn.disabled = false;
+  if (step5Text) step5Text.classList.remove("hidden");
+  if (step5Loader) step5Loader.classList.add("hidden");
+  if (step5Arrow) step5Arrow.classList.remove("hidden");
+}
+
+function updateProgressBar(currentStep) {
+  const percentage = Math.round((currentStep / 6) * 100);
+  
+  const progressBarFill = document.getElementById("progress-bar-fill");
+  const progressPercentage = document.getElementById("progress-percentage");
+  
+  if (progressBarFill) {
+    progressBarFill.style.width = `${percentage}%`;
+  }
+  
+  if (progressPercentage) {
+    progressPercentage.textContent = `${percentage}%`;
+  }
+
+  // Update step indicators
+  for (let i = 1; i <= 6; i++) {
+    const stepEl = document.querySelector(`.progress-step:nth-child(${i})`);
+    if (stepEl) {
+      stepEl.classList.remove("active", "completed");
+      if (i < currentStep) {
+        stepEl.classList.add("completed");
+      } else if (i === currentStep) {
+        stepEl.classList.add("active");
+      }
+    }
   }
 }
 
@@ -55,7 +102,7 @@ function copyPrompt(elementId, btnId) {
     const btn = document.getElementById(btnId);
     if (btn) {
       const originalHTML = btn.innerHTML;
-      btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Copied!`;
+      btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-green-600"></i> Copied!`;
       if (window.lucide) lucide.createIcons();
       setTimeout(() => {
         btn.innerHTML = originalHTML;
@@ -70,6 +117,7 @@ function copyPrompt(elementId, btnId) {
 // ==========================================
 async function handleStep1Submit(e) {
   e.preventDefault();
+  
   const firstName = document.getElementById("step1_first_name").value.trim();
   const lastName = document.getElementById("step1_last_name").value.trim();
   const email = document.getElementById("step1_email").value.trim();
@@ -79,6 +127,17 @@ async function handleStep1Submit(e) {
   onboardingState.lastName = lastName;
   onboardingState.email = email;
   onboardingState.linkedinUrl = linkedinUrl;
+
+  // Show loader
+  const submitBtn = document.getElementById("step1-submit-btn");
+  const btnText = document.getElementById("step1-btn-text");
+  const btnLoader = document.getElementById("step1-btn-loader");
+  const btnArrow = document.getElementById("step1-btn-arrow");
+  
+  if (submitBtn) submitBtn.disabled = true;
+  if (btnText) btnText.classList.add("hidden");
+  if (btnLoader) btnLoader.classList.remove("hidden");
+  if (btnArrow) btnArrow.classList.add("hidden");
 
   try {
     const res = await fetch("/api/onboarding/step1", {
@@ -99,6 +158,12 @@ async function handleStep1Submit(e) {
     }
   } catch (err) {
     console.warn("Saved locally:", err);
+  } finally {
+    // Hide loader
+    if (submitBtn) submitBtn.disabled = false;
+    if (btnText) btnText.classList.remove("hidden");
+    if (btnLoader) btnLoader.classList.add("hidden");
+    if (btnArrow) btnArrow.classList.remove("hidden");
   }
 
   goToStep(2);
@@ -246,7 +311,7 @@ function renderHierarchicalChecklist(domains) {
     const domainName = d.domain || `Domain ${dIdx + 1}`;
 
     const domainCard = document.createElement("div");
-    domainCard.className = "p-4 rounded border border-zinc-800 bg-zinc-950/70 space-y-3";
+    domainCard.className = "hierarchy-domain";
 
     let subdomainsHtml = "";
     (d.subdomains || []).forEach((sd, sdIdx) => {
@@ -264,28 +329,27 @@ function renderHierarchicalChecklist(domains) {
           const stName = typeof st === 'string' ? st : st.subtopic || `Subtopic ${stIdx + 1}`;
 
           subtopicsHtml += `
-            <label class="flex items-center gap-2 py-1 px-2 rounded hover:bg-zinc-900 cursor-pointer text-[11px] text-zinc-300">
-              <input type="checkbox" checked id="${subtopicId}" data-type="subtopic" data-topic-id="${topicId}" data-name="${encodeURIComponent(stName)}" onchange="onSubtopicToggle('${subtopicId}', '${topicId}')" class="item-checkbox accent-white w-3.5 h-3.5 cursor-pointer">
-              <span>${stName}</span>
+            <label class="flex items-center gap-2 py-1.5 px-3 rounded-md hover:bg-white cursor-pointer text-xs text-gray-700 transition-colors">
+              <input type="checkbox" checked id="${subtopicId}" data-type="subtopic" data-topic-id="${topicId}" data-name="${encodeURIComponent(stName)}" onchange="onSubtopicToggle('${subtopicId}', '${topicId}')" class="item-checkbox accent-blue-600 w-4 h-4 cursor-pointer rounded">
+              <span class="font-medium">${stName}</span>
             </label>
           `;
         });
 
         topicsHtml += `
-          <div class="ml-4 pl-3 border-l border-zinc-800 py-1.5 space-y-1">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" checked id="${topicId}" data-type="topic" data-subdomain-id="${subdomainId}" data-name="${encodeURIComponent(topicName)}" onchange="onTopicToggle('${topicId}', '${subdomainId}')" class="item-checkbox mt-0.5 accent-white w-4 h-4 cursor-pointer">
-              <div>
-                <span class="text-xs font-semibold text-white">${topicName}</span>
-                ${t.period ? `<span class="text-[10px] font-mono text-zinc-500 ml-2">(${t.period})</span>` : ''}
-                ${t.evidence ? `<p class="text-[11px] text-zinc-400 mt-0.5">${t.evidence}</p>` : ''}
+          <div class="ml-4 pl-4 border-l-2 border-gray-300 py-2 space-y-2">
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" checked id="${topicId}" data-type="topic" data-subdomain-id="${subdomainId}" data-name="${encodeURIComponent(topicName)}" onchange="onTopicToggle('${topicId}', '${subdomainId}')" class="item-checkbox mt-1 accent-blue-600 w-4 h-4 cursor-pointer rounded">
+              <div class="flex-1">
+                <span class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">${topicName}</span>
+                ${t.period ? `<span class="text-xs font-mono text-gray-500 ml-2 bg-gray-200 px-2 py-0.5 rounded">${t.period}</span>` : ''}
+                ${t.evidence ? `<p class="text-xs text-gray-600 mt-1 leading-relaxed">${t.evidence}</p>` : ''}
               </div>
             </label>
 
-            <!-- Subtopics List -->
             ${subtopicsHtml ? `
-              <div class="ml-6 pl-2 pt-1 border-l border-zinc-800/80 space-y-0.5">
-                <span class="text-[10px] font-mono uppercase text-zinc-500 block">Subtopics:</span>
+              <div class="ml-6 mt-3 space-y-1">
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Subtopics</span>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1">${subtopicsHtml}</div>
               </div>
             ` : ''}
@@ -294,24 +358,22 @@ function renderHierarchicalChecklist(domains) {
       });
 
       subdomainsHtml += `
-        <div class="ml-3 pl-3 border-l border-zinc-800/90 py-2 space-y-2">
-          <label class="flex items-center gap-2 cursor-pointer font-medium text-xs text-zinc-200">
-            <input type="checkbox" checked id="${subdomainId}" data-type="subdomain" data-domain-id="${domainId}" data-name="${encodeURIComponent(subdomainName)}" onchange="onSubdomainToggle('${subdomainId}', '${domainId}')" class="item-checkbox accent-white w-4 h-4 cursor-pointer">
-            <span class="font-semibold text-zinc-100">${subdomainName}</span>
+        <div class="ml-3 pl-4 border-l-2 border-blue-200 py-3 space-y-3">
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox" checked id="${subdomainId}" data-type="subdomain" data-domain-id="${domainId}" data-name="${encodeURIComponent(subdomainName)}" onchange="onSubdomainToggle('${subdomainId}', '${domainId}')" class="item-checkbox accent-blue-600 w-4 h-4 cursor-pointer rounded">
+            <span class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">${subdomainName}</span>
           </label>
-          <div class="space-y-2">${topicsHtml}</div>
+          <div class="space-y-3">${topicsHtml}</div>
         </div>
       `;
     });
 
     domainCard.innerHTML = `
-      <div class="border-b border-zinc-800/90 pb-2.5">
-        <label class="flex items-center gap-2.5 cursor-pointer">
-          <input type="checkbox" checked id="${domainId}" data-type="domain" data-name="${encodeURIComponent(domainName)}" onchange="onDomainToggle('${domainId}')" class="item-checkbox accent-white w-4 h-4 cursor-pointer">
-          <span class="text-xs font-mono font-bold text-white uppercase tracking-wider">${domainName}</span>
-        </label>
+      <div class="hierarchy-domain-header">
+        <input type="checkbox" checked id="${domainId}" data-type="domain" data-name="${encodeURIComponent(domainName)}" onchange="onDomainToggle('${domainId}')" class="item-checkbox accent-blue-600 w-5 h-5 cursor-pointer rounded">
+        <span class="hierarchy-domain-label">${domainName}</span>
       </div>
-      <div class="space-y-2">${subdomainsHtml}</div>
+      <div class="space-y-4">${subdomainsHtml}</div>
     `;
 
     container.appendChild(domainCard);
@@ -413,26 +475,62 @@ function updateSelectedItemsHierarchy() {
 
   const counter = document.getElementById("selected-counter");
   if (counter) {
+    const dCount = onboardingState.selectedItems.domains.size;
+    const sdCount = onboardingState.selectedItems.subdomains.size;
     const tCount = onboardingState.selectedItems.topics.size;
     const stCount = onboardingState.selectedItems.subtopics.size;
-    const dCount = onboardingState.selectedItems.domains.size;
-    counter.textContent = `${tCount} topics & ${stCount} subtopics selected across ${dCount} domains`;
+    
+    const totalSelected = dCount + sdCount + tCount + stCount;
+    
+    if (totalSelected === 0) {
+      counter.textContent = "No items selected";
+    } else {
+      const parts = [];
+      if (dCount > 0) parts.push(`${dCount} domain${dCount !== 1 ? 's' : ''}`);
+      if (sdCount > 0) parts.push(`${sdCount} subdomain${sdCount !== 1 ? 's' : ''}`);
+      if (tCount > 0) parts.push(`${tCount} topic${tCount !== 1 ? 's' : ''}`);
+      if (stCount > 0) parts.push(`${stCount} subtopic${stCount !== 1 ? 's' : ''}`);
+      
+      counter.textContent = parts.join(", ") + " selected";
+    }
   }
 }
 
 function handleStep3Submit() {
-  if (onboardingState.selectedItems.topics.size === 0) {
-    alert("Please select at least one topic to continue.");
+  // Check if at least one item is selected from any category
+  const totalSelected = 
+    onboardingState.selectedItems.topics.size + 
+    onboardingState.selectedItems.subtopics.size + 
+    onboardingState.selectedItems.domains.size + 
+    onboardingState.selectedItems.subdomains.size;
+  
+  if (totalSelected === 0) {
+    alert("Please select at least one domain, subdomain, topic, or subtopic to continue.");
     return;
   }
 
   // Format topics list with full hierarchy
   const topicsArray = Array.from(onboardingState.selectedItems.topics);
   const subtopicsArray = Array.from(onboardingState.selectedItems.subtopics);
+  const domainsArray = Array.from(onboardingState.selectedItems.domains);
+  const subdomainsArray = Array.from(onboardingState.selectedItems.subdomains);
 
-  let formattedTopics = topicsArray.join(", ");
-  if (subtopicsArray.length > 0) {
-    formattedTopics += ` (Focus areas & subtopics: ${subtopicsArray.slice(0, 10).join(", ")})`;
+  // Build a comprehensive list including all selected items
+  let formattedTopics = "";
+  
+  // Include domains if no specific topics/subtopics selected
+  if (topicsArray.length === 0 && subtopicsArray.length === 0) {
+    // Use domains and subdomains
+    formattedTopics = domainsArray.join(", ");
+    if (subdomainsArray.length > 0) {
+      formattedTopics += (formattedTopics ? ", " : "") + subdomainsArray.join(", ");
+    }
+  } else {
+    // Use topics and subtopics
+    formattedTopics = topicsArray.join(", ");
+    if (subtopicsArray.length > 0) {
+      formattedTopics += ` (Focus areas & subtopics: ${subtopicsArray.slice(0, 10).join(", ")})`;
+    }
   }
 
   // Construct Prompt 2
@@ -623,7 +721,6 @@ function loadSampleExperiences() {
 async function handleStep4Submit() {
   const errorDiv = document.getElementById("step4_error");
   errorDiv.classList.add("hidden");
-  const btn = document.getElementById("build-avatar-btn");
 
   const rawJson = document.getElementById("step4_pasted_json").value.trim();
   if (!rawJson) {
@@ -641,8 +738,13 @@ async function handleStep4Submit() {
     return;
   }
 
-  btn.disabled = true;
-  btn.innerHTML = `<span class="animate-spin mr-1">⏳</span> Initializing Avatar...`;
+  // Collect all selected items
+  const allSelectedItems = {
+    domains: Array.from(onboardingState.selectedItems.domains),
+    subdomains: Array.from(onboardingState.selectedItems.subdomains),
+    topics: Array.from(onboardingState.selectedItems.topics),
+    subtopics: Array.from(onboardingState.selectedItems.subtopics)
+  };
 
   try {
     const res = await fetch("/api/onboarding/step4", {
@@ -650,7 +752,7 @@ async function handleStep4Submit() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         session_id: onboardingState.sessionId,
-        selected_topics: Array.from(onboardingState.selectedItems.topics),
+        selected_items: allSelectedItems,
         experiences_json: parsed
       })
     });
@@ -658,47 +760,258 @@ async function handleStep4Submit() {
     if (!res.ok || !data.ok) {
       errorDiv.textContent = data.message || "Failed to index experiences.";
       errorDiv.classList.remove("hidden");
-      btn.disabled = false;
-      btn.innerHTML = `<span>Build My Avatar & Open Playground</span>`;
       return;
     }
 
     onboardingState.indexedCount = data.indexed_count || 5;
-    setupPlayground(data.sample_topics || Array.from(onboardingState.selectedItems.topics));
-    goToStep(5);
+    goToStep(5); // Go to unique experience step
   } catch (err) {
-    setupPlayground(Array.from(onboardingState.selectedItems.topics));
-    goToStep(5);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<span>Build My Avatar & Open Playground</span>`;
+    goToStep(5); // Go to unique experience step
   }
 }
 
 // ==========================================
-// STEP 5: PERSONAL PLAYGROUND (CLEAN UI, NO RAG WORD, WITH BACK CONTROLS)
+// STEP 5: UNIQUE EXPERIENCE (TEXT OR FILE)
+// ==========================================
+
+// Store uploaded files content
+let uploadedFilesContent = [];
+
+async function handleFileUpload(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+
+  const filenamesContainer = document.getElementById("step5_filenames");
+  filenamesContainer.innerHTML = "";
+  uploadedFilesContent = [];
+
+  for (const file of files) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    let text = "";
+
+    try {
+      if (ext === 'pdf') {
+        text = await extractTextFromPDF(file);
+      } else if (ext === 'docx' || ext === 'doc') {
+        // Mark DOCX files for server processing - can't read client-side
+        text = "[DOCX_FILE]";
+      } else {
+        // Text files (.txt, .md, .json, .rtf)
+        text = await file.text();
+      }
+
+      uploadedFilesContent.push({
+        filename: file.name,
+        content: text,
+        type: ext
+      });
+
+      // Show file name with checkmark
+      const fileEl = document.createElement("div");
+      fileEl.className = "flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-1.5 rounded-md";
+      const icon = (ext === 'docx' || ext === 'doc') ? 'file-text' : 'check-circle';
+      fileEl.innerHTML = `
+        <i data-lucide="${icon}" class="w-4 h-4"></i>
+        <span>${file.name}</span>
+        <span class="text-xs text-gray-500">(${(file.size / 1024).toFixed(1)} KB)</span>
+      `;
+      filenamesContainer.appendChild(fileEl);
+    } catch (err) {
+      const errorEl = document.createElement("div");
+      errorEl.className = "flex items-center gap-2 text-sm text-red-700 bg-red-50 px-3 py-1.5 rounded-md";
+      errorEl.innerHTML = `
+        <i data-lucide="alert-circle" class="w-4 h-4"></i>
+        <span>Failed to read ${file.name}</span>
+      `;
+      filenamesContainer.appendChild(errorEl);
+    }
+  }
+
+  // Refresh icons
+  if (window.lucide) lucide.createIcons();
+}
+
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  
+  let fullText = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(" ");
+    fullText += pageText + "\n";
+  }
+  
+  return fullText;
+}
+
+async function handleStep5Submit() {
+  const errorDiv = document.getElementById("step5_error");
+  errorDiv.classList.add("hidden");
+
+  const customText = document.getElementById("step5_custom_text").value.trim();
+  const topicTag = document.getElementById("step5_topic_tag").value.trim() || "Unique Experience";
+
+  // Show loader
+  const submitBtn = document.getElementById("step5-submit-btn");
+  const btnText = document.getElementById("step5-btn-text");
+  const btnLoader = document.getElementById("step5-btn-loader");
+  const btnArrow = document.getElementById("step5-btn-arrow");
+  
+  if (submitBtn) submitBtn.disabled = true;
+  if (btnText) btnText.classList.add("hidden");
+  if (btnLoader) btnLoader.classList.remove("hidden");
+  if (btnArrow) btnArrow.classList.add("hidden");
+
+  // Get all selected items for playground
+  const allSelectedItems = [
+    ...Array.from(onboardingState.selectedItems.domains),
+    ...Array.from(onboardingState.selectedItems.subdomains),
+    ...Array.from(onboardingState.selectedItems.topics),
+    ...Array.from(onboardingState.selectedItems.subtopics)
+  ];
+
+  // Check if we have DOCX files that need server processing
+  const hasDocxFiles = uploadedFilesContent.some(f => f.type === 'docx' || f.type === 'doc');
+  const docxFiles = uploadedFilesContent.filter(f => f.type === 'docx' || f.type === 'doc');
+  const otherContent = uploadedFilesContent.filter(f => f.type !== 'docx' && f.type !== 'doc');
+
+  // Combine custom text and non-DOCX file contents
+  let combinedExperience = customText;
+  
+  if (otherContent.length > 0) {
+    const fileContents = otherContent.map(f => `\n\n--- Content from ${f.filename} ---\n${f.content}`).join("");
+    combinedExperience += fileContents;
+  }
+
+  // It's okay to skip this step - just proceed to playground
+  if (!combinedExperience && docxFiles.length === 0) {
+    setupPlayground(allSelectedItems);
+    goToStep(6);
+    return;
+  }
+
+  try {
+    // If we have DOCX files, send via FormData
+    if (docxFiles.length > 0) {
+      const fileInput = document.getElementById('step5_file_upload');
+      const formData = new FormData();
+      formData.append("session_id", onboardingState.sessionId);
+      formData.append("custom_experience", combinedExperience);
+      formData.append("topic_tag", topicTag);
+      
+      // Append the actual DOCX files from the file input
+      const allFiles = Array.from(fileInput.files);
+      for (const file of allFiles) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'docx' || ext === 'doc') {
+          formData.append("files", file);
+        }
+      }
+      
+      const res = await fetch("/api/onboarding/step5-files", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.message || "Failed to process files");
+      }
+      onboardingState.indexedCount = data.indexed_count || allSelectedItems.length;
+    } else {
+      // Regular text/PDF content - send as JSON
+      const res = await fetch("/api/onboarding/step5", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: onboardingState.sessionId,
+          custom_experience: combinedExperience,
+          topic_tag: topicTag
+        })
+      });
+      const data = await res.json();
+      onboardingState.indexedCount = data.indexed_count || allSelectedItems.length;
+    }
+
+    setupPlayground(allSelectedItems);
+    goToStep(6);
+  } catch (err) {
+    setupPlayground(allSelectedItems);
+    goToStep(6);
+  } finally {
+    // Hide loader
+    if (submitBtn) submitBtn.disabled = false;
+    if (btnText) btnText.classList.remove("hidden");
+    if (btnLoader) btnLoader.classList.add("hidden");
+    if (btnArrow) btnArrow.classList.remove("hidden");
+  }
+}
+
+// ==========================================
+// STEP 6: PERSONAL PLAYGROUND (CHATGPT-STYLE UI WITH TOPICS SIDEBAR)
 // ==========================================
 function setupPlayground(topics) {
   const name = `${onboardingState.firstName || 'Creator'} ${onboardingState.lastName || ''}`.trim();
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   
-  const titleEl = document.getElementById("avatar-title");
-  if (titleEl) titleEl.textContent = `${name}'s Living Biography Avatar`;
+  // Update avatar initials
+  const avatarInitialEl = document.getElementById("chat-avatar-initial");
+  if (avatarInitialEl) avatarInitialEl.textContent = initials;
+  
+  const welcomeInitialEl = document.getElementById("chat-welcome-initial");
+  if (welcomeInitialEl) welcomeInitialEl.textContent = initials;
 
-  const creatorNameEl = document.getElementById("playground-creator-name");
+  const creatorNameEl = document.getElementById("chat-creator-name");
   if (creatorNameEl) creatorNameEl.textContent = name;
 
-  const indexedSummaryEl = document.getElementById("playground-indexed-summary");
-  if (indexedSummaryEl) {
-    const count = onboardingState.indexedCount || topics.length;
-    indexedSummaryEl.textContent = `${count} lived experiences indexed and ready for testing.`;
-  }
-
-  const chipsContainer = document.getElementById("playground-prompt-chips");
-  if (chipsContainer) {
-    chipsContainer.innerHTML = topics.slice(0, 4).map(t => {
-      const topicTitle = typeof t === 'string' ? t : t.topic || '';
-      return `<button type="button" onclick="askPlaygroundQuestion('Tell me about your experience with ${topicTitle.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-mono text-zinc-300 transition-colors">"Tell me about ${topicTitle}"</button>`;
+  // Populate topics sidebar
+  const topicsListEl = document.getElementById("playground-topics-list");
+  const topicsCountBadge = document.getElementById("topics-count-badge");
+  
+  if (topicsListEl && topics.length > 0) {
+    // Organize topics by domain/subdomain/topic hierarchy
+    const allTopics = [
+      ...Array.from(onboardingState.selectedItems.domains).map(d => ({ name: d, type: 'domain' })),
+      ...Array.from(onboardingState.selectedItems.subdomains).map(s => ({ name: s, type: 'subdomain' })),
+      ...Array.from(onboardingState.selectedItems.topics).map(t => ({ name: t, type: 'topic' })),
+      ...Array.from(onboardingState.selectedItems.subtopics).map(st => ({ name: st, type: 'subtopic' }))
+    ];
+    
+    if (topicsCountBadge) {
+      topicsCountBadge.textContent = `${allTopics.length} topic${allTopics.length !== 1 ? 's' : ''}`;
+    }
+    
+    topicsListEl.innerHTML = allTopics.map(item => {
+      const typeIcon = item.type === 'domain' ? 'folder' : 
+                       item.type === 'subdomain' ? 'folder-open' : 
+                       item.type === 'topic' ? 'message-square' : 'corner-down-right';
+      const typeColor = item.type === 'domain' ? 'text-blue-600 bg-blue-50' : 
+                        item.type === 'subdomain' ? 'text-purple-600 bg-purple-50' : 
+                        item.type === 'topic' ? 'text-gray-600 bg-gray-100' : 'text-gray-500 bg-gray-50';
+      
+      return `
+        <button 
+          type="button"
+          onclick="askPlaygroundQuestion('Tell me about your experience with ${item.name.replace(/'/g, "\\'")}')"
+          class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white transition-colors text-left group"
+        >
+          <div class="w-6 h-6 rounded flex items-center justify-center ${typeColor} flex-shrink-0">
+            <i data-lucide="${typeIcon}" class="w-3 h-3"></i>
+          </div>
+          <span class="text-xs text-gray-700 group-hover:text-gray-900 truncate flex-1">${item.name}</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"></i>
+        </button>
+      `;
     }).join("");
+  } else if (topicsListEl) {
+    topicsListEl.innerHTML = `
+      <div class="text-center py-8">
+        <i data-lucide="info" class="w-8 h-8 text-gray-300 mx-auto mb-2"></i>
+        <p class="text-xs text-gray-500">No topics selected</p>
+      </div>
+    `;
+    if (topicsCountBadge) topicsCountBadge.textContent = "0 topics";
   }
 
   if (window.lucide) {
@@ -714,6 +1027,18 @@ function askPlaygroundQuestion(q) {
   }
 }
 
+function handleChatKeydown(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    handlePlaygroundQuery(event);
+  }
+}
+
+function autoResizeTextarea(textarea) {
+  textarea.style.height = 'auto';
+  textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
+}
+
 async function handlePlaygroundQuery(e) {
   if (e) e.preventDefault();
   const input = document.getElementById("playground-query-input");
@@ -721,13 +1046,42 @@ async function handlePlaygroundQuery(e) {
   const query = input.value.trim();
   if (!query) return;
 
-  const responseBox = document.getElementById("playground-response-box");
+  const messagesContainer = document.getElementById("chat-messages");
   const btn = document.getElementById("playground-query-btn");
-  const retrievedBadge = document.getElementById("retrieved-badge");
-  const topicNameSpan = document.getElementById("retrieved-topic-name");
+  const name = `${onboardingState.firstName || 'Creator'} ${onboardingState.lastName || ''}`.trim();
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
-  responseBox.innerHTML = `<span class="text-zinc-400 font-mono text-xs">Finding relevant experience and generating answer...</span>`;
   btn.disabled = true;
+
+  // Add user message
+  const userMsgHtml = `
+    <div class="flex gap-3 justify-end">
+      <div class="flex-1 max-w-2xl">
+        <div class="bg-gray-900 text-white rounded-2xl rounded-tr-md px-4 py-3">
+          <p class="text-sm leading-relaxed">${query.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+        </div>
+      </div>
+    </div>
+  `;
+  messagesContainer.querySelector('.space-y-4').insertAdjacentHTML('beforeend', userMsgHtml);
+
+  // Add loading message
+  const loadingMsgHtml = `
+    <div class="flex gap-3" id="loading-message">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-1">
+        <span>${initials}</span>
+      </div>
+      <div class="flex-1 bg-white rounded-2xl rounded-tl-md px-4 py-3 border border-gray-200 shadow-sm">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0ms"></div>
+          <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 150ms"></div>
+          <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 300ms"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  messagesContainer.querySelector('.space-y-4').insertAdjacentHTML('beforeend', loadingMsgHtml);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   try {
     const res = await fetch("/api/playground/rag-query", {
@@ -739,17 +1093,52 @@ async function handlePlaygroundQuery(e) {
       })
     });
     const data = await res.json();
-    responseBox.textContent = data.reply;
 
-    if (data.retrieved_topic) {
-      topicNameSpan.textContent = data.retrieved_topic;
-      retrievedBadge.classList.remove("hidden");
-    }
+    // Remove loading message
+    const loadingMsg = document.getElementById("loading-message");
+    if (loadingMsg) loadingMsg.remove();
+
+    // Add assistant response
+    const replyHtml = `
+      <div class="flex gap-3">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-1">
+          <span>${initials}</span>
+        </div>
+        <div class="flex-1 bg-white rounded-2xl rounded-tl-md px-4 py-3 border border-gray-200 shadow-sm">
+          <p class="text-gray-800 text-sm leading-relaxed">${data.reply.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</p>
+          ${data.retrieved_topic ? `
+            <div class="mt-2 pt-2 border-t border-gray-100">
+              <span class="text-xs text-gray-500">Retrieved from: <span class="font-medium text-gray-700">${data.retrieved_topic}</span></span>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+    messagesContainer.querySelector('.space-y-4').insertAdjacentHTML('beforeend', replyHtml);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
   } catch (err) {
-    responseBox.textContent = "Unable to connect to search endpoint. Please verify server status.";
+    // Remove loading message
+    const loadingMsg = document.getElementById("loading-message");
+    if (loadingMsg) loadingMsg.remove();
+
+    // Add error message
+    const errorMsgHtml = `
+      <div class="flex gap-3">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-1">
+          <span>${initials}</span>
+        </div>
+        <div class="flex-1 bg-red-50 border border-red-200 rounded-2xl rounded-tl-md px-4 py-3">
+          <p class="text-red-800 text-sm">Unable to connect to the avatar. Please check your connection and try again.</p>
+        </div>
+      </div>
+    `;
+    messagesContainer.querySelector('.space-y-4').insertAdjacentHTML('beforeend', errorMsgHtml);
   } finally {
     btn.disabled = false;
     input.value = "";
+    input.style.height = 'auto';
+    if (window.lucide) lucide.createIcons();
   }
 }
 
@@ -832,20 +1221,67 @@ if (document.getElementById("anim-question")) {
 // ==========================================
 async function handleWaitlistSubmit(e) {
   e.preventDefault();
+  
   const name = document.getElementById("wl_name").value.trim();
   const email = document.getElementById("wl_email").value.trim();
   const successBox = document.getElementById("waitlist-success");
+  const submitBtn = document.getElementById("waitlist-submit-btn");
+  const btnText = document.getElementById("waitlist-btn-text");
+  const btnLoader = document.getElementById("waitlist-btn-loader");
+  
+  if (!name || !email) {
+    return;
+  }
+
+  // Show loader
+  if (submitBtn) {
+    submitBtn.disabled = true;
+  }
+  if (btnText) {
+    btnText.classList.add("hidden");
+  }
+  if (btnLoader) {
+    btnLoader.classList.remove("hidden");
+  }
 
   try {
     const res = await fetch("/api/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, email: email, profile_type: "Living Biography Waitlist" })
+      body: JSON.stringify({ 
+        name: name, 
+        email: email, 
+        profile_type: "Living Biography Waitlist" 
+      })
     });
     const data = await res.json();
-    if (successBox) successBox.classList.remove("hidden");
+    
+    // Show success message
+    if (successBox) {
+      successBox.classList.remove("hidden");
+      successBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    
+    // Clear form
+    document.getElementById("wl_name").value = "";
+    document.getElementById("wl_email").value = "";
+    
   } catch (err) {
-    if (successBox) successBox.classList.remove("hidden");
+    // Show success message even on error (fail gracefully)
+    if (successBox) {
+      successBox.classList.remove("hidden");
+    }
+  } finally {
+    // Hide loader
+    if (submitBtn) {
+      submitBtn.disabled = false;
+    }
+    if (btnText) {
+      btnText.classList.remove("hidden");
+    }
+    if (btnLoader) {
+      btnLoader.classList.add("hidden");
+    }
   }
 }
 
