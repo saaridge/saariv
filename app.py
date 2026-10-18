@@ -464,12 +464,15 @@ def playground_rag_query():
         except (ValueError, OSError):
             pass
     answer = answer_from_sources(query, retrieved["results"], profile)
-    topic = retrieved["results"][0]["source"]["section"] if retrieved["results"] else ""
+    # When the answer is "insufficient", the retrieved chunks did not actually answer
+    # the question, so no experience story should be shown alongside that reply.
+    sources = [] if answer.get("answer_mode") == "insufficient" else retrieved["results"]
+    topic = sources[0]["source"]["section"] if sources else ""
     log_user_question(owner, query, topic)
-    return jsonify(ok=True, **answer, sources=retrieved["results"],
+    return jsonify(ok=True, **answer, sources=sources,
                    retrieval_mode=retrieved["mode"], retrieval_timings_ms=retrieved["timings_ms"],
                    warnings=retrieved["warnings"], retrieved_topic=topic, unique_angle="",
-                   chunks_found=len(retrieved["results"]),
+                   chunks_found=len(sources),
                    avatar_name=" ".join(str(profile.get(key, "")) for key in ("first_name", "last_name")).strip() or "Your Avatar")
 
 

@@ -232,6 +232,16 @@ class KnowledgeService:
                 mark = time.perf_counter()
                 rankings["lexical"] = self.store.lexical(owner, query, 20)
                 timings["keyword_search"] = (time.perf_counter() - mark) * 1000
+
+            # Chunks with genuine semantic support: store.dense already applies the
+            # min_score threshold, so these are the ones actually related to the query.
+            dense_supported = {chunk_id for chunk_id, _ in rankings.get("dense", [])}
+            # Only gate on semantics when this avatar was indexed with embeddings.
+            # Lexical-only avatars (indexed without a provider) keep keyword behaviour.
+            index_profile = self.store.owner_profile(owner)
+            semantic_active = (mode in {"dense", "hybrid"} and self.provider is not None
+                               and index_profile not in (None, "none"))
+
             combined = {}
             scores = {}
             for method, ranking in rankings.items():
@@ -242,6 +252,10 @@ class KnowledgeService:
                     scores.setdefault(chunk_id, {})[method] = score
             selected = []
             for chunk_id in sorted(combined, key=lambda key: (-combined[key], key)):
+                # With semantic search active, a result must be semantically relevant.
+                # This stops a weak keyword overlap from surfacing an unrelated story.
+                if semantic_active and chunk_id not in dense_supported:
+                    continue
                 chunk = chunks[chunk_id]
                 if any(self._overlaps(chunk, hit) for hit in selected):
                     continue
