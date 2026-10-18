@@ -57,7 +57,48 @@ def import_story(data, root, normalize, index):
             story = "\n\n".join(parts)
         except (ValueError, TypeError, AttributeError):
             raise ValueError("Please provide a story or a valid legacy experiences JSON object.") from None
-    result = get_service().ingest(owner, "story", story, "Experience story", "story", {"taxonomy": selected})
+    
+    # Try to ingest with embeddings, fall back to lexical-only if it fails
+    result = None
+    try:
+        result = get_service().ingest(owner, "story", story, "Experience story", "story", {"taxonomy": selected})
+    except Exception as e:
+        import logging
+        error_str = str(e)
+        logging.error(f"Indexing failed: {e}")
+        
+        # Handle reindex requirement by clearing old data and retrying
+        if "Reindex" in error_str or "Embedding configuration changed" in error_str:
+            logging.warning("Configuration changed, clearing old index and retrying...")
+            try:
+                # Clear the old index
+                service = get_service()
+                for doc in service.store.documents(owner):
+                    service.delete_document(owner, doc["document_id"])
+                # Try again with fresh start
+                result = get_service().ingest(owner, "story", story, "Experience story", "story", {"taxonomy": selected})
+            except Exception as retry_error:
+                logging.error(f"Retry after clear failed: {retry_error}")
+                # Last resort: try without embeddings
+                logging.warning("Disabling embeddings and using keyword-only mode")
+                original_provider = get_service().provider
+                get_service().provider = None
+                try:
+                    result = get_service().ingest(owner, "story", story, "Experience story", "story", {"taxonomy": selected})
+                finally:
+                    get_service().provider = original_provider
+        # Handle embedding API failures by disabling embeddings temporarily
+        elif "timeout" in error_str.lower() or "API" in error_str or "embedding" in error_str.lower():
+            logging.warning("Embedding API issue, using keyword-only mode")
+            original_provider = get_service().provider
+            get_service().provider = None
+            try:
+                result = get_service().ingest(owner, "story", story, "Experience story", "story", {"taxonomy": selected})
+            finally:
+                get_service().provider = original_provider
+        else:
+            raise
+    
     export_sources(owner, root, normalize, index)
     return {"ok": True, "session_id": owner, "indexed_count": get_service().status(owner)["chunks_count"],
             "sample_topics": [chunk["source"]["section"] for chunk in get_service().store.chunks(owner).values()][:5],

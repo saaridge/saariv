@@ -45,11 +45,11 @@ def answer_from_sources(query, sources, profile):
     try:
         if provider == "ollama":
             value = post_json(base + "/api/chat", {"model": model, "messages": messages, "stream": False,
-                                                   "options": {"temperature": 0}}, key, timeout=30, retries=0)
+                                                   "options": {"temperature": 0}}, key, timeout=45, retries=1)
             reply = value["message"]["content"]
         else:
             value = post_json(base + "/chat/completions", {"model": model, "messages": messages, "temperature": 0},
-                              key, timeout=30, retries=0)
+                              key, timeout=45, retries=1)
             reply = value["choices"][0]["message"]["content"]
         if not isinstance(reply, str) or not reply.strip():
             raise ProviderError("The answer API returned no text.")
@@ -60,5 +60,7 @@ def answer_from_sources(query, sources, profile):
         if not citations or not citations.issubset(allowed):
             raise ProviderError("The answer did not provide valid source citations.")
         return {"reply": reply, "answer_mode": "generated"}
-    except (ProviderError, KeyError, IndexError, TypeError):
+    except (ProviderError, KeyError, IndexError, TypeError) as e:
+        import logging
+        logging.warning(f"Answer generation failed: {e.__class__.__name__}: {e}")
         return fallback | {"generation_warning": "A cited generated answer was unavailable; showing original source excerpts."}

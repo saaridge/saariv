@@ -1,11 +1,31 @@
 """Small HTTP adapters. Storage and retrieval only depend on this protocol."""
 
 import json
+import logging
 import math
+import ssl
 import time
 from typing import Protocol, Sequence
 import urllib.error
 import urllib.request
+
+
+def _build_ssl_context():
+    """Build an SSL context backed by certifi's CA bundle.
+
+    Some Python installations (notably python.org builds on macOS that never ran
+    "Install Certificates.command") have no usable system CA bundle, which makes
+    every HTTPS request fail with CERTIFICATE_VERIFY_FAILED. Preferring certifi
+    keeps HTTPS working regardless of the host's certificate configuration.
+    """
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:  # certifi missing or unreadable: fall back to system defaults.
+        return ssl.create_default_context()
+
+
+_SSL_CONTEXT = _build_ssl_context()
 
 
 class ProviderError(RuntimeError):
@@ -25,10 +45,11 @@ def post_json(url, payload, api_key="", timeout=20, retries=2):
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers["Authorization"] = "Bearer " + api_key
+    context = _SSL_CONTEXT if url.lower().startswith("https") else None
     for attempt in range(retries + 1):
         req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as response:
+            with urllib.request.urlopen(req, timeout=timeout, context=context) as response:
                 value = json.load(response)
             if not isinstance(value, dict):
                 raise ProviderError("The API returned an invalid JSON object.")
@@ -40,11 +61,28 @@ def post_json(url, payload, api_key="", timeout=20, retries=2):
                 time.sleep(0.25 * (2 ** attempt))
                 continue
             raise ProviderError(f"Model API returned HTTP {status}. Check credentials, model, and endpoint.") from None
-        except (urllib.error.URLError, TimeoutError, OSError):
+        except urllib.error.URLError as error:
+            # TLS verification failures will never succeed on retry, so surface them
+            # immediately with an actionable message instead of masking as a timeout.
+            reason = getattr(error, "reason", error)
+            if isinstance(reason, ssl.SSLError):
+                logging.error(f"TLS verification to model API failed: {reason}")
+                raise ProviderError(
+                    "Could not establish a secure connection to the model API "
+                    "(TLS certificate verification failed). Install CA certificates "
+                    "(e.g. `pip install certifi`) and restart the server."
+                ) from None
             if attempt < retries:
                 time.sleep(0.25 * (2 ** attempt))
                 continue
-            raise ProviderError("Model API could not be reached before the timeout.") from None
+            logging.error(f"Model API connection error after {retries + 1} attempts: {reason}")
+            raise ProviderError("The model API could not be reached. Check your network connection and endpoint.") from None
+        except (TimeoutError, OSError) as error:
+            if attempt < retries:
+                time.sleep(0.25 * (2 ** attempt))
+                continue
+            logging.error(f"Model API timed out after {retries + 1} attempts: {error}")
+            raise ProviderError("The AI service is taking too long to respond. Please try again in a moment.") from None
         except (ValueError, TypeError):
             raise ProviderError("Model API returned invalid JSON.") from None
 

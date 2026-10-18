@@ -405,7 +405,21 @@ def onboarding_step2():
 @app.route("/api/onboarding/step4", methods=["POST"])
 def onboarding_step4():
     """Persist and index the narrative, retaining legacy JSON import support."""
-    return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
+    try:
+        return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
+    except Exception as e:
+        error_msg = str(e)
+        # Handle reindex requirement gracefully
+        if "Reindex" in error_msg or "Embedding configuration changed" in error_msg:
+            from knowledge.service import ReindexRequired
+            # Force reindex and try again
+            owner = g.knowledge_owner
+            try:
+                get_service().reindex(owner)
+                return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
+            except Exception as retry_error:
+                return jsonify(ok=False, message=f"Failed to reindex: {retry_error}"), 500
+        return jsonify(ok=False, message=error_msg), 500
 
 
 def cleanup_old_sessions():
@@ -421,6 +435,17 @@ def onboarding_step5():
 @app.route("/api/onboarding/step5-files", methods=["POST"])
 def onboarding_step5_files():
     return jsonify(import_additional(request.form, TMP_DIR, experiences_from_story, index_experiences_from_json, files=True))
+
+
+@app.route("/api/reindex", methods=["POST"])
+def reindex_knowledge():
+    """Reindex all documents with current embedding configuration."""
+    owner = g.knowledge_owner
+    try:
+        result = get_service().reindex(owner)
+        return jsonify(ok=True, message="Reindex completed successfully", **result)
+    except Exception as e:
+        return jsonify(ok=False, message=f"Reindex failed: {e}"), 500
 
 
 @app.route("/api/playground/rag-query", methods=["POST"])
