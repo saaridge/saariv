@@ -1,0 +1,21 @@
+# Execution ledger — plan: 2026-10-18-portable-rag.md
+
+- Design and plan self-review: source durability, provider boundaries, active-version filtering, ownership, evaluation, and failure cases covered.
+- Ruling: Execute the user's explicit “plan and implement” request inline after writing the plan; no additional approval round.
+- Ruling: Keep the current checkout and existing prompt edits; use a feature branch and leave changes uncommitted. A second worktree would separate the running app from those edits.
+- Pre-flight: Task 2 consumes Task 1 settings/provider/chunk dictionaries; Task 3 consumes Task 2 service methods; Task 4 consumes the same public service. Interfaces agree.
+- Task 1: complete. Provider and chunking tests RED (missing modules) → GREEN (12 tests).
+- Task 2: complete. Real SQLite/Qdrant service tests RED → GREEN (13 tests), including restart, provider migration, rollback, ownership, cache and threaded writes.
+- Task 3: implementation complete. API and answering tests RED → GREEN (16 tests). Legacy story tests remain green. JS import/source tests RED → GREEN (8 tests).
+- Task 4: evaluator tests RED → GREEN (3 metric tests). Seed evaluator, provider/API guide, plan/spec, and native-run documentation completed.
+- Verification note: Qdrant's SQLite thread-safety capability probe emits a Python 3.13 ResourceWarning for its temporary connection; application-managed source connections are explicitly closed. Existing PyPDF2 emits its package deprecation warning.
+- Final review: one independent read-only reviewer ran 49 Python/8 Node tests and found four P2 defects. Each received a regression test and was fixed in one pass.
+- Final: fixed owner retry trap — browser requests omit client-generated owner selectors; Node regression RED → GREEN; signed cookie retry verified through Flask.
+- Final: fixed same-name file collisions — file identities include content; explicit owned replacement IDs retain update support; API regressions RED → GREEN.
+- Final: fixed cleanup errors after committed publication — persistent recoverable maintenance warnings, source export completion and rebuild cleanup; service/API regressions RED → GREEN.
+- Final: fixed direct playground migration controls — entering step 6 always refreshes status; Node regression RED → GREEN.
+- Final review set-asides ruled: hosted account security remains outside this local prototype. Live provider behavior was separately verified with the supplied embedding key; other provider adapters have wire-contract coverage. Real-world quality and generated-answer faithfulness remain evaluations for representative data, not claims of this implementation.
+- Credential check: GitHub main/history, repository secrets/variables/environments contained no usable key. User supplied a key afterward; saved only in ignored `.env` under embedding settings. Existing answer credentials/model configuration were verified unchanged.
+- Live benchmark: lexical Hit@3 7/8; dense/hybrid 8/8; unrelated questions 2/2 empty. Twenty-one embedding calls, 395 reported input tokens, five synthetic documents only.
+- Native HTTP smoke: vector search 200, read-token write 403, deletion/revocation 200, revoked token 401; test documents/vectors removed.
+- Final suite: 54 Python tests and 10 Node tests passed; syntax/compilation/dependencies/diff checks passed. Complete: synthetic fixtures removed, / and /try and /health returned 200, embeddings_configured=true, and the native app remains running with the in-app browser ready for the user.

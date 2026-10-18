@@ -45,20 +45,22 @@ People who have lived unique journeys (scaling a startup, migrating out of India
 
 ## 🚀 Quick Start (Local Run)
 
+Requires Python **3.11 or newer**. Runs directly with a local SQLite/Qdrant index.
+
 ```bash
-cd /Users/mohitrohatgi/Documents/workspace/saariv
-
-# Activate virtual environment
+cd saariv
+python3.13 -m venv .venv
 source .venv/bin/activate
-
-# Install requirements
 pip install -r requirements.txt
+cp .env.example .env
 
-# Run website locally
-python3 app.py
+# Configure your embedding API in .env, then run one native process.
+python -m flask --app app run --host=127.0.0.1 --port=8080
 ```
 
 Open your browser at **[http://127.0.0.1:8080](http://127.0.0.1:8080)**.
+
+The current development environment is `.venv-rag`; use `.venv-rag/bin/python` in this checkout. See the [portable RAG guide](docs/rag.md) for embedding providers, source citations, agent access keys, index migration and evaluation. The sample environment uses keyword search until you configure an embedding provider.
 
 To run with **Gunicorn** (production WSGI):
 ```bash

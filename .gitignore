@@ -23,6 +23,7 @@ wheels/
 
 # Virtual environments
 .venv/
+.venv-rag/
 venv/
 ENV/
 
@@ -45,3 +46,4 @@ Thumbs.db
 # Temporary profile and RAG storage
 tmp_profiles/
 tmp/
+data/

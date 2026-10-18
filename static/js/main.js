@@ -1,7 +1,7 @@
 // Saariv — Onboarding Stepper, Knowledge Grounding & Living Biography Engine
 
 let onboardingState = {
-  sessionId: localStorage.getItem("saariv_session_id") || "session_" + Math.random().toString(36).substring(2, 10),
+  sessionId: localStorage.getItem("saariv_session_id") || null,
   firstName: "",
   lastName: "",
   email: "",
@@ -33,6 +33,8 @@ function goToStep(stepNum) {
     activePanel.classList.add("animate-fade-in");
     activePanel.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  if (stepNum === 6) refreshKnowledgeStatus();
 
   // Update progress bar
   updateProgressBar(stepNum);
@@ -69,14 +71,14 @@ function resetLoaderStates() {
 
 function updateProgressBar(currentStep) {
   const percentage = Math.round((currentStep / 6) * 100);
-  
+
   const progressBarFill = document.getElementById("progress-bar-fill");
   const progressPercentage = document.getElementById("progress-percentage");
-  
+
   if (progressBarFill) {
     progressBarFill.style.width = `${percentage}%`;
   }
-  
+
   if (progressPercentage) {
     progressPercentage.textContent = `${percentage}%`;
   }
@@ -117,7 +119,7 @@ function copyPrompt(elementId, btnId) {
 // ==========================================
 async function handleStep1Submit(e) {
   e.preventDefault();
-  
+
   const firstName = document.getElementById("step1_first_name").value.trim();
   const lastName = document.getElementById("step1_last_name").value.trim();
   const email = document.getElementById("step1_email").value.trim();
@@ -133,7 +135,7 @@ async function handleStep1Submit(e) {
   const btnText = document.getElementById("step1-btn-text");
   const btnLoader = document.getElementById("step1-btn-loader");
   const btnArrow = document.getElementById("step1-btn-arrow");
-  
+
   if (submitBtn) submitBtn.disabled = true;
   if (btnText) btnText.classList.add("hidden");
   if (btnLoader) btnLoader.classList.remove("hidden");
@@ -144,7 +146,7 @@ async function handleStep1Submit(e) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        session_id: onboardingState.sessionId,
+
         first_name: firstName,
         last_name: lastName,
         email: email,
@@ -152,6 +154,7 @@ async function handleStep1Submit(e) {
       })
     });
     const data = await res.json();
+    if (data.ok && data.session_id) adoptServerSession(data);
     if (data.session_id) {
       onboardingState.sessionId = data.session_id;
       localStorage.setItem("saariv_session_id", data.session_id);
@@ -174,13 +177,6 @@ async function handleStep1Submit(e) {
 // ==========================================
 function loadSampleTaxonomy() {
   const sampleTaxonomy = {
-    "metadata": {
-      "generated_on": "2025-01-15",
-      "source_scope": "Full conversation history across persistent memory and active chats",
-      "coverage_notes": "None",
-      "total_domains": 2,
-      "total_topics": 5
-    },
     "domains": [
       {
         "domain": "Software Engineering & Systems Architecture",
@@ -190,18 +186,10 @@ function loadSampleTaxonomy() {
             "topics": [
               {
                 "topic": "Hotel Research",
-                "evidence": "Analyzed luxury and boutique property discovery APIs, caching models, and user review aggregators",
-                "period": "2024-05",
-                "frequency": "occasional",
-                "confidence": "high",
                 "subtopics": ["Property Caching", "Amenity Tag Extraction", "Review Sentiment"]
               },
               {
                 "topic": "Flight Ticketing & Aggregation Systems",
-                "evidence": "Explored low-cost carrier APIs, GDS integration latency, and fare calendar caching architectures",
-                "period": "2024-02",
-                "frequency": "recurring",
-                "confidence": "high",
                 "subtopics": ["GDS Sabre/Amadeus Connectivity", "Multi-City Fare Graph", "Real-Time Seat Hold Locks"]
               }
             ]
@@ -211,18 +199,10 @@ function loadSampleTaxonomy() {
             "topics": [
               {
                 "topic": "Google L5 Software Engineer Interview Loop",
-                "evidence": "Prepared for distributed systems interview rounds, trade-off communication, and system design rubrics",
-                "period": "2023-08",
-                "frequency": "recurring",
-                "confidence": "high",
                 "subtopics": ["Distributed Key-Value Store Design", "Behavioral Leadership Signals", "Code Quality & Testing"]
               },
               {
                 "topic": "Global Technical Leadership Opportunities",
-                "evidence": "Evaluated relocation packages, Staff+ engineering compensation bands across Amsterdam, London, and Zurich",
-                "period": "2024-09",
-                "frequency": "occasional",
-                "confidence": "medium",
                 "subtopics": ["EU Relocation Tax Benefits", "Staff SWE Compensation Bands", "Remote vs In-Office Bands"]
               }
             ]
@@ -237,10 +217,6 @@ function loadSampleTaxonomy() {
             "topics": [
               {
                 "topic": "Saariv Development & Strategy",
-                "evidence": "Architected the 2-prompt taxonomy and experience extraction pipeline for Living Biographies",
-                "period": "2025-01",
-                "frequency": "recurring",
-                "confidence": "high",
                 "subtopics": ["2-Prompt Knowledge Distillation", "Zero-Upfront Revenue Share", "Privacy Isolation"]
               }
             ]
@@ -278,11 +254,12 @@ async function handleStep2Submit() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        session_id: onboardingState.sessionId,
+
         taxonomy_json: parsed
       })
     });
     const data = await res.json();
+    if (data.ok && data.session_id) adoptServerSession(data);
     if (!res.ok || !data.ok) {
       errorDiv.textContent = data.message || "Failed to process taxonomy.";
       errorDiv.classList.remove("hidden");
@@ -479,9 +456,9 @@ function updateSelectedItemsHierarchy() {
     const sdCount = onboardingState.selectedItems.subdomains.size;
     const tCount = onboardingState.selectedItems.topics.size;
     const stCount = onboardingState.selectedItems.subtopics.size;
-    
+
     const totalSelected = dCount + sdCount + tCount + stCount;
-    
+
     if (totalSelected === 0) {
       counter.textContent = "No items selected";
     } else {
@@ -490,7 +467,7 @@ function updateSelectedItemsHierarchy() {
       if (sdCount > 0) parts.push(`${sdCount} subdomain${sdCount !== 1 ? 's' : ''}`);
       if (tCount > 0) parts.push(`${tCount} topic${tCount !== 1 ? 's' : ''}`);
       if (stCount > 0) parts.push(`${stCount} subtopic${stCount !== 1 ? 's' : ''}`);
-      
+
       counter.textContent = parts.join(", ") + " selected";
     }
   }
@@ -498,12 +475,12 @@ function updateSelectedItemsHierarchy() {
 
 function handleStep3Submit() {
   // Check if at least one item is selected from any category
-  const totalSelected = 
-    onboardingState.selectedItems.topics.size + 
-    onboardingState.selectedItems.subtopics.size + 
-    onboardingState.selectedItems.domains.size + 
+  const totalSelected =
+    onboardingState.selectedItems.topics.size +
+    onboardingState.selectedItems.subtopics.size +
+    onboardingState.selectedItems.domains.size +
     onboardingState.selectedItems.subdomains.size;
-  
+
   if (totalSelected === 0) {
     alert("Please select at least one domain, subdomain, topic, or subtopic to continue.");
     return;
@@ -517,7 +494,7 @@ function handleStep3Submit() {
 
   // Build a comprehensive list including all selected items
   let formattedTopics = "";
-  
+
   // Include domains if no specific topics/subtopics selected
   if (topicsArray.length === 0 && subtopicsArray.length === 0) {
     // Use domains and subdomains
@@ -529,70 +506,41 @@ function handleStep3Submit() {
     // Use topics and subtopics
     formattedTopics = topicsArray.join(", ");
     if (subtopicsArray.length > 0) {
-      formattedTopics += ` (Focus areas & subtopics: ${subtopicsArray.slice(0, 10).join(", ")})`;
+      formattedTopics += ` (Focus areas & subtopics: ${subtopicsArray.join(", ")})`;
     }
   }
 
   // Construct Prompt 2
-  const prompt2Template = `You will receive a list of topics (possibly nested as domains, subdomains, topics, and subtopics) after the line "TOPICS:". For each one, describe the unique experience I had with it, meaning what I specifically asked, tried, struggled with, decided, or learned, rather than a general description of the topic. Return everything as a single JSON object.
+  const prompt2Template = `You will receive a list of topics (possibly nested as domains, subdomains, topics, and subtopics) after the line "TOPICS:". For each one, extract all relevant information I personally shared in messages I wrote. Capture what I said, asked, described, tried, struggled with, planned, decided, or explicitly reported learning. The output must contain my contributions, not the chatbot's answers. Tell it as a readable, factual story in prose instead of JSON.
 
 EVIDENCE SOURCES
-- Use only the evidence in the pasted topics (such as evidence notes, periods, and subtopics) and, if you have access to it, my actual conversation history with you.
-- Do not use general knowledge about the topic to fill gaps. A textbook explanation of the topic is not an experience.
+- Use ONLY messages authored by me (the user) in the conversation history you can actually access, or original user messages I paste with the topics.
+- Exclude ALL assistant-authored content, including ChatGPT's replies, advice, explanations, examples, proposed plans, generated stories, and summaries. Apply this rule to every chatbot, including Claude, Gemini, and Grok.
+- Never attribute something the assistant said to me. An assistant's suggestion is not evidence that I tried it, agreed with it, learned it, or achieved its predicted outcome. Include an action or outcome only when I explicitly reported it in my own words.
+- Topic names, taxonomy evidence notes, and chatbot-generated summaries are organizational aids, not proof of what I said. Use them to locate original user messages; do not copy unsupported claims from them.
+- Do not fill gaps with general knowledge, inferred beliefs, or assistant replies. If original user messages are unavailable, mark the evidence gap instead of reconstructing them.
 
 VERBOSITY
-- Medium means 3 to 5 sentences (about 50 to 100 words) per topic.
-- Cover, where the evidence supports it: the situation or goal that prompted it, what I specifically did or asked, any problem, constraint, or decision involved, the outcome or what I took away, and what made this experience distinct from a generic version of the topic.
+- Be comprehensive: preserve every distinct, relevant detail from my messages for each selected topic and subtopic. Use as much space as needed; do not impose a sentence or word limit that drops information.
+- Include my stated context, questions, requests, opinions, preferences, goals, constraints, attempts, decisions, corrections, and explicitly reported outcomes. Preserve chronology and changes in my position where known.
+- Combine repeated statements only when no distinct information is lost. A question establishes only that I asked it, not that I knew the answer or followed the assistant's advice.
 - Write in second person ("You asked...", "You were deciding between...") or neutral past tense. Do not use first person.
 
 RULES
-1. Cover every item in the input. Do not skip, merge, rename, or add topics.
-2. Preserve the original hierarchy (domain > subdomain > topic > subtopic). If the input is a flat list, keep it flat.
-3. Describe the experience for each topic and each subtopic. Keep subtopic experiences to 1 to 2 sentences.
-4. Never invent details, outcomes, emotions, motivations, or events. If the evidence only shows that I asked a question, say that and stop. Do not infer how it turned out or how I felt.
-5. If there is not enough evidence to describe a real experience, set "experience_available" to false, write a one-sentence statement of what is known (for example, "Only a single question about X is recorded"), and explain the gap in "note". Do not pad.
-6. Mark how well each experience is supported in "confidence": "high", "medium", or "low".
-7. Include the period if known, otherwise "unknown".
-8. Do not include personal identifiers (passwords, API keys, phone numbers, addresses, full names of private individuals).
-9. Output ONLY valid JSON. No markdown fences, no commentary before or after. Escape quotes and newlines properly, and use no trailing commas.
+1. Cover every selected topic and subtopic. Do not add unrelated topics or omit distinct details I shared.
+2. Write connected story paragraphs. Use a simple heading such as "## Topic name" when changing topics; weave the related subtopics into the narrative.
+3. Tell what I actually said, asked, tried, planned, decided, or explicitly reported learning. Preserve the sequence of events only when my messages establish it.
+4. Never invent details, outcomes, emotions, motivations, or events. If I only asked a question, describe that question without adding the assistant's answer or implying I acted on it.
+5. If original user messages are unavailable for a topic, say so briefly in that section. Do not fill the gap with chatbot content.
+6. Include dates or periods naturally in the story only when I stated them. Do not add confidence scores, metadata, or evidence tables.
+7. Do not include personal identifiers (passwords, API keys, phone numbers, addresses, full names of private individuals).
+8. Output only the story, optionally with topic headings. No JSON, code fences around the story, bullet-point summaries, or commentary before or after it.
 
-OUTPUT FORMAT
-{
-  "metadata": {
-    "verbosity": "medium",
-    "total_topics_described": 0,
-    "topics_without_sufficient_evidence": 0
-  },
-  "domains": [
-    {
-      "domain": "Domain name",
-      "subdomains": [
-        {
-          "subdomain": "Subdomain name",
-          "topics": [
-            {
-              "topic": "Topic name",
-              "experience_available": true,
-              "experience": "3-5 sentence account of what I specifically did, asked, decided, or learned in this topic",
-              "unique_angle": "One sentence on what made this experience distinct",
-              "period": "YYYY-MM or range or unknown",
-              "confidence": "high | medium | low",
-              "subtopics": [
-                {
-                  "subtopic": "Subtopic name",
-                  "experience": "1-2 sentence account of what I did or asked here"
-                }
-              ],
-              "note": "Optional. Use only for evidence gaps or ambiguity, otherwise an empty string."
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
+OUTPUT STYLE
+## Topic name
+Write the complete story of what I shared about this topic in connected paragraphs, including the related subtopic details. Use as many paragraphs as needed to preserve my contributions.
 
-Before finalizing, check that every input item appears exactly once, the hierarchy matches the input, every experience is grounded in the supplied evidence, the metadata counts are correct, and the JSON is valid.
+Before finalizing, check that every selected topic and subtopic is covered, every factual claim comes from an original user-authored message, no distinct relevant user information was omitted, and no assistant-authored content was included or attributed to me.
 
 TOPICS:
 ${formattedTopics}`;
@@ -605,135 +553,31 @@ ${formattedTopics}`;
 // STEP 4: PROMPT 2 (UNIQUE EXPERIENCES)
 // ==========================================
 function loadSampleExperiences() {
-  const sampleExp = {
-    "metadata": {
-      "verbosity": "medium",
-      "total_topics_described": 5,
-      "topics_without_sufficient_evidence": 0
-    },
-    "domains": [
-      {
-        "domain": "Software Engineering & Systems Architecture",
-        "subdomains": [
-          {
-            "subdomain": "Travel & Distributed Booking Infrastructure",
-            "topics": [
-              {
-                "topic": "Hotel Research",
-                "experience_available": true,
-                "experience": "You explored the technical integration of boutique and luxury hotel inventory feeds across global aggregators. You focused on optimizing Redis caching strategies to prevent stale room availability while keeping latency under 120ms. You evaluated whether room amenity attributes should be pre-computed or extracted via vector embeddings.",
-                "unique_angle": "Resolved room availability cache invalidation race conditions across distributed booking engines.",
-                "period": "2024-05",
-                "confidence": "high",
-                "subtopics": [
-                  {
-                    "subtopic": "Property Caching",
-                    "experience": "Implemented write-behind cache warming for peak morning booking traffic."
-                  }
-                ],
-                "note": ""
-              },
-              {
-                "topic": "Flight Ticketing & Aggregation Systems",
-                "experience_available": true,
-                "experience": "You analyzed real-time flight inventory synchronization across low-cost carriers and legacy GDS feeds (Sabre and Amadeus). You encountered significant latency bottlenecks when aggregating multi-city flight graphs during fare sales. You designed an asynchronous polling architecture that decoupled user pricing queries from synchronous airline booking holds.",
-                "unique_angle": "Handled NDC API protocol inconsistencies without degrading search responsiveness.",
-                "period": "2024-02",
-                "confidence": "high",
-                "subtopics": [
-                  {
-                    "subtopic": "GDS Sabre/Amadeus Connectivity",
-                    "experience": "Benchmarked XML vs JSON transmission overhead across legacy reservation protocols."
-                  }
-                ],
-                "note": ""
-              }
-            ]
-          },
-          {
-            "subdomain": "Interviewing & Career Progression",
-            "topics": [
-              {
-                "topic": "Google L5 Software Engineer Interview Loop",
-                "experience_available": true,
-                "experience": "You prepared extensively for distributed systems and system design interviews, focusing on Google-specific L5 rubric evaluation. You navigated 5 interview rounds with an emphasis on trade-off clarity, failure domain containment, and asynchronous consensus. You specifically practiced designing globally distributed key-value stores under network partition scenarios.",
-                "unique_angle": "Focused on real-world operational fault tolerance and team leadership signals rather than pure algorithmic speed.",
-                "period": "2023-08",
-                "confidence": "high",
-                "subtopics": [
-                  {
-                    "subtopic": "Distributed Key-Value Store Design",
-                    "experience": "Analyzed Paxos vs Raft consensus trade-offs under high write contention."
-                  }
-                ],
-                "note": ""
-              },
-              {
-                "topic": "Global Technical Leadership Opportunities",
-                "experience_available": true,
-                "experience": "You evaluated international relocation packages and Staff+ engineering compensation bands across Amsterdam, London, and Zurich. You analyzed the Dutch 30% tax ruling requirements and compared net take-home pay against Swiss tax structures. You weighed the pros and cons of equity vesting schedules during European macroeconomic downturns.",
-                "unique_angle": "Created a multi-currency tax and net disposable income model comparing NL, UK, and CH.",
-                "period": "2024-09",
-                "confidence": "high",
-                "subtopics": [
-                  {
-                    "subtopic": "EU Relocation Tax Benefits",
-                    "experience": "Verified recruitment radius eligibility rules for Dutch 30% ruling contracts."
-                  }
-                ],
-                "note": ""
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "domain": "Venture & Product Strategy",
-        "subdomains": [
-          {
-            "subdomain": "AI Avatars & Creator Monetization",
-            "topics": [
-              {
-                "topic": "Saariv Development & Strategy",
-                "experience_available": true,
-                "experience": "You conceptualized Saariv to allow founders, immigrants, and advisors to monetize their chat history without giving up calendar hours. You designed the 2-prompt extraction workflow to distill knowledge safely from conversational logs. You engineered the grounding pipeline to anchor responses in authentic lived experiences rather than generic chatbot answers.",
-                "unique_angle": "Pioneered the zero-upfront commission model coupled with private session sandboxing.",
-                "period": "2025-01",
-                "confidence": "high",
-                "subtopics": [
-                  {
-                    "subtopic": "2-Prompt Knowledge Distillation",
-                    "experience": "Refined the prompt taxonomy to isolate unique decisions and lessons."
-                  }
-                ],
-                "note": ""
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  const sampleStory = `## Hotel Research
+You asked about integrating boutique and luxury hotel inventory feeds. Your main concerns were stale room availability and the latency of property searches. You explored Redis caching and asked whether room amenities should be prepared in advance or extracted when needed.
 
-  document.getElementById("step4_pasted_json").value = JSON.stringify(sampleExp, null, 2);
+## Flight Ticketing & Aggregation Systems
+You compared low-cost carrier APIs with legacy GDS feeds. You described slow searches across multi-city routes and asked how to keep pricing queries responsive while managing seat holds. Your questions included Sabre and Amadeus connectivity and differences between reservation protocols.
+
+## Google L5 Software Engineer Interview Loop
+You said you were preparing for system design interviews. You asked about distributed key-value stores, failure handling, and explaining engineering trade-offs. You also wanted to practice communicating leadership decisions during the interview.
+
+## Global Technical Leadership Opportunities
+You compared engineering opportunities in Amsterdam, London, and Zurich. You asked about relocation packages, compensation, and the effect of different tax arrangements on take-home pay. You were weighing these factors before making a decision; no final choice was recorded.
+
+## Saariv Development & Strategy
+You described an idea for turning your own chatbot conversations into an avatar that could share your experiences. You asked for separate prompts to identify topics and extract what you had personally said. You wanted to choose which topics to share and test the avatar privately first.`;
+
+  document.getElementById("step4_story").value = sampleStory;
 }
 
 async function handleStep4Submit() {
   const errorDiv = document.getElementById("step4_error");
   errorDiv.classList.add("hidden");
 
-  const rawJson = document.getElementById("step4_pasted_json").value.trim();
-  if (!rawJson) {
-    errorDiv.textContent = "Please paste the chatbot's experience JSON output or click 'Load Sample Experience'.";
-    errorDiv.classList.remove("hidden");
-    return;
-  }
-
-  let parsed;
-  try {
-    parsed = JSON.parse(rawJson);
-  } catch (err) {
-    errorDiv.textContent = `JSON Syntax Error: ${err.message}. Please verify the output is valid JSON.`;
+  const story = document.getElementById("step4_story").value.trim();
+  if (!story) {
+    errorDiv.textContent = "Please paste your experience story or click 'Load Sample'.";
     errorDiv.classList.remove("hidden");
     return;
   }
@@ -746,27 +590,36 @@ async function handleStep4Submit() {
     subtopics: Array.from(onboardingState.selectedItems.subtopics)
   };
 
+  const saveButton = document.getElementById("step4-submit-btn");
+  const indexStatus = document.getElementById("step4-index-status");
+  if (saveButton) saveButton.disabled = true;
+  if (indexStatus) indexStatus.textContent = "Saving and indexing your story…";
   try {
     const res = await fetch("/api/onboarding/step4", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        session_id: onboardingState.sessionId,
+
         selected_items: allSelectedItems,
-        experiences_json: parsed
+        experience_story: story
       })
     });
     const data = await res.json();
+    if (data.ok && data.session_id) adoptServerSession(data);
     if (!res.ok || !data.ok) {
-      errorDiv.textContent = data.message || "Failed to index experiences.";
+      errorDiv.textContent = data.message || "Could not save your story.";
       errorDiv.classList.remove("hidden");
       return;
     }
 
-    onboardingState.indexedCount = data.indexed_count || 5;
+    onboardingState.indexedCount = data.indexed_count || 0;
     goToStep(5); // Go to unique experience step
   } catch (err) {
-    goToStep(5); // Go to unique experience step
+    errorDiv.textContent = "Could not save your story. Please try again.";
+    errorDiv.classList.remove("hidden");
+  } finally {
+    if (saveButton) saveButton.disabled = false;
+    if (indexStatus) indexStatus.textContent = "";
   }
 }
 
@@ -775,176 +628,64 @@ async function handleStep4Submit() {
 // ==========================================
 
 // Store uploaded files content
-let uploadedFilesContent = [];
 
 async function handleFileUpload(event) {
-  const files = Array.from(event.target.files);
-  if (!files.length) return;
-
-  const filenamesContainer = document.getElementById("step5_filenames");
-  filenamesContainer.innerHTML = "";
-  uploadedFilesContent = [];
-
+  const files = Array.from(event.target.files || []);
+  const container = document.getElementById("step5_filenames");
+  container.textContent = "";
   for (const file of files) {
-    const ext = file.name.split('.').pop().toLowerCase();
-    let text = "";
-
-    try {
-      if (ext === 'pdf') {
-        text = await extractTextFromPDF(file);
-      } else if (ext === 'docx' || ext === 'doc') {
-        // Mark DOCX files for server processing - can't read client-side
-        text = "[DOCX_FILE]";
-      } else {
-        // Text files (.txt, .md, .json, .rtf)
-        text = await file.text();
-      }
-
-      uploadedFilesContent.push({
-        filename: file.name,
-        content: text,
-        type: ext
-      });
-
-      // Show file name with checkmark
-      const fileEl = document.createElement("div");
-      fileEl.className = "flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-1.5 rounded-md";
-      const icon = (ext === 'docx' || ext === 'doc') ? 'file-text' : 'check-circle';
-      fileEl.innerHTML = `
-        <i data-lucide="${icon}" class="w-4 h-4"></i>
-        <span>${file.name}</span>
-        <span class="text-xs text-gray-500">(${(file.size / 1024).toFixed(1)} KB)</span>
-      `;
-      filenamesContainer.appendChild(fileEl);
-    } catch (err) {
-      const errorEl = document.createElement("div");
-      errorEl.className = "flex items-center gap-2 text-sm text-red-700 bg-red-50 px-3 py-1.5 rounded-md";
-      errorEl.innerHTML = `
-        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-        <span>Failed to read ${file.name}</span>
-      `;
-      filenamesContainer.appendChild(errorEl);
-    }
+    const row = document.createElement("div");
+    row.className = "text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-md";
+    row.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    container.appendChild(row);
   }
-
-  // Refresh icons
-  if (window.lucide) lucide.createIcons();
-}
-
-async function extractTextFromPDF(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  
-  let fullText = "";
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const textContent = await page.getTextContent();
-    const pageText = textContent.items.map(item => item.str).join(" ");
-    fullText += pageText + "\n";
-  }
-  
-  return fullText;
 }
 
 async function handleStep5Submit() {
-  const errorDiv = document.getElementById("step5_error");
-  errorDiv.classList.add("hidden");
-
+  const error = document.getElementById("step5_error");
+  error.classList.add("hidden");
   const customText = document.getElementById("step5_custom_text").value.trim();
   const topicTag = document.getElementById("step5_topic_tag").value.trim() || "Unique Experience";
-
-  // Show loader
-  const submitBtn = document.getElementById("step5-submit-btn");
-  const btnText = document.getElementById("step5-btn-text");
-  const btnLoader = document.getElementById("step5-btn-loader");
-  const btnArrow = document.getElementById("step5-btn-arrow");
-  
-  if (submitBtn) submitBtn.disabled = true;
-  if (btnText) btnText.classList.add("hidden");
-  if (btnLoader) btnLoader.classList.remove("hidden");
-  if (btnArrow) btnArrow.classList.add("hidden");
-
-  // Get all selected items for playground
-  const allSelectedItems = [
-    ...Array.from(onboardingState.selectedItems.domains),
-    ...Array.from(onboardingState.selectedItems.subdomains),
-    ...Array.from(onboardingState.selectedItems.topics),
-    ...Array.from(onboardingState.selectedItems.subtopics)
-  ];
-
-  // Check if we have DOCX files that need server processing
-  const hasDocxFiles = uploadedFilesContent.some(f => f.type === 'docx' || f.type === 'doc');
-  const docxFiles = uploadedFilesContent.filter(f => f.type === 'docx' || f.type === 'doc');
-  const otherContent = uploadedFilesContent.filter(f => f.type !== 'docx' && f.type !== 'doc');
-
-  // Combine custom text and non-DOCX file contents
-  let combinedExperience = customText;
-  
-  if (otherContent.length > 0) {
-    const fileContents = otherContent.map(f => `\n\n--- Content from ${f.filename} ---\n${f.content}`).join("");
-    combinedExperience += fileContents;
-  }
-
-  // It's okay to skip this step - just proceed to playground
-  if (!combinedExperience && docxFiles.length === 0) {
-    setupPlayground(allSelectedItems);
-    goToStep(6);
-    return;
-  }
-
+  const files = Array.from(document.getElementById("step5_file_upload")?.files || []);
+  const button = document.getElementById("step5-submit-btn");
+  const buttonText = document.getElementById("step5-btn-text");
+  const loader = document.getElementById("step5-btn-loader");
+  const arrow = document.getElementById("step5-btn-arrow");
+  const selected = Object.values(onboardingState.selectedItems).flatMap(items => Array.from(items));
+  if (button) button.disabled = true;
+  if (buttonText) buttonText.classList.add("hidden");
+  if (loader) loader.classList.remove("hidden");
+  if (arrow) arrow.classList.add("hidden");
   try {
-    // If we have DOCX files, send via FormData
-    if (docxFiles.length > 0) {
-      const fileInput = document.getElementById('step5_file_upload');
-      const formData = new FormData();
-      formData.append("session_id", onboardingState.sessionId);
-      formData.append("custom_experience", combinedExperience);
-      formData.append("topic_tag", topicTag);
-      
-      // Append the actual DOCX files from the file input
-      const allFiles = Array.from(fileInput.files);
-      for (const file of allFiles) {
-        const ext = file.name.split('.').pop().toLowerCase();
-        if (ext === 'docx' || ext === 'doc') {
-          formData.append("files", file);
-        }
+    if (customText || files.length) {
+      let response;
+      if (files.length) {
+        const body = new FormData();
+        body.append("custom_experience", customText);
+        body.append("topic_tag", topicTag);
+        for (const file of files) body.append("files", file);
+        response = await fetch("/api/onboarding/step5-files", { method: "POST", body });
+      } else {
+        response = await fetch("/api/onboarding/step5", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({  custom_experience: customText, topic_tag: topicTag })
+        });
       }
-      
-      const res = await fetch("/api/onboarding/step5-files", {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        throw new Error(data.message || "Failed to process files");
-      }
-      onboardingState.indexedCount = data.indexed_count || allSelectedItems.length;
-    } else {
-      // Regular text/PDF content - send as JSON
-      const res = await fetch("/api/onboarding/step5", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: onboardingState.sessionId,
-          custom_experience: combinedExperience,
-          topic_tag: topicTag
-        })
-      });
-      const data = await res.json();
-      onboardingState.indexedCount = data.indexed_count || allSelectedItems.length;
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.message || "Could not index your sources.");
+      adoptServerSession(data);
+      onboardingState.indexedCount = data.indexed_count || 0;
     }
-
-    setupPlayground(allSelectedItems);
+    setupPlayground(selected);
     goToStep(6);
-  } catch (err) {
-    setupPlayground(allSelectedItems);
-    goToStep(6);
+  } catch (failure) {
+    error.textContent = failure.message || "Could not save your sources. Please try again.";
+    error.classList.remove("hidden");
   } finally {
-    // Hide loader
-    if (submitBtn) submitBtn.disabled = false;
-    if (btnText) btnText.classList.remove("hidden");
-    if (btnLoader) btnLoader.classList.add("hidden");
-    if (btnArrow) btnArrow.classList.remove("hidden");
+    if (button) button.disabled = false;
+    if (buttonText) buttonText.classList.remove("hidden");
+    if (loader) loader.classList.add("hidden");
+    if (arrow) arrow.classList.remove("hidden");
   }
 }
 
@@ -954,11 +695,11 @@ async function handleStep5Submit() {
 function setupPlayground(topics) {
   const name = `${onboardingState.firstName || 'Creator'} ${onboardingState.lastName || ''}`.trim();
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-  
+
   // Update avatar initials
   const avatarInitialEl = document.getElementById("chat-avatar-initial");
   if (avatarInitialEl) avatarInitialEl.textContent = initials;
-  
+
   const welcomeInitialEl = document.getElementById("chat-welcome-initial");
   if (welcomeInitialEl) welcomeInitialEl.textContent = initials;
 
@@ -968,7 +709,7 @@ function setupPlayground(topics) {
   // Populate topics sidebar
   const topicsListEl = document.getElementById("playground-topics-list");
   const topicsCountBadge = document.getElementById("topics-count-badge");
-  
+
   if (topicsListEl && topics.length > 0) {
     // Organize topics by domain/subdomain/topic hierarchy
     const allTopics = [
@@ -977,21 +718,21 @@ function setupPlayground(topics) {
       ...Array.from(onboardingState.selectedItems.topics).map(t => ({ name: t, type: 'topic' })),
       ...Array.from(onboardingState.selectedItems.subtopics).map(st => ({ name: st, type: 'subtopic' }))
     ];
-    
+
     if (topicsCountBadge) {
       topicsCountBadge.textContent = `${allTopics.length} topic${allTopics.length !== 1 ? 's' : ''}`;
     }
-    
+
     topicsListEl.innerHTML = allTopics.map(item => {
-      const typeIcon = item.type === 'domain' ? 'folder' : 
-                       item.type === 'subdomain' ? 'folder-open' : 
+      const typeIcon = item.type === 'domain' ? 'folder' :
+                       item.type === 'subdomain' ? 'folder-open' :
                        item.type === 'topic' ? 'message-square' : 'corner-down-right';
-      const typeColor = item.type === 'domain' ? 'text-blue-600 bg-blue-50' : 
-                        item.type === 'subdomain' ? 'text-purple-600 bg-purple-50' : 
+      const typeColor = item.type === 'domain' ? 'text-blue-600 bg-blue-50' :
+                        item.type === 'subdomain' ? 'text-purple-600 bg-purple-50' :
                         item.type === 'topic' ? 'text-gray-600 bg-gray-100' : 'text-gray-500 bg-gray-50';
-      
+
       return `
-        <button 
+        <button
           type="button"
           onclick="askPlaygroundQuestion('Tell me about your experience with ${item.name.replace(/'/g, "\\'")}')"
           class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white transition-colors text-left group"
@@ -1088,33 +829,19 @@ async function handlePlaygroundQuery(e) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        session_id: onboardingState.sessionId,
+
         query: query
       })
     });
     const data = await res.json();
+    if (data.ok && data.session_id) adoptServerSession(data);
 
     // Remove loading message
     const loadingMsg = document.getElementById("loading-message");
     if (loadingMsg) loadingMsg.remove();
 
-    // Add assistant response
-    const replyHtml = `
-      <div class="flex gap-3">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-1">
-          <span>${initials}</span>
-        </div>
-        <div class="flex-1 bg-white rounded-2xl rounded-tl-md px-4 py-3 border border-gray-200 shadow-sm">
-          <p class="text-gray-800 text-sm leading-relaxed">${data.reply.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</p>
-          ${data.retrieved_topic ? `
-            <div class="mt-2 pt-2 border-t border-gray-100">
-              <span class="text-xs text-gray-500">Retrieved from: <span class="font-medium text-gray-700">${data.retrieved_topic}</span></span>
-            </div>
-          ` : ''}
-        </div>
-      </div>
-    `;
-    messagesContainer.querySelector('.space-y-4').insertAdjacentHTML('beforeend', replyHtml);
+    if (!res.ok || !data.ok) throw new Error(data.message || "Could not search your sources.");
+    appendPlaygroundAnswer(messagesContainer.querySelector('.space-y-4'), data, initials);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   } catch (err) {
@@ -1122,18 +849,9 @@ async function handlePlaygroundQuery(e) {
     const loadingMsg = document.getElementById("loading-message");
     if (loadingMsg) loadingMsg.remove();
 
-    // Add error message
-    const errorMsgHtml = `
-      <div class="flex gap-3">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 mt-1">
-          <span>${initials}</span>
-        </div>
-        <div class="flex-1 bg-red-50 border border-red-200 rounded-2xl rounded-tl-md px-4 py-3">
-          <p class="text-red-800 text-sm">Unable to connect to the avatar. Please check your connection and try again.</p>
-        </div>
-      </div>
-    `;
-    messagesContainer.querySelector('.space-y-4').insertAdjacentHTML('beforeend', errorMsgHtml);
+    appendPlaygroundAnswer(messagesContainer.querySelector('.space-y-4'), {
+      reply: err.message || "Unable to connect to the avatar. Please try again.", sources: [], answer_mode: "error"
+    }, initials);
   } finally {
     btn.disabled = false;
     input.value = "";
@@ -1221,14 +939,14 @@ if (document.getElementById("anim-question")) {
 // ==========================================
 async function handleWaitlistSubmit(e) {
   e.preventDefault();
-  
+
   const name = document.getElementById("wl_name").value.trim();
   const email = document.getElementById("wl_email").value.trim();
   const successBox = document.getElementById("waitlist-success");
   const submitBtn = document.getElementById("waitlist-submit-btn");
   const btnText = document.getElementById("waitlist-btn-text");
   const btnLoader = document.getElementById("waitlist-btn-loader");
-  
+
   if (!name || !email) {
     return;
   }
@@ -1248,24 +966,25 @@ async function handleWaitlistSubmit(e) {
     const res = await fetch("/api/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        name: name, 
-        email: email, 
-        profile_type: "Living Biography Waitlist" 
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        profile_type: "Living Biography Waitlist"
       })
     });
     const data = await res.json();
-    
+    if (data.ok && data.session_id) adoptServerSession(data);
+
     // Show success message
     if (successBox) {
       successBox.classList.remove("hidden");
       successBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-    
+
     // Clear form
     document.getElementById("wl_name").value = "";
     document.getElementById("wl_email").value = "";
-    
+
   } catch (err) {
     // Show success message even on error (fail gracefully)
     if (successBox) {
@@ -1291,3 +1010,127 @@ document.addEventListener("DOMContentLoaded", () => {
     goToStep(1);
   }
 });
+
+
+// Knowledge retrieval returns ordinary text and citations usable by any connected agent.
+function adoptServerSession(data) {
+  if (data.session_id) {
+    onboardingState.sessionId = data.session_id;
+    localStorage.setItem("saariv_session_id", data.session_id);
+  }
+}
+
+function appendKnowledgeSources(parent, sources) {
+  for (const source of sources || []) {
+    const details = document.createElement("details");
+    details.className = "mt-3 border-t border-gray-100 pt-2";
+    const summary = document.createElement("summary");
+    summary.className = "cursor-pointer text-xs text-gray-600";
+    const reference = source.source || {};
+    let location = reference.title || "Saved source";
+    if (reference.section && reference.section !== reference.title) location += ` — ${reference.section}`;
+    if (reference.page_start) location += ` · page ${reference.page_start}${reference.page_end !== reference.page_start ? "–" + reference.page_end : ""}`;
+    summary.textContent = `[${source.citation_id}] ${location}`;
+    const excerpt = document.createElement("p");
+    excerpt.className = "mt-2 whitespace-pre-wrap text-xs text-gray-600";
+    excerpt.textContent = source.text;
+    details.appendChild(summary);
+    details.appendChild(excerpt);
+    parent.appendChild(details);
+  }
+}
+
+function appendPlaygroundAnswer(parent, data, initials) {
+  const row = document.createElement("div");
+  row.className = "flex gap-3";
+  const avatar = document.createElement("div");
+  avatar.className = "w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm flex-shrink-0";
+  avatar.textContent = initials;
+  const bubble = document.createElement("div");
+  bubble.className = "flex-1 bg-white rounded-2xl rounded-tl-md px-4 py-3 border border-gray-200 shadow-sm";
+  const answer = document.createElement("p");
+  answer.className = "text-gray-800 text-sm leading-relaxed whitespace-pre-wrap";
+  answer.textContent = data.reply || "No answer was returned.";
+  bubble.appendChild(answer);
+  if (data.answer_mode === "extractive") {
+    const label = document.createElement("p");
+    label.className = "mt-2 text-xs text-gray-500";
+    label.textContent = "Showing original source excerpts.";
+    bubble.appendChild(label);
+  }
+  appendKnowledgeSources(bubble, data.sources);
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  parent.appendChild(row);
+}
+
+async function refreshKnowledgeStatus() {
+  const label = document.getElementById("knowledge-status");
+  if (!label) return;
+  try {
+    const response = await fetch("/api/knowledge/status");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message);
+    label.textContent = data.needs_reindex ? "Rebuild the index to use the new embedding model." :
+      data.maintenance_pending ? data.warnings.join(" ") :
+      `${data.documents_count} saved sources · ${data.embedding_enabled ? "Semantic + keyword search" : "Keyword search; embeddings not configured"}`;
+    const rebuild = document.getElementById("knowledge-reindex-btn");
+    if (rebuild) rebuild.classList.toggle("hidden", !data.needs_reindex && !data.maintenance_pending);
+  } catch (error) {
+    label.textContent = error.message || "Could not load source status.";
+  }
+}
+
+async function rebuildKnowledgeIndex() {
+  const button = document.getElementById("knowledge-reindex-btn");
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/knowledge/reindex", { method: "POST" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message);
+    await refreshKnowledgeStatus();
+  } catch (error) {
+    document.getElementById("knowledge-status").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function createAgentAccessToken() {
+  const status = document.getElementById("agent-token-status");
+  try {
+    const response = await fetch("/api/knowledge/token", { method: "POST" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message);
+    const input = document.getElementById("agent-access-token");
+    input.value = data.token;
+    input.classList.remove("hidden");
+    document.getElementById("agent-token-copy").classList.remove("hidden");
+    status.textContent = "Read-only access key created. Valid for 30 days.";
+  } catch (error) {
+    status.textContent = error.message || "Could not create an access key.";
+  }
+}
+
+async function copyAgentAccessToken() {
+  const input = document.getElementById("agent-access-token");
+  try {
+    await navigator.clipboard.writeText(input.value);
+    document.getElementById("agent-token-status").textContent = "Access key copied.";
+  } catch (error) {
+    input.type = "text";
+    input.select();
+    document.getElementById("agent-token-status").textContent = "Select and copy the access key.";
+  }
+}
+
+async function revokeAgentAccessTokens() {
+  const response = await fetch("/api/knowledge/token", { method: "DELETE" });
+  const status = document.getElementById("agent-token-status");
+  if (response.ok) {
+    document.getElementById("agent-access-token").value = "";
+    status.textContent = "All access keys for this avatar have been revoked.";
+  } else {
+    status.textContent = "Could not revoke access keys. Please try again.";
+  }
+}
