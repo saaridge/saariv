@@ -3,14 +3,15 @@ import json
 import os
 import re
 import sqlite3
-import urllib.error
-import urllib.request
-import uuid
 from typing import Any, Dict, List
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, g, jsonify, render_template, request
 from flask_mail import Mail, Message
+
+from knowledge.answers import answer_from_sources
+from knowledge.onboarding import export_sources, import_additional, import_story
+from knowledge.web import get_service, initialize_knowledge
 
 load_dotenv()
 
@@ -39,6 +40,8 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp_profiles")
 QUESTIONS_LOG_PATH = os.path.join(BASE_DIR, "tmp", "user_questions.jsonl")
 os.makedirs(TMP_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(QUESTIONS_LOG_PATH), exist_ok=True)
+
+initialize_knowledge(app)
 
 
 def init_db():
@@ -180,6 +183,50 @@ def send_waitlist_notification(data: dict) -> bool:
 # RAG (Retrieval-Augmented Generation) Core
 # ==========================================
 
+def experiences_from_story(story: str, selected_items: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep narrative text intact and use optional headings for retrieval sections."""
+    selected_topics = selected_items.get("topics", [])
+    title = selected_topics[0] if len(selected_topics) == 1 else "Experience Story"
+    topics = []
+    body = []
+    fence = ""
+
+    def save_section():
+        text = "\n".join(body).strip()
+        if text:
+            topics.append({
+                "topic": title,
+                "experience": text,
+                "unique_angle": "",
+                "period": "unknown",
+                "subtopics": [],
+            })
+        body.clear()
+
+    for line in story.splitlines():
+        marker = re.match(r"^\s{0,3}(`{3,}|~{3,})", line)
+        if marker:
+            token = marker.group(1)
+            if not fence:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence):
+                fence = ""
+            body.append(line)
+            continue
+        heading = None if fence else re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if heading:
+            save_section()
+            title = heading.group(1)
+        else:
+            body.append(line)
+    save_section()
+
+    return {"domains": [{
+        "domain": "Experience Stories",
+        "subdomains": [{"subdomain": "Selected Topics", "topics": topics}],
+    }]}
+
+
 def index_experiences_from_json(exp_data: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Extract and index atomic experience chunks for search."""
     chunks = []
@@ -218,126 +265,12 @@ def index_experiences_from_json(exp_data: Dict[str, Any]) -> List[Dict[str, Any]
 
 
 def retrieve_relevant_experience(query: str, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """RAG retrieval: Rank chunks by relevance to query."""
-    if not chunks:
-        return []
+    """Compatibility helper for old exports; the app queries the knowledge service."""
+    tokens = set(re.findall(r"\w+", query.lower()))
+    ranked = sorted(((sum(token in chunk["searchable_text"] for token in tokens), chunk)
+                     for chunk in chunks), key=lambda pair: pair[0], reverse=True)
+    return [chunk for score, chunk in ranked if score > 0][:2]
 
-    # Clean query tokens
-    stop_words = {"what", "how", "why", "when", "did", "you", "your", "my", "is", "are", "about", "the", "a", "an", "in", "on", "for", "with", "to", "and", "tell", "me"}
-    tokens = [w for w in re.findall(r'\b[a-zA-Z0-9_\-]+\b', query.lower()) if w not in stop_words]
-
-    if not tokens:
-        tokens = query.lower().split()
-
-    scored = []
-    for chunk in chunks:
-        score = 0
-        topic_lower = chunk["topic"].lower()
-        search_text = chunk["searchable_text"]
-
-        # Exact phrase or topic title matches get high priority
-        if query.lower() in search_text:
-            score += 15
-        if any(token in topic_lower for token in tokens):
-            score += 10
-
-        # Token matching
-        for token in tokens:
-            if token in topic_lower:
-                score += 5
-            if token in search_text:
-                score += 2
-
-        scored.append((score, chunk))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-    # Return top 2 matching chunks
-    top_matches = [item[1] for item in scored if item[0] > 0]
-    if not top_matches and chunks:
-        # Fallback to first chunk if no strong match
-        top_matches = [chunks[0]]
-    return top_matches[:2]
-
-
-def generate_rag_answer(query: str, retrieved_chunks: List[Dict[str, Any]], profile: Dict[str, Any]) -> str:
-    """Generate answer grounded strictly in retrieved experience."""
-    if not retrieved_chunks:
-        return "I haven't documented specific lived experience on that exact topic in my chatbot archives yet. Ask me about the topics I have lived experience in!"
-
-    creator_name = f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip() or "Creator"
-    primary_chunk = retrieved_chunks[0]
-
-    api_key = get_openai_api_key()
-    is_real_openai_key = (
-        api_key
-        and not api_key.startswith("mock-")
-        and len(api_key) > 20
-    )
-
-    if is_real_openai_key:
-        try:
-            # Call OpenAI Chat Completion
-            context_str = "\n\n".join([
-                f"Topic: {c['topic']}\nPeriod: {c['period']}\nExperience: {c['experience']}\nUnique Angle: {c['unique_angle']}"
-                for c in retrieved_chunks
-            ])
-            system_prompt = (
-                f"You are the verified personal AI Avatar and Living Biography of {creator_name}. "
-                f"Answer the user's question directly in first-person ('I did...', 'In my experience...'). "
-                f"Ground your answer STRICTLY in the following lived experience. Do not invent details not present in the context:\n\n"
-                f"{context_str}"
-            )
-
-            req_data = json.dumps({
-                "model": "gpt-4o-mini",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": query}
-                ],
-                "temperature": 0.4
-            }).encode("utf-8")
-
-            req = urllib.request.Request(
-                "https://api.openai.com/v1/chat/completions",
-                data=req_data,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {api_key}"
-                }
-            )
-            with urllib.request.urlopen(req, timeout=12) as response:
-                res_body = json.loads(response.read().decode("utf-8"))
-                return res_body["choices"][0]["message"]["content"]
-        except Exception as e:
-            app.logger.warning(f"OpenAI API call failed ({e}). Falling back to internal RAG synthesizer.")
-
-    # High-fidelity Grounded Internal Synthesizer (Works 100% offline & with mock keys)
-    topic = primary_chunk.get("topic", "")
-    exp = primary_chunk.get("experience", "")
-    angle = primary_chunk.get("unique_angle", "")
-    subtopics = primary_chunk.get("subtopics", [])
-    period = primary_chunk.get("period", "my career")
-
-    subtopic_points = ""
-    if subtopics:
-        subtopic_points = "\n\nSpecific decisions and sub-experiences:\n" + "\n".join([
-            f"• **{st.get('subtopic', '')}**: {st.get('experience', '')}"
-            for st in subtopics[:3] if isinstance(st, dict)
-        ])
-
-    answer = (
-        f"Based on my personal experience with **{topic}** (around {period}):\n\n"
-        f"{exp}\n\n"
-        f"💡 **What made this distinct**: {angle}"
-        f"{subtopic_points}\n\n"
-        f"*(Answered by {creator_name}'s Living Biography Avatar • Retrieved from private chat history)*"
-    )
-    return answer
-
-
-# ==========================================
-# Routes
-# ==========================================
 
 @app.route("/", methods=["GET"])
 def index():
@@ -361,6 +294,8 @@ def health():
         mail_ready=mail_configured(),
         openai_configured=bool(get_openai_api_key()),
         rag_ready=True,
+        embeddings_configured=bool(get_service().provider),
+        embedding_provider=get_service().settings.embedding_provider,
     )
 
 
@@ -376,7 +311,7 @@ def onboarding_step1():
     if not first_name or not email:
         return jsonify(ok=False, message="Please provide your First Name and Email Address."), 400
 
-    session_id = data.get("session_id") or uuid.uuid4().hex[:12]
+    session_id = g.knowledge_owner
     user_folder = os.path.join(TMP_DIR, session_id)
     os.makedirs(user_folder, exist_ok=True)
 
@@ -422,7 +357,7 @@ def onboarding_step1():
 def onboarding_step2():
     """Receive and parse Prompt 1 taxonomy output."""
     data = request.get_json() or {}
-    session_id = data.get("session_id", "demo-session")
+    session_id = g.knowledge_owner
     taxonomy_raw = data.get("taxonomy_json")
 
     user_folder = os.path.join(TMP_DIR, session_id)
@@ -469,400 +404,52 @@ def onboarding_step2():
 
 @app.route("/api/onboarding/step4", methods=["POST"])
 def onboarding_step4():
-    """Receive and save Prompt 2 unique experiences JSON, then index for RAG."""
-    data = request.get_json() or {}
-    session_id = data.get("session_id", "demo-session")
-    experiences_raw = data.get("experiences_json")
-    selected_items = data.get("selected_items", {})
-    
-    # Support both old format (selected_topics) and new format (selected_items)
-    if not selected_items:
-        # Backward compatibility: convert old selected_topics to new format
-        selected_topics = data.get("selected_topics", [])
-        selected_items = {
-            "domains": [],
-            "subdomains": [],
-            "topics": selected_topics,
-            "subtopics": []
-        }
-
-    user_folder = os.path.join(TMP_DIR, session_id)
-    os.makedirs(user_folder, exist_ok=True)
-
-    if isinstance(experiences_raw, str):
-        try:
-            experiences_obj = json.loads(experiences_raw)
-        except Exception as e:
-            return jsonify(ok=False, message=f"Invalid JSON provided for experiences ({e})."), 400
-    elif isinstance(experiences_raw, dict):
-        experiences_obj = experiences_raw
-    else:
-        return jsonify(ok=False, message="Please paste the JSON experience output from your chatbot."), 400
-
-    # Save to tmp storage
-    with open(os.path.join(user_folder, "experiences.json"), "w", encoding="utf-8") as f:
-        json.dump(experiences_obj, f, indent=2)
-
-    with open(os.path.join(user_folder, "selected_items.json"), "w", encoding="utf-8") as f:
-        json.dump(selected_items, f, indent=2)
-
-    # Index chunks
-    chunks = index_experiences_from_json(experiences_obj)
-    with open(os.path.join(user_folder, "chunks_index.json"), "w", encoding="utf-8") as f:
-        json.dump(chunks, f, indent=2)
-
-    return jsonify(
-        ok=True,
-        session_id=session_id,
-        indexed_count=len(chunks),
-        sample_topics=[c["topic"] for c in chunks[:5]]
-    )
+    """Persist and index the narrative, retaining legacy JSON import support."""
+    return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
 
 
 def cleanup_old_sessions():
-    """Delete session folders created before today."""
-    today = datetime.datetime.now(datetime.timezone.utc).date()
-    deleted_count = 0
-    
-    if not os.path.exists(TMP_DIR):
-        return deleted_count
-    
-    for session_name in os.listdir(TMP_DIR):
-        session_path = os.path.join(TMP_DIR, session_name)
-        if not os.path.isdir(session_path):
-            continue
-        
-        try:
-            # Check the profile.json creation date
-            profile_file = os.path.join(session_path, "profile.json")
-            if os.path.exists(profile_file):
-                with open(profile_file, "r", encoding="utf-8") as f:
-                    profile_data = json.load(f)
-                    created_at_str = profile_data.get("created_at", "")
-                    if created_at_str:
-                        created_at = datetime.datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
-                        created_date = created_at.date()
-                        if created_date < today:
-                            # Delete the entire session folder
-                            import shutil
-                            shutil.rmtree(session_path)
-                            deleted_count += 1
-        except Exception as e:
-            app.logger.warning(f"Error checking session {session_name}: {e}")
-            continue
-    
-    return deleted_count
+    """Knowledge and profiles persist until explicitly deleted."""
+    return 0
 
 
 @app.route("/api/onboarding/step5", methods=["POST"])
 def onboarding_step5():
-    """Add unique experience via text or file upload."""
-    data = request.get_json() or {}
-    session_id = data.get("session_id", "demo-session")
-    custom_experience = data.get("custom_experience", "")
-    topic_tag = data.get("topic_tag", "Unique Experience")
-
-    if not custom_experience:
-        return jsonify(ok=True, message="No unique experience provided, continuing to playground.")
-
-    # Clean up old sessions before adding new data
-    deleted_count = cleanup_old_sessions()
-    app.logger.info(f"Cleaned up {deleted_count} old session(s)")
-
-    user_folder = os.path.join(TMP_DIR, session_id)
-    os.makedirs(user_folder, exist_ok=True)
-
-    # Load existing experiences
-    exp_file = os.path.join(user_folder, "experiences.json")
-    if os.path.exists(exp_file):
-        try:
-            with open(exp_file, "r", encoding="utf-8") as f:
-                exp_data = json.load(f)
-        except Exception:
-            exp_data = {"domains": []}
-    else:
-        exp_data = {"domains": []}
-
-    # Add unique experience as a new domain/topic
-    custom_domain = {
-        "domain": "Unique Experiences",
-        "subdomains": [
-            {
-                "subdomain": topic_tag,
-                "topics": [
-                    {
-                        "topic": topic_tag,
-                        "experience": custom_experience,
-                        "unique_angle": "Manually added by user",
-                        "period": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m"),
-                        "confidence": "high",
-                        "subtopics": []
-                    }
-                ]
-            }
-        ]
-    }
-
-    # Check if Unique Experiences domain already exists
-    found = False
-    for domain in exp_data.get("domains", []):
-        if domain.get("domain") == "Unique Experiences":
-            # Add to existing domain
-            domain["subdomains"].append(custom_domain["subdomains"][0])
-            found = True
-            break
-    
-    if not found:
-        exp_data["domains"].append(custom_domain)
-
-    # Save updated experiences
-    with open(exp_file, "w", encoding="utf-8") as f:
-        json.dump(exp_data, f, indent=2)
-
-    # Re-index chunks
-    chunks = index_experiences_from_json(exp_data)
-    with open(os.path.join(user_folder, "chunks_index.json"), "w", encoding="utf-8") as f:
-        json.dump(chunks, f, indent=2)
-
-    return jsonify(
-        ok=True,
-        session_id=session_id,
-        message="Unique experience added successfully.",
-        indexed_count=len(chunks)
-    )
-
-
-def extract_text_from_docx(file_path: str) -> str:
-    """Extract text content from a DOCX file."""
-    try:
-        from docx import Document
-        doc = Document(file_path)
-        text_parts = []
-        for para in doc.paragraphs:
-            text_parts.append(para.text)
-        return "\n".join(text_parts)
-    except Exception as e:
-        app.logger.warning(f"Failed to extract DOCX text: {e}")
-        return ""
-
-
-def extract_text_from_pdf(file_path: str) -> str:
-    """Extract text content from a PDF file."""
-    try:
-        from PyPDF2 import PdfReader
-        reader = PdfReader(file_path)
-        text_parts = []
-        for page in reader.pages:
-            text_parts.append(page.extract_text() or "")
-        return "\n".join(text_parts)
-    except Exception as e:
-        app.logger.warning(f"Failed to extract PDF text: {e}")
-        return ""
+    return jsonify(import_additional(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
 
 
 @app.route("/api/onboarding/step5-files", methods=["POST"])
 def onboarding_step5_files():
-    """Handle file uploads for unique experiences (DOCX, PDF, etc.)."""
-    session_id = request.form.get("session_id", "demo-session")
-    topic_tag = request.form.get("topic_tag", "Unique Experience")
-    custom_text = request.form.get("custom_experience", "")
-
-    # Clean up old sessions
-    cleanup_old_sessions()
-
-    user_folder = os.path.join(TMP_DIR, session_id)
-    os.makedirs(user_folder, exist_ok=True)
-
-    # Process uploaded files
-    all_text = custom_text
-    uploaded_files = request.files.getlist("files")
-    
-    for file in uploaded_files:
-        if not file.filename:
-            continue
-        
-        # Save temporarily to extract text
-        temp_path = os.path.join(user_folder, f"temp_{file.filename}")
-        file.save(temp_path)
-        
-        ext = file.filename.split('.')[-1].lower()
-        extracted = ""
-        
-        if ext == "docx" or ext == "doc":
-            extracted = extract_text_from_docx(temp_path)
-        elif ext == "pdf":
-            extracted = extract_text_from_pdf(temp_path)
-        else:
-            # Try to read as text
-            try:
-                with open(temp_path, "r", encoding="utf-8") as f:
-                    extracted = f.read()
-            except Exception:
-                pass
-        
-        # Clean up temp file
-        try:
-            os.remove(temp_path)
-        except Exception:
-            pass
-        
-        if extracted:
-            all_text += f"\n\n--- Content from {file.filename} ---\n{extracted}"
-
-    if not all_text.strip():
-        return jsonify(ok=True, message="No content extracted from files.")
-
-    # Load existing experiences
-    exp_file = os.path.join(user_folder, "experiences.json")
-    if os.path.exists(exp_file):
-        try:
-            with open(exp_file, "r", encoding="utf-8") as f:
-                exp_data = json.load(f)
-        except Exception:
-            exp_data = {"domains": []}
-    else:
-        exp_data = {"domains": []}
-
-    # Add unique experience
-    custom_domain = {
-        "domain": "Unique Experiences",
-        "subdomains": [
-            {
-                "subdomain": topic_tag,
-                "topics": [
-                    {
-                        "topic": topic_tag,
-                        "experience": all_text,
-                        "unique_angle": "Uploaded from files",
-                        "period": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m"),
-                        "confidence": "high",
-                        "subtopics": []
-                    }
-                ]
-            }
-        ]
-    }
-
-    # Check if Unique Experiences domain already exists
-    found = False
-    for domain in exp_data.get("domains", []):
-        if domain.get("domain") == "Unique Experiences":
-            domain["subdomains"].append(custom_domain["subdomains"][0])
-            found = True
-            break
-    
-    if not found:
-        exp_data["domains"].append(custom_domain)
-
-    # Save and index
-    with open(exp_file, "w", encoding="utf-8") as f:
-        json.dump(exp_data, f, indent=2)
-
-    chunks = index_experiences_from_json(exp_data)
-    with open(os.path.join(user_folder, "chunks_index.json"), "w", encoding="utf-8") as f:
-        json.dump(chunks, f, indent=2)
-
-    return jsonify(
-        ok=True,
-        session_id=session_id,
-        message="Files processed successfully.",
-        indexed_count=len(chunks)
-    )
+    return jsonify(import_additional(request.form, TMP_DIR, experiences_from_story, index_experiences_from_json, files=True))
 
 
 @app.route("/api/playground/rag-query", methods=["POST"])
 def playground_rag_query():
-    """Query the user's RAG avatar using experiences saved in tmp_profiles folder."""
-    data = request.get_json() or {}
-    session_id = data.get("session_id", "demo-session")
-    query = (data.get("query") or "").strip()
-
-    if not query:
-        return jsonify(ok=False, message="Please enter a question to ask the avatar."), 400
-
-    user_folder = os.path.join(TMP_DIR, session_id)
-    exp_file = os.path.join(user_folder, "experiences.json")
-    profile_file = os.path.join(user_folder, "profile.json")
-
-    # If no custom session file exists yet, load default sample experiences
-    if not os.path.exists(exp_file):
-        profile = {"first_name": "Aarav", "last_name": "Sharma"}
-        sample_data = {
-            "domains": [
-                {
-                    "domain": "Global Career & Tech Leadership",
-                    "subdomains": [
-                        {
-                            "subdomain": "EU Relocation & Systems",
-                            "topics": [
-                                {
-                                  "topic": "Google L5 Software Engineer Interview Loop",
-                                  "experience": "You prepared extensively for distributed systems and system design interviews, focusing on Google-specific L5 rubric evaluation. You navigated 5 interview rounds with an emphasis on trade-off clarity and asynchronous consensus.",
-                                  "unique_angle": "Focus on distributed consensus tradeoffs and real-world failure domain handling rather than theoretical algorithm memorization.",
-                                  "period": "2023-08",
-                                  "subtopics": [
-                                      {"subtopic": "System Design", "experience": "Engineered multi-region failover architecture for cloud services."}
-                                  ]
-                                },
-                                {
-                                  "topic": "Saariv Development & Strategy",
-                                  "experience": "You conceptualized Saariv to allow professionals, immigrants, and founders to monetize their chat history without giving up calendar hours. You designed the 2-prompt extraction workflow to distill knowledge safely.",
-                                  "unique_angle": "Architected zero-upfront commission model with persistent RAG retrieval over past chat sessions.",
-                                  "period": "2025-01",
-                                  "subtopics": [
-                                      {"subtopic": "2-Prompt Workflow", "experience": "Created taxonomy discovery prompt followed by deep experience extraction."}
-                                  ]
-                                },
-                                {
-                                  "topic": "Flight Ticketing & Aggregation Systems",
-                                  "experience": "You analyzed low-cost carrier booking engines and global distribution systems (GDS) API caching mechanisms. You evaluated latency bottlenecks in real-time seat inventory querying.",
-                                  "unique_angle": "Overcame NDC protocol synchronization hurdles across international airline ticketing feeds.",
-                                  "period": "2024-03",
-                                  "subtopics": [
-                                      {"subtopic": "GDS Integration", "experience": "Tested latency across Sabre and Amadeus APIs."}
-                                  ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-        chunks = index_experiences_from_json(sample_data)
-    else:
-        profile = {}
-        if os.path.exists(profile_file):
-            try:
-                with open(profile_file, "r", encoding="utf-8") as f:
-                    profile = json.load(f)
-            except Exception:
-                profile = {}
-
+    """Retrieve source evidence through the same service exposed to external agents."""
+    data = request.get_json()
+    owner = g.knowledge_owner
+    query = data.get("query", "")
+    retrieved = get_service().search(owner, query, limit=5)
+    profile_path = os.path.join(TMP_DIR, owner, "profile.json")
+    profile = {}
+    if os.path.exists(profile_path):
         try:
-            with open(exp_file, "r", encoding="utf-8") as f:
-                exp_data = json.load(f)
-            chunks = index_experiences_from_json(exp_data)
-        except Exception as e:
-            return jsonify(ok=False, message=f"Failed to read experience data: {e}"), 500
+            with open(profile_path, encoding="utf-8") as stream:
+                profile = json.load(stream)
+        except (ValueError, OSError):
+            pass
+    answer = answer_from_sources(query, retrieved["results"], profile)
+    topic = retrieved["results"][0]["source"]["section"] if retrieved["results"] else ""
+    log_user_question(owner, query, topic)
+    return jsonify(ok=True, **answer, sources=retrieved["results"],
+                   retrieval_mode=retrieved["mode"], retrieval_timings_ms=retrieved["timings_ms"],
+                   warnings=retrieved["warnings"], retrieved_topic=topic, unique_angle="",
+                   chunks_found=len(retrieved["results"]),
+                   avatar_name=" ".join(str(profile.get(key, "")) for key in ("first_name", "last_name")).strip() or "Your Avatar")
 
-    # Execute RAG retrieval
-    top_chunks = retrieve_relevant_experience(query, chunks)
-    answer = generate_rag_answer(query, top_chunks, profile)
 
-    retrieved_topic = top_chunks[0]["topic"] if top_chunks else "General Knowledge"
-    unique_angle = top_chunks[0].get("unique_angle", "") if top_chunks else ""
-
-    # Log the user question
-    log_user_question(session_id, query, retrieved_topic)
-
-    return jsonify(
-        ok=True,
-        reply=answer,
-        retrieved_topic=retrieved_topic,
-        unique_angle=unique_angle,
-        chunks_found=len(top_chunks),
-        avatar_name=f"{profile.get('first_name', 'Living')} {profile.get('last_name', 'Biography')}".strip()
-    )
+app.config["KNOWLEDGE_EXPORTER"] = lambda owner: export_sources(
+    owner, TMP_DIR, experiences_from_story, index_experiences_from_json)
 
 
 @app.route("/api/waitlist", methods=["POST"])

@@ -1,0 +1,22 @@
+{
+  "name": "Saariv synthetic retrieval seed v1",
+  "documents": [
+    {"document_id": "housing", "title": "Relocation housing", "text": "You compared apartment deposits before relocating. You asked how landlords assess rental applications and whether references would help. No signed rental contract was documented."},
+    {"document_id": "career", "title": "Engineering interview preparation", "text": "You practiced engineering interviews and discussed distributed systems tradeoffs. You asked for feedback on explaining failure recovery. No job offer or interview outcome was documented."},
+    {"document_id": "tooling", "title": "Running Saariv locally", "text": "You requested running Saariv directly on your machine without Docker. You asked to open the application in the in-app browser. These requests do not establish that you deployed the application to production."},
+    {"document_id": "story", "title": "Story extraction format", "text": "You requested domain, subdomain, topic, and subtopic labels from the first prompt. You requested a narrative story from the second prompt, including only your own messages and excluding assistant responses."},
+    {"document_id": "rag", "title": "Portable knowledge retrieval", "text": "You chose a local prototype with an embedding API. You wanted different models and agents to access the same saved knowledge. You asked how to measure retrieval quality, latency, and cost."}
+  ],
+  "queries": [
+    {"id": "exact-housing", "query": "What did you ask about apartment deposits?", "relevant": {"housing": ["apartment deposits"]}},
+    {"id": "paraphrase-housing", "query": "What concerns came up about accommodation applications before moving?", "relevant": {"housing": ["rental applications"]}},
+    {"id": "exact-career", "query": "What did you practice for engineering interviews?", "relevant": {"career": ["engineering interviews"]}},
+    {"id": "paraphrase-career", "query": "How did you prepare to explain outages when applying for a technical role?", "relevant": {"career": ["failure recovery"]}},
+    {"id": "exact-tool", "query": "Did you want Docker for Saariv?", "relevant": {"tooling": ["without Docker"]}},
+    {"id": "format", "query": "Which prompt should produce a narrative?", "relevant": {"story": ["second prompt"]}},
+    {"id": "portable", "query": "Can different agents use the knowledge?", "relevant": {"rag": ["different models and agents"]}},
+    {"id": "multi-source", "query": "What preparations did you discuss for housing and engineering interviews?", "relevant": {"housing": ["apartment deposits"], "career": ["engineering interviews"]}},
+    {"id": "unknown-astronomy", "query": "Which telescope did you purchase to observe Saturn?", "relevant": {}},
+    {"id": "unknown-sport", "query": "What was your marathon finishing time?", "relevant": {}}
+  ]
+}
