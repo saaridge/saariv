@@ -70,6 +70,62 @@ def init_db():
 init_db()
 
 
+# Object-position "you" cues: a preposition or transitive verb immediately before
+# "you" means it maps to "me" (e.g. "helped you" -> "helped me"), not "I".
+_OBJECT_YOU = re.compile(
+    r"(\b(?:to|for|with|at|about|from|told|tell|gave|give|given|helped|help|"
+    r"offered|offer|sent|send|showed|show|taught|teach|let|allowed|allow|"
+    r"paid|pay|emailed|email|contacted|contact|joined|join|asked)\s+)you\b",
+    re.IGNORECASE,
+)
+
+# Ordered second-person -> first-person rewrites. Longer/verb forms run first so
+# agreement stays correct ("you were" -> "I was" before a bare "you" -> "I").
+_FIRST_PERSON_RULES = [
+    (re.compile(r"\byou're\b", re.IGNORECASE), "I'm"),
+    (re.compile(r"\byou've\b", re.IGNORECASE), "I've"),
+    (re.compile(r"\byou'll\b", re.IGNORECASE), "I'll"),
+    (re.compile(r"\byou'd\b", re.IGNORECASE), "I'd"),
+    (re.compile(r"\byou are\b", re.IGNORECASE), "I am"),
+    (re.compile(r"\byou were\b", re.IGNORECASE), "I was"),
+    (re.compile(r"\byou have\b", re.IGNORECASE), "I have"),
+    (re.compile(r"\byou had\b", re.IGNORECASE), "I had"),
+    (re.compile(r"\byou will\b", re.IGNORECASE), "I will"),
+]
+
+
+def _cap_like(replacement: str, matched: str) -> str:
+    """Capitalize the replacement when the matched word started with a capital."""
+    first = next((char for char in matched if char.isalpha()), "")
+    if first.isupper():
+        return replacement[:1].upper() + replacement[1:]
+    return replacement
+
+
+def to_first_person(text: str) -> str:
+    """Rewrite second-person experience text into the creator's first-person voice.
+
+    Stored stories may have been authored in second person ("You asked...").
+    When displaying them as the creator's own account, convert the common
+    pronoun forms so the voice matches ("I asked..."). This is a presentation
+    helper, intentionally conservative; it does not touch generated answers,
+    which already speak in the first person.
+    """
+    if not text:
+        return text
+    for pattern, replacement in _FIRST_PERSON_RULES:
+        text = pattern.sub(replacement, text)
+    text = re.compile(r"\byourselves\b", re.IGNORECASE).sub(lambda m: _cap_like("myself", m.group(0)), text)
+    text = re.compile(r"\byourself\b", re.IGNORECASE).sub(lambda m: _cap_like("myself", m.group(0)), text)
+    text = re.compile(r"\byours\b", re.IGNORECASE).sub(lambda m: _cap_like("mine", m.group(0)), text)
+    text = re.compile(r"\byour\b", re.IGNORECASE).sub(lambda m: _cap_like("my", m.group(0)), text)
+    # Object "you" (after a preposition/transitive verb) becomes "me".
+    text = _OBJECT_YOU.sub(lambda m: m.group(1) + "me", text)
+    # Any remaining subject "you" becomes "I" (always capitalized).
+    text = re.compile(r"\byou\b", re.IGNORECASE).sub("I", text)
+    return text
+
+
 def log_user_question(session_id: str, question: str, retrieved_topic: str = ""):
     """Log user question to a JSONL file with automatic cleanup of old entries."""
     try:
@@ -467,6 +523,13 @@ def playground_rag_query():
     # When the answer is "insufficient", the retrieved chunks did not actually answer
     # the question, so no experience story should be shown alongside that reply.
     sources = [] if answer.get("answer_mode") == "insufficient" else retrieved["results"]
+    # Present stored experience stories in the creator's own first-person voice,
+    # even when the source material was authored in second person.
+    sources = [dict(source, text=to_first_person(source["text"])) for source in sources]
+    # The extractive fallback reply is composed of raw source text, so convert it too.
+    # Generated replies already speak in the first person and are left untouched.
+    if answer.get("answer_mode") == "extractive":
+        answer = dict(answer, reply=to_first_person(answer["reply"]))
     topic = sources[0]["source"]["section"] if sources else ""
     log_user_question(owner, query, topic)
     return jsonify(ok=True, **answer, sources=sources,

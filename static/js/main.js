@@ -524,7 +524,7 @@ VERBOSITY
 - Be comprehensive: preserve every distinct, relevant detail from my messages for each selected topic and subtopic. Use as much space as needed; do not impose a sentence or word limit that drops information.
 - Include my stated context, questions, requests, opinions, preferences, goals, constraints, attempts, decisions, corrections, and explicitly reported outcomes. Preserve chronology and changes in my position where known.
 - Combine repeated statements only when no distinct information is lost. A question establishes only that I asked it, not that I knew the answer or followed the assistant's advice.
-- Write in second person ("You asked...", "You were deciding between...") or neutral past tense. Do not use first person.
+- Write in the first person, in my own voice ("I asked...", "I was deciding between...", "My main concern was..."), as if I am recounting my own experience. Do not use second person ("you") or third person.
 
 RULES
 1. Cover every selected topic and subtopic. Do not add unrelated topics or omit distinct details I shared.
@@ -538,9 +538,9 @@ RULES
 
 OUTPUT STYLE
 ## Topic name
-Write the complete story of what I shared about this topic in connected paragraphs, including the related subtopic details. Use as many paragraphs as needed to preserve my contributions.
+Write the complete story of what I shared about this topic in connected paragraphs, in my own first-person voice ("I ..."), including the related subtopic details. Use as many paragraphs as needed to preserve my contributions.
 
-Before finalizing, check that every selected topic and subtopic is covered, every factual claim comes from an original user-authored message, no distinct relevant user information was omitted, and no assistant-authored content was included or attributed to me.
+Before finalizing, check that every selected topic and subtopic is covered, the whole story is written in the first person in my own voice, every factual claim comes from an original user-authored message, no distinct relevant user information was omitted, and no assistant-authored content was included or attributed to me.
 
 TOPICS:
 ${formattedTopics}`;
@@ -554,19 +554,19 @@ ${formattedTopics}`;
 // ==========================================
 function loadSampleExperiences() {
   const sampleStory = `## Hotel Research
-You asked about integrating boutique and luxury hotel inventory feeds. Your main concerns were stale room availability and the latency of property searches. You explored Redis caching and asked whether room amenities should be prepared in advance or extracted when needed.
+I asked about integrating boutique and luxury hotel inventory feeds. My main concerns were stale room availability and the latency of property searches. I explored Redis caching and asked whether room amenities should be prepared in advance or extracted when needed.
 
 ## Flight Ticketing & Aggregation Systems
-You compared low-cost carrier APIs with legacy GDS feeds. You described slow searches across multi-city routes and asked how to keep pricing queries responsive while managing seat holds. Your questions included Sabre and Amadeus connectivity and differences between reservation protocols.
+I compared low-cost carrier APIs with legacy GDS feeds. I described slow searches across multi-city routes and asked how to keep pricing queries responsive while managing seat holds. My questions included Sabre and Amadeus connectivity and differences between reservation protocols.
 
 ## Google L5 Software Engineer Interview Loop
-You said you were preparing for system design interviews. You asked about distributed key-value stores, failure handling, and explaining engineering trade-offs. You also wanted to practice communicating leadership decisions during the interview.
+I said I was preparing for system design interviews. I asked about distributed key-value stores, failure handling, and explaining engineering trade-offs. I also wanted to practice communicating leadership decisions during the interview.
 
 ## Global Technical Leadership Opportunities
-You compared engineering opportunities in Amsterdam, London, and Zurich. You asked about relocation packages, compensation, and the effect of different tax arrangements on take-home pay. You were weighing these factors before making a decision; no final choice was recorded.
+I compared engineering opportunities in Amsterdam, London, and Zurich. I asked about relocation packages, compensation, and the effect of different tax arrangements on take-home pay. I was weighing these factors before making a decision; no final choice was recorded.
 
 ## Saariv Development & Strategy
-You described an idea for turning your own chatbot conversations into an avatar that could share your experiences. You asked for separate prompts to identify topics and extract what you had personally said. You wanted to choose which topics to share and test the avatar privately first.`;
+I described an idea for turning my own chatbot conversations into an avatar that could share my experiences. I asked for separate prompts to identify topics and extract what I had personally said. I wanted to choose which topics to share and test the avatar privately first.`;
 
   document.getElementById("step4_story").value = sampleStory;
 }
