@@ -307,7 +307,7 @@ function renderHierarchicalChecklist(domains) {
 
           subtopicsHtml += `
             <label class="flex items-center gap-2 py-1.5 px-3 rounded-md hover:bg-white cursor-pointer text-xs text-gray-700 transition-colors">
-              <input type="checkbox" checked id="${subtopicId}" data-type="subtopic" data-topic-id="${topicId}" data-name="${encodeURIComponent(stName)}" onchange="onSubtopicToggle('${subtopicId}', '${topicId}')" class="item-checkbox accent-blue-600 w-4 h-4 cursor-pointer rounded">
+              <input type="checkbox" checked id="${subtopicId}" data-type="subtopic" data-topic-id="${topicId}" data-name="${encodeURIComponent(stName)}" onchange="onItemToggle('${subtopicId}')" class="item-checkbox accent-blue-600 w-4 h-4 cursor-pointer rounded">
               <span class="font-medium">${stName}</span>
             </label>
           `;
@@ -316,7 +316,7 @@ function renderHierarchicalChecklist(domains) {
         topicsHtml += `
           <div class="ml-4 pl-4 border-l-2 border-gray-300 py-2 space-y-2">
             <label class="flex items-start gap-3 cursor-pointer group">
-              <input type="checkbox" checked id="${topicId}" data-type="topic" data-subdomain-id="${subdomainId}" data-name="${encodeURIComponent(topicName)}" onchange="onTopicToggle('${topicId}', '${subdomainId}')" class="item-checkbox mt-1 accent-blue-600 w-4 h-4 cursor-pointer rounded">
+              <input type="checkbox" checked id="${topicId}" data-type="topic" data-subdomain-id="${subdomainId}" data-name="${encodeURIComponent(topicName)}" onchange="onItemToggle('${topicId}')" class="item-checkbox mt-1 accent-blue-600 w-4 h-4 cursor-pointer rounded">
               <div class="flex-1">
                 <span class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">${topicName}</span>
                 ${t.period ? `<span class="text-xs font-mono text-gray-500 ml-2 bg-gray-200 px-2 py-0.5 rounded">${t.period}</span>` : ''}
@@ -337,7 +337,7 @@ function renderHierarchicalChecklist(domains) {
       subdomainsHtml += `
         <div class="ml-3 pl-4 border-l-2 border-blue-200 py-3 space-y-3">
           <label class="flex items-center gap-3 cursor-pointer group">
-            <input type="checkbox" checked id="${subdomainId}" data-type="subdomain" data-domain-id="${domainId}" data-name="${encodeURIComponent(subdomainName)}" onchange="onSubdomainToggle('${subdomainId}', '${domainId}')" class="item-checkbox accent-blue-600 w-4 h-4 cursor-pointer rounded">
+            <input type="checkbox" checked id="${subdomainId}" data-type="subdomain" data-domain-id="${domainId}" data-name="${encodeURIComponent(subdomainName)}" onchange="onItemToggle('${subdomainId}')" class="item-checkbox accent-blue-600 w-4 h-4 cursor-pointer rounded">
             <span class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">${subdomainName}</span>
           </label>
           <div class="space-y-3">${topicsHtml}</div>
@@ -347,7 +347,7 @@ function renderHierarchicalChecklist(domains) {
 
     domainCard.innerHTML = `
       <div class="hierarchy-domain-header">
-        <input type="checkbox" checked id="${domainId}" data-type="domain" data-name="${encodeURIComponent(domainName)}" onchange="onDomainToggle('${domainId}')" class="item-checkbox accent-blue-600 w-5 h-5 cursor-pointer rounded">
+        <input type="checkbox" checked id="${domainId}" data-type="domain" data-name="${encodeURIComponent(domainName)}" onchange="onItemToggle('${domainId}')" class="item-checkbox accent-blue-600 w-5 h-5 cursor-pointer rounded">
         <span class="hierarchy-domain-label">${domainName}</span>
       </div>
       <div class="space-y-4">${subdomainsHtml}</div>
@@ -360,71 +360,49 @@ function renderHierarchicalChecklist(domains) {
 }
 
 // Cascading Toggle Handlers
-function onDomainToggle(domainId) {
-  const domainCb = document.getElementById(domainId);
-  const isChecked = domainCb.checked;
-  // Toggle all children subdomains, topics, and subtopics inside this card
-  const card = domainCb.closest(".p-4");
-  card.querySelectorAll(".item-checkbox").forEach(cb => {
-    cb.checked = isChecked;
-  });
-  updateSelectedItemsHierarchy();
+// Checkbox ids encode the hierarchy: domain_<d>, subdomain_<d>_<sd>,
+// topic_<d>_<sd>_<t>, subtopic_<d>_<sd>_<t>_<st>. We cascade using those ids so
+// selection does not depend on the surrounding markup structure.
+
+// Every checkbox nested beneath the given one (its subdomains, topics, subtopics).
+function descendantCheckboxes(cb) {
+  const childPrefixes = {
+    domain: ["subdomain_", "topic_", "subtopic_"],
+    subdomain: ["topic_", "subtopic_"],
+    topic: ["subtopic_"],
+    subtopic: [],
+  }[cb.getAttribute("data-type")] || [];
+  if (!childPrefixes.length) return [];
+  const path = cb.id.substring(cb.id.indexOf("_") + 1);
+  const selector = childPrefixes.map(prefix => `[id^="${prefix}${path}_"]`).join(",");
+  return Array.from(document.querySelectorAll(selector));
 }
 
-function onSubdomainToggle(subdomainId, domainId) {
-  const subdomainCb = document.getElementById(subdomainId);
-  const isChecked = subdomainCb.checked;
-  const container = subdomainCb.closest(".py-2");
-  container.querySelectorAll(".item-checkbox").forEach(cb => {
-    cb.checked = isChecked;
-  });
+// Every checkbox above the given one (its topic, subdomain, domain).
+function ancestorCheckboxes(cb) {
+  const parts = cb.id.substring(cb.id.indexOf("_") + 1).split("_");
+  const ids = [];
+  const type = cb.getAttribute("data-type");
+  if (type === "subtopic") ids.push("topic_" + parts.slice(0, 3).join("_"));
+  if (type === "subtopic" || type === "topic") ids.push("subdomain_" + parts.slice(0, 2).join("_"));
+  if (type === "subtopic" || type === "topic" || type === "subdomain") ids.push("domain_" + parts[0]);
+  return ids.map(id => document.getElementById(id)).filter(Boolean);
+}
 
-  // Check parent domain if child is checked
+function onItemToggle(id) {
+  const cb = document.getElementById(id);
+  if (!cb) return;
+  const isChecked = cb.checked;
+
+  // Cascade down: every nested item follows this checkbox's state. Deselecting a
+  // domain/subdomain/topic therefore clears everything beneath it.
+  descendantCheckboxes(cb).forEach(child => { child.checked = isChecked; });
+
+  // Cascade up only on select, so a chosen item also marks its parents as included.
   if (isChecked) {
-    document.getElementById(domainId).checked = true;
-  }
-  updateSelectedItemsHierarchy();
-}
-
-function onTopicToggle(topicId, subdomainId) {
-  const topicCb = document.getElementById(topicId);
-  const isChecked = topicCb.checked;
-  const container = topicCb.closest(".py-1\\.5");
-  if (container) {
-    container.querySelectorAll('input[data-type="subtopic"]').forEach(cb => {
-      cb.checked = isChecked;
-    });
+    ancestorCheckboxes(cb).forEach(parent => { parent.checked = true; });
   }
 
-  // Check parents
-  if (isChecked) {
-    const subdomainCb = document.getElementById(subdomainId);
-    if (subdomainCb) {
-      subdomainCb.checked = true;
-      const domainId = subdomainCb.getAttribute("data-domain-id");
-      if (domainId) document.getElementById(domainId).checked = true;
-    }
-  }
-  updateSelectedItemsHierarchy();
-}
-
-function onSubtopicToggle(subtopicId, topicId) {
-  const subtopicCb = document.getElementById(subtopicId);
-  if (subtopicCb.checked) {
-    const topicCb = document.getElementById(topicId);
-    if (topicCb) {
-      topicCb.checked = true;
-      const subdomainId = topicCb.getAttribute("data-subdomain-id");
-      if (subdomainId) {
-        const subdomainCb = document.getElementById(subdomainId);
-        if (subdomainCb) {
-          subdomainCb.checked = true;
-          const domainId = subdomainCb.getAttribute("data-domain-id");
-          if (domainId) document.getElementById(domainId).checked = true;
-        }
-      }
-    }
-  }
   updateSelectedItemsHierarchy();
 }
 
