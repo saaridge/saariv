@@ -71,3 +71,17 @@ class AuditEvent(Base):
     target_id: Mapped[str | None] = mapped_column(String(255))
     details: Mapped[dict] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class OAuthFlow(Base):
+    __tablename__ = "oauth_flows"
+    digest: Mapped[str] = mapped_column(String(64), primary_key=True)
+    session_digest: Mapped[str] = mapped_column(ForeignKey("server_sessions.digest"), index=True)
+    provider: Mapped[str] = mapped_column(String(20))
+    intent_digest: Mapped[str] = mapped_column(ForeignKey("resume_intents.digest"))
+    nonce: Mapped[str | None] = mapped_column(String(64))
+    code_verifier: Mapped[str | None] = mapped_column(String(128))
+    redirect_uri: Mapped[str] = mapped_column(String(512))
+    link_user_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

@@ -30,8 +30,10 @@ class PostgresTestCase(unittest.TestCase):
         cls.test_url = safe_test_url()
         cls.schema = "test_mpf_" + uuid4().hex
         cls.control = create_engine(cls.test_url)
+        cls.db = None
         with cls.control.begin() as connection:
             connection.execute(text(f'CREATE SCHEMA "{cls.schema}"'))
+        cls.addClassCleanup(cls.cleanup_database)
         cls.scoped_url = cls.test_url.update_query_dict({"options": "-csearch_path=" + cls.schema})
         cls.db = Database(cls.scoped_url.render_as_string(hide_password=False))
         # Model registration is explicit; migration tests exercise DDL separately.
@@ -39,8 +41,9 @@ class PostgresTestCase(unittest.TestCase):
         Base.metadata.create_all(cls.db.engine)
 
     @classmethod
-    def tearDownClass(cls):
-        cls.db.engine.dispose()
+    def cleanup_database(cls):
+        if cls.db is not None:
+            cls.db.engine.dispose()
         with cls.control.begin() as connection:
             connection.execute(text(f'DROP SCHEMA "{cls.schema}" CASCADE'))
         cls.control.dispose()

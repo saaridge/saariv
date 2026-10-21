@@ -6,7 +6,7 @@ import re
 import secrets
 from uuid import UUID
 
-from sqlalchemy import select, text, update
+from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
 from marketplace.contracts import GUEST, MarketplaceError, Principal
@@ -112,7 +112,10 @@ class AccountService:
                 if not user or not user.is_active:
                     raise MarketplaceError("access_denied", "This account is unavailable.", 403)
             if previous_token:
-                session.execute(update(ServerSession).where(ServerSession.digest == token_digest(previous_token), ServerSession.revoked_at.is_(None)).values(revoked_at=utcnow()))
+                previous = session.get(ServerSession, token_digest(previous_token), with_for_update=True)
+                if not previous or previous.revoked_at or previous.expires_at <= utcnow():
+                    raise MarketplaceError("invalid_session", "The original browser session expired or was revoked. Start sign-in again.", 403)
+                previous.revoked_at = utcnow()
             session.add(ServerSession(digest=token_digest(ticket.token), user_id=user_id,
                                       csrf_token=ticket.csrf_token, expires_at=ticket.expires_at))
             if user_id:

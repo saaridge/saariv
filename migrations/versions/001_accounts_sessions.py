@@ -43,8 +43,17 @@ def upgrade():
         sa.Column("target_id", sa.String(255)), sa.Column("details", postgresql.JSONB(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False))
     op.create_index("ix_audit_events_actor_id", "audit_events", ["actor_id"])
+    op.create_table("oauth_flows", sa.Column("digest", sa.String(64), primary_key=True),
+        sa.Column("session_digest", sa.String(64), sa.ForeignKey("server_sessions.digest"), nullable=False),
+        sa.Column("provider", sa.String(20), nullable=False),
+        sa.Column("intent_digest", sa.String(64), sa.ForeignKey("resume_intents.digest"), nullable=False),
+        sa.Column("nonce", sa.String(64)), sa.Column("code_verifier", sa.String(128)),
+        sa.Column("redirect_uri", sa.String(512), nullable=False), sa.Column("link_user_id", sa.Uuid(), sa.ForeignKey("users.id")),
+        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False), sa.Column("consumed_at", sa.DateTime(timezone=True)))
+    op.create_index("ix_oauth_flows_session_digest", "oauth_flows", ["session_digest"])
+    op.create_index("ix_oauth_flows_expires_at", "oauth_flows", ["expires_at"])
 
 
 def downgrade():
-    for table in ("audit_events", "private_avatar_owners", "resume_intents", "server_sessions", "oauth_identities", "users"):
+    for table in ("oauth_flows", "audit_events", "private_avatar_owners", "resume_intents", "server_sessions", "oauth_identities", "users"):
         op.drop_table(table)

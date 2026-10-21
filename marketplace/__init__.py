@@ -23,6 +23,8 @@ def register_marketplace(app):
     from .security import install_security
     app.extensions["marketplace_accounts"] = AccountService(
         app.extensions["marketplace_db"], session_ttl=settings.session_ttl, intent_ttl=settings.intent_ttl)
+    from .accounts.oauth import OAuthManager
+    app.extensions["marketplace_oauth"] = OAuthManager(app, settings, app.extensions["marketplace_accounts"])
     install_security(app)
     app.register_blueprint(blueprint)
 

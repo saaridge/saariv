@@ -1,5 +1,6 @@
 """Shared SQLAlchemy boundary; domain services own the transaction."""
 from contextlib import contextmanager
+from collections.abc import Iterator
 
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.engine import make_url
@@ -23,7 +24,7 @@ class Database:
         self.session_factory = sessionmaker(bind=self.engine, expire_on_commit=False)
 
     @contextmanager
-    def transaction(self):
+    def transaction(self) -> Iterator[Session]:
         """Commit all changes once or roll them all back; always close Session."""
         with self.session_factory() as session:
             with session.begin():

@@ -6,7 +6,7 @@ import secrets
 from flask import current_app, g, request
 from itsdangerous import BadSignature
 
-from .contracts import MarketplaceError
+from .contracts import MarketplaceError, Principal
 
 COOKIE_NAME = "marketplace_session"
 
@@ -33,11 +33,11 @@ def set_browser_session(ticket):
     g.marketplace_ticket = ticket
 
 
-def current_principal():
+def current_principal() -> Principal:
     return accounts().principal(browser_token())
 
 
-def csrf_token():
+def csrf_token() -> str:
     token = ensure_browser_session()
     return accounts().session_record(token).csrf_token
 
