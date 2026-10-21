@@ -11,7 +11,7 @@ from uuid import uuid4
 from joserfc import jwt
 from joserfc.jwk import RSAKey
 import requests
-from sqlalchemy import select, func
+from sqlalchemy import select, func, event, MetaData, Table, Column, Integer
 
 from marketplace_fixtures import PostgresTestCase
 
@@ -121,6 +121,27 @@ class OAuthTests(PostgresTestCase):
         with self.db.transaction() as session:
             return session.scalar(select(func.count()).select_from(ServerSession).where(ServerSession.user_id.is_not(None)))
 
+    def begin_link(self):
+        from marketplace.accounts.service import ProviderIdentity
+        service = self.app.extensions["marketplace_accounts"]
+        user = service.identity_login(ProviderIdentity("google", "initial-link-user"))
+        ticket = service.issue_session(user.id)
+        self.client.set_cookie("marketplace_session", ticket.token)
+        response = self.client.post("/auth/link/linkedin", headers={"X-CSRF-Token": ticket.csrf_token})
+        self.assertEqual(response.status_code, 302)
+        data = parse_qs(urlsplit(response.location).query)
+        self.state, self.nonce, self.callback_path = data["state"][0], data["nonce"][0], "/auth/callback/linkedin"
+        return service, user, ticket
+
+    def fail_authenticated_session_flush(self):
+        from marketplace.accounts.models import ServerSession
+        def fail(session, flush_context, instances):
+            if any(isinstance(row, ServerSession) and row.user_id for row in session.new):
+                raise RuntimeError("synthetic session-store failure")
+        factory = self.app.extensions["marketplace_db"].session_factory
+        event.listen(factory, "before_flush", fail)
+        self.addCleanup(event.remove, factory, "before_flush", fail)
+
     def test_linkedin_without_email_signs_in_by_subject_and_resumes(self):
         self.with_email = False
         path = "/experiences/" + str(uuid4())
@@ -189,6 +210,57 @@ class OAuthTests(PostgresTestCase):
         self.during_exchange = lambda: service.revoke_session(token)
         response = self.callback()
         self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.authenticated_sessions(), 0)
+        from marketplace.accounts.models import OAuthIdentity
+        with self.db.transaction() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(OAuthIdentity)), 0)
+
+    def test_expired_intent_does_not_commit_identity_link(self):
+        from marketplace.accounts.models import ResumeIntent, OAuthIdentity, AuditEvent, utcnow
+        self.begin_link()
+        with self.db.transaction() as session:
+            session.scalar(select(ResumeIntent)).expires_at = utcnow() - timedelta(seconds=1)
+        self.assertEqual(self.callback().status_code, 400)
+        with self.db.transaction() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(OAuthIdentity).where(OAuthIdentity.provider == "linkedin")), 0)
+            self.assertEqual(session.scalar(select(func.count()).select_from(AuditEvent).where(AuditEvent.action == "identity_linked")), 0)
+        self.assertEqual(self.authenticated_sessions(), 1)  # original signed-in session only
+        self.assertEqual(self.callback().json["error"]["code"], "invalid_oauth_state")
+
+    def test_rotation_failure_rolls_back_identity_link_and_intent(self):
+        from marketplace.accounts.models import OAuthIdentity, ResumeIntent
+        service, user, ticket = self.begin_link()
+        self.fail_authenticated_session_flush()
+        with self.assertRaisesRegex(RuntimeError, "synthetic session-store failure"):
+            self.callback()
+        with self.db.transaction() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(OAuthIdentity).where(OAuthIdentity.provider == "linkedin")), 0)
+            self.assertIsNone(session.scalar(select(ResumeIntent)).consumed_at)
+        self.assertEqual(self.authenticated_sessions(), 1)
+        self.assertEqual(service.principal(ticket.token).user_id, user.id)
+        self.assertEqual(self.callback().json["error"]["code"], "invalid_oauth_state")
+
+    def test_query_ownership_write_rolls_back_with_failed_authentication(self):
+        metadata = MetaData()
+        query_owners = Table("synthetic_query_owners", metadata, Column("id", Integer, primary_key=True))
+        metadata.create_all(self.db.engine)
+        self.addCleanup(metadata.drop_all, self.db.engine)
+        self.begin(query_id="opaque-query-id")
+        def verify(**data):
+            # The current independent-hook behavior reproduces the premature commit.
+            shared = data.get("session")
+            if shared is None:
+                with self.db.transaction() as other:
+                    other.execute(query_owners.insert().values(id=1))
+            else:
+                shared.execute(query_owners.insert().values(id=1))
+            return True
+        self.app.config["MARKETPLACE_QUERY_OWNER_CHECK"] = verify
+        self.fail_authenticated_session_flush()
+        with self.assertRaisesRegex(RuntimeError, "synthetic session-store failure"):
+            self.callback()
+        with self.db.transaction() as session:
+            self.assertEqual(session.scalar(select(func.count()).select_from(query_owners)), 0)
         self.assertEqual(self.authenticated_sessions(), 0)
 
     def test_expired_flow_cannot_authenticate(self):

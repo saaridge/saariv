@@ -1,5 +1,6 @@
 """Authentication operations accept only server-validated provider proofs."""
 from dataclasses import dataclass, field
+from contextlib import nullcontext
 from datetime import datetime, timedelta
 import hashlib
 import re
@@ -71,8 +72,8 @@ class AccountService:
         lock = int.from_bytes(hashlib.sha256((proof.provider + "\0" + proof.subject).encode()).digest()[:8], "big", signed=True)
         session.execute(text("SELECT pg_advisory_xact_lock(:identity_lock)"), {"identity_lock": lock})
 
-    def identity_login(self, proof: ProviderIdentity):
-        with self.db.transaction() as session:
+    def identity_login(self, proof: ProviderIdentity, *, session=None):
+        with (self.db.transaction() if session is None else nullcontext(session)) as session:
             self._identity_lock(session, proof)
             identity = session.scalar(select(OAuthIdentity).where(OAuthIdentity.provider == proof.provider, OAuthIdentity.subject == proof.subject))
             if identity:
@@ -87,10 +88,10 @@ class AccountService:
             session.add(AuditEvent(actor_id=user.id, action="account_created", details={"provider": proof.provider}))
             return user
 
-    def link_identity(self, *, principal: Principal, proof: ProviderIdentity):
+    def link_identity(self, *, principal: Principal, proof: ProviderIdentity, session=None):
         if not principal.authenticated:
             raise MarketplaceError("login_required", "Sign in before linking an identity.", 401)
-        with self.db.transaction() as session:
+        with (self.db.transaction() if session is None else nullcontext(session)) as session:
             self._identity_lock(session, proof)
             user = session.get(User, principal.user_id)
             if not user or not user.is_active:
@@ -104,9 +105,9 @@ class AccountService:
             session.add(AuditEvent(actor_id=user.id, action="identity_linked", details={"provider": proof.provider}))
             return user
 
-    def issue_session(self, user_id=None, *, previous_token=None):
+    def issue_session(self, user_id=None, *, previous_token=None, session=None):
         ticket = SessionTicket(secrets.token_urlsafe(32), secrets.token_urlsafe(32), utcnow() + timedelta(seconds=self.session_ttl))
-        with self.db.transaction() as session:
+        with (self.db.transaction() if session is None else nullcontext(session)) as session:
             if user_id:
                 user = session.get(User, user_id)
                 if not user or not user.is_active:
@@ -185,7 +186,7 @@ class AccountService:
             row = self._intent(session, intent, token, principal)
             query_id = row.query_id
             if query_id and (query_owner_check is None or not query_owner_check(
-                    principal=principal, query_id=query_id, session_digest=row.session_digest)):
+                    principal=principal, query_id=query_id, session_digest=row.session_digest, session=session)):
                 query_id = None
             row.consumed_at = utcnow()
             row.user_id = principal.user_id

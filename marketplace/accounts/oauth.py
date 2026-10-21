@@ -17,7 +17,7 @@ from joserfc.errors import JoseError
 from requests import RequestException
 
 from marketplace.contracts import MarketplaceError, Principal
-from .models import OAuthFlow, utcnow
+from .models import OAuthFlow, ServerSession, User, utcnow
 from .service import ProviderIdentity, ResumeTarget, SessionTicket, token_digest
 
 PROVIDERS = {"google": "Google", "linkedin": "LinkedIn", "facebook": "Facebook"}
@@ -155,29 +155,37 @@ class OAuthManager:
         except (OAuthError, JoseError, RequestException, ValueError, KeyError, TypeError):
             # Provider errors may contain tokens, authorization codes or client secrets.
             raise MarketplaceError("invalid_provider_proof", "The provider identity could not be verified. Start sign-in again.", 400) from None
-        principal = self.accounts.principal(token)
-        if flow.link_user_id:
-            if principal.user_id != flow.link_user_id:
-                raise MarketplaceError("access_denied", "The original account session is required to link an identity.", 403)
-            user = self.accounts.link_identity(principal=principal, proof=proof)
-        else:
-            user = self.accounts.identity_login(proof)
-        principal = Principal(user.id, frozenset(user.roles))
-        # Intent digest is already server-owned. It is never recovered from a private ID in the callback URL.
-        target = self._consume_bound_intent(flow, token, principal, query_owner_check)
-        ticket = self.accounts.issue_session(user.id, previous_token=token)
-        return OAuthResult(ticket, target)
-
-    def _consume_bound_intent(self, flow, token, principal, query_owner_check):
-        from .models import ResumeIntent
+        # No external provider call occurs under this lock. All remaining effects,
+        # including a newly linked login identity, commit or roll back together.
         with self.db.transaction() as session:
-            row = session.get(ResumeIntent, flow.intent_digest, with_for_update=True)
-            if (not row or row.session_digest != token_digest(token) or row.consumed_at or row.expires_at <= utcnow()
-                    or (row.user_id and row.user_id != principal.user_id)):
-                raise MarketplaceError("expired_intent", "This return link expired. Start sign-in again.", 400)
-            query_id = row.query_id
-            if query_id and (query_owner_check is None or not query_owner_check(
-                    principal=principal, query_id=query_id, session_digest=row.session_digest)):
-                query_id = None
-            row.consumed_at, row.user_id = utcnow(), principal.user_id
-            return ResumeTarget(row.next_path, query_id)
+            original = session.get(ServerSession, flow.session_digest, with_for_update=True)
+            if not original or original.revoked_at or original.expires_at <= utcnow():
+                raise MarketplaceError("invalid_session", "The original browser session expired or was revoked. Start sign-in again.", 403)
+            original_user = session.get(User, original.user_id, with_for_update=True) if original.user_id else None
+            if original.user_id and (not original_user or not original_user.is_active):
+                raise MarketplaceError("access_denied", "The original account is unavailable.", 403)
+            if flow.link_user_id:
+                if not original_user or original_user.id != flow.link_user_id:
+                    raise MarketplaceError("access_denied", "The original account session is required to link an identity.", 403)
+                principal = Principal(original_user.id, frozenset(original_user.roles))
+                user = self.accounts.link_identity(principal=principal, proof=proof, session=session)
+            else:
+                user = self.accounts.identity_login(proof, session=session)
+            principal = Principal(user.id, frozenset(user.roles))
+            # Intent digest is already server-owned, never a private ID in the URL.
+            target = self._consume_bound_intent(flow, token, principal, query_owner_check, session=session)
+            ticket = self.accounts.issue_session(user.id, previous_token=token, session=session)
+            return OAuthResult(ticket, target)
+
+    def _consume_bound_intent(self, flow, token, principal, query_owner_check, *, session):
+        from .models import ResumeIntent
+        row = session.get(ResumeIntent, flow.intent_digest, with_for_update=True)
+        if (not row or row.session_digest != token_digest(token) or row.consumed_at or row.expires_at <= utcnow()
+                or (row.user_id and row.user_id != principal.user_id)):
+            raise MarketplaceError("expired_intent", "This return link expired. Start sign-in again.", 400)
+        query_id = row.query_id
+        if query_id and (query_owner_check is None or not query_owner_check(
+                principal=principal, query_id=query_id, session_digest=row.session_digest, session=session)):
+            query_id = None
+        row.consumed_at, row.user_id = utcnow(), principal.user_id
+        return ResumeTarget(row.next_path, query_id)
