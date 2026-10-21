@@ -62,6 +62,14 @@ Open your browser at **[http://127.0.0.1:8080](http://127.0.0.1:8080)**.
 
 The current development environment is `.venv-rag`; use `.venv-rag/bin/python` in this checkout. See the [portable RAG guide](docs/rag.md) for embedding providers, source citations, agent access keys, index migration and evaluation. The sample environment uses keyword search until you configure an embedding provider.
 
+### Dictate an experience story
+
+On the **Experience** step, choose **Start dictation** above the existing story box. Allow microphone access, speak in your browser's language, and choose **Stop dictation** to review or edit the transcript. Existing typed text is preserved. **Continue** saves and indexes the reviewed story through the existing import flow. Dictation stops when you leave the step or hide the page.
+
+Dictation uses the browser's [SpeechRecognition API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition), which is not available in every browser and may use an online speech service. No embedding or answer-model credential is used for dictation. If voice input is unavailable or microphone access is denied, typing and pasting remain available.
+
+Run the browser logic checks with `node --test tests/test_story_*.mjs`.
+
 To run with **Gunicorn** (production WSGI):
 ```bash
 ./entrypoint.sh
