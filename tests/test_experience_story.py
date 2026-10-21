@@ -17,6 +17,7 @@ class ExperienceStoryTests(unittest.TestCase):
         override.start()
         self.addCleanup(override.stop)
         service = KnowledgeService(Settings(data_dir=Path(self.directory.name) / "knowledge"))
+        self.service = service
         self.addCleanup(service.close)
         settings_override = patch.dict(application.app.config, {"KNOWLEDGE_SERVICE": service})
         settings_override.start()
@@ -72,12 +73,24 @@ class ExperienceStoryTests(unittest.TestCase):
         self.assertIn("# Keep this comment", chunks[0]["experience"])
 
     def test_empty_story_or_headings_without_narrative_are_rejected(self):
-        for story in ["", " \n ", "## Relocation\n\n## Career"]:
+        for story in ["", " \n ", "## Relocation\n\n## Career", None, 42, []]:
             with self.subTest(story=story):
                 response = self.client.post("/api/onboarding/step4", json={
                     "experience_story": story,
                 })
                 self.assertEqual(response.status_code, 400)
+
+    def test_invalid_story_replacement_keeps_the_saved_narrative_and_export(self):
+        story = "You asked about apartment deposits."
+        response = self.client.post("/api/onboarding/step4", json={"experience_story": story})
+        owner = response.json["session_id"]
+        documents = self.service.store.documents(owner)
+        for invalid in ("", "## Empty"):
+            with self.subTest(story=invalid):
+                response = self.client.post("/api/onboarding/step4", json={"experience_story": invalid})
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(self.service.store.documents(owner), documents)
+                self.assertEqual((Path(self.directory.name) / owner / "experiences.md").read_text(), story)
 
     def test_existing_json_imports_remain_usable(self):
         experiences = {"domains": [{"domain": "Career", "subdomains": [{

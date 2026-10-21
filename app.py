@@ -461,21 +461,7 @@ def onboarding_step2():
 @app.route("/api/onboarding/step4", methods=["POST"])
 def onboarding_step4():
     """Persist and index the narrative, retaining legacy JSON import support."""
-    try:
-        return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
-    except Exception as e:
-        error_msg = str(e)
-        # Handle reindex requirement gracefully
-        if "Reindex" in error_msg or "Embedding configuration changed" in error_msg:
-            from knowledge.service import ReindexRequired
-            # Force reindex and try again
-            owner = g.knowledge_owner
-            try:
-                get_service().reindex(owner)
-                return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
-            except Exception as retry_error:
-                return jsonify(ok=False, message=f"Failed to reindex: {retry_error}"), 500
-        return jsonify(ok=False, message=error_msg), 500
+    return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
 
 
 def cleanup_old_sessions():
@@ -525,7 +511,8 @@ def playground_rag_query():
     sources = [] if answer.get("answer_mode") == "insufficient" else retrieved["results"]
     # Present stored experience stories in the creator's own first-person voice,
     # even when the source material was authored in second person.
-    sources = [dict(source, text=to_first_person(source["text"])) for source in sources]
+    # Raw text and its citation offsets remain paired; presentation is separate.
+    sources = [dict(source, display_text=to_first_person(source["text"])) for source in sources]
     # The extractive fallback reply is composed of raw source text, so convert it too.
     # Generated replies already speak in the first person and are left untouched.
     if answer.get("answer_mode") == "extractive":
