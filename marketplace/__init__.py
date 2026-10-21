@@ -18,6 +18,14 @@ def register_marketplace(app):
     if settings.environment == "production":
         app.config["SESSION_COOKIE_SECURE"] = True
 
+    from .accounts.service import AccountService
+    from .accounts.routes import blueprint
+    from .security import install_security
+    app.extensions["marketplace_accounts"] = AccountService(
+        app.extensions["marketplace_db"], session_ttl=settings.session_ttl, intent_ttl=settings.intent_ttl)
+    install_security(app)
+    app.register_blueprint(blueprint)
+
     @app.errorhandler(MarketplaceError)
     def marketplace_error(error):
         return jsonify(error.to_dict()), error.status

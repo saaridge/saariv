@@ -62,6 +62,7 @@ class PostgresTestCase(unittest.TestCase):
                           MARKETPLACE_PUBLIC_BASE_URL="http://localhost")
         app.config.update(config)
         register_marketplace(app)
+        self.addCleanup(app.extensions["marketplace_db"].engine.dispose)
 
         @app.get("/test/principal")
         def who():
