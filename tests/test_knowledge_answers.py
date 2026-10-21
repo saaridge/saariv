@@ -1,5 +1,6 @@
 import io
 import json
+import ssl
 import unittest
 from unittest.mock import patch
 
@@ -24,7 +25,11 @@ class AnswerTests(unittest.TestCase):
     def test_compatible_chat_uses_configured_model_and_grounding_instructions(self):
         requests = []
 
-        def request(req, timeout):
+        def request(req, timeout, context):
+            self.assertEqual(timeout, 45)
+            self.assertIsInstance(context, ssl.SSLContext)
+            self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+            self.assertTrue(context.check_hostname)
             requests.append(json.loads(req.data))
             self.assertEqual(req.full_url, "https://chat.example/v1/chat/completions")
             return io.BytesIO(json.dumps({"choices": [{"message": {"content": "You asked about deposits. [S1]"}}]}).encode())

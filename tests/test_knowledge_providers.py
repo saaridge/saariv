@@ -2,6 +2,7 @@ import io
 import json
 import math
 from pathlib import Path
+import ssl
 import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
@@ -28,7 +29,11 @@ class ProviderTests(unittest.TestCase):
         provider = create_provider(self.settings())
         requests = []
 
-        def request(req, timeout):
+        def request(req, timeout, context):
+            self.assertEqual(timeout, 20)
+            self.assertIsInstance(context, ssl.SSLContext)
+            self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+            self.assertTrue(context.check_hostname)
             requests.append(req)
             return Response({"data": [{"index": 1, "embedding": [0, 1, 0]},
                                       {"index": 0, "embedding": [1, 0, 0]}],
@@ -45,7 +50,11 @@ class ProviderTests(unittest.TestCase):
         provider = create_provider(self.settings("cohere", embedding_base_url="https://api.cohere.com"))
         requests = []
 
-        def request(req, timeout):
+        def request(req, timeout, context):
+            self.assertEqual(timeout, 20)
+            self.assertIsInstance(context, ssl.SSLContext)
+            self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+            self.assertTrue(context.check_hostname)
             requests.append(json.loads(req.data))
             self.assertEqual(req.full_url, "https://api.cohere.com/v2/embed")
             return Response({"embeddings": {"float": [[1, 0, 0]]}})
@@ -61,7 +70,9 @@ class ProviderTests(unittest.TestCase):
                                                 query_prefix="query: ", document_prefix="passage: "))
         requests = []
 
-        def request(req, timeout):
+        def request(req, timeout, context):
+            self.assertEqual(timeout, 20)
+            self.assertIsNone(context)
             self.assertEqual(req.full_url, "http://localhost:11434/api/embed")
             requests.append(json.loads(req.data))
             return Response({"embeddings": [[1, 0, 0]], "prompt_eval_count": 3})
