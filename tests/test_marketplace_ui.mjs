@@ -45,7 +45,7 @@ function environment(options = {}) {
     "results-heading", "search-mode", "search-more", "query-dictation-toggle", "query-dictation-label",
     "query-dictation-status", "query-dictation-cancel", "draft-form", "draft-title", "draft-teaser",
     "draft-taxonomy", "draft-price", "draft-body", "draft-save", "draft-submit", "draft-status",
-    "draft-conflict", "story-dictation-toggle", "story-dictation-label", "story-dictation-status",
+    "draft-conflict", "draft-visibility", "story-dictation-toggle", "story-dictation-label", "story-dictation-status",
     "story-dictation-cancel", "preview-title", "preview-teaser", "preview-taxonomy", "preview-price",
     "preview-body"];
   const elements = Object.fromEntries(ids.map(id => [id, new Element()]));
@@ -308,6 +308,7 @@ test("new draft is created before explicit review submission and never awards co
   assert.deepEqual(f.requests[1].payload, { version: 1 });
   assert.deepEqual(f.requests[0].payload.taxonomy, ["Relocation", "Housing"]);
   assert.match(f.elements["draft-status"].textContent, /submitted.*review/i);
+  assert.equal(f.elements["draft-visibility"].textContent, "Awaiting review");
   assert.doesNotMatch(f.elements["draft-status"].textContent, /approved|earned|credited/i);
   assert.equal(f.elements["draft-save"].disabled, true);
 });
@@ -404,6 +405,17 @@ test("preview renders supplied narrative and metadata as inert text", async () =
   assert.equal(f.elements["preview-body"].children.length, 0);
 });
 
+test("immutable revisions report the actual server review status", () => {
+  for (const [status, message] of [["approved", /approved/i], ["rejected", /declined|rejected/i],
+    ["submitted", /submitted.*review/i]]) {
+    const f = editorFixture({ draft: { status } });
+    assert.match(f.elements["draft-status"].textContent, message);
+    assert.equal(f.elements["draft-body"].readOnly, true);
+    assert.equal(f.elements["draft-save"].disabled, true);
+    assert.equal(f.requests.length, 0);
+  }
+});
+
 const pythonCandidates = [process.env.SAARIV_TEST_PYTHON,
   fileURLToPath(new URL(".venv-rag/bin/python", repository)),
   fileURLToPath(new URL("../../.venv-rag/bin/python", repository))].filter(Boolean);
@@ -476,4 +488,10 @@ test("editor fixture keeps private narrative in escaped author-only inputs and p
   assert.match(html, /name="csrf-token" content="fixture-csrf"/);
   assert.match(html, /Private draft/);
   assert.match(html, /Submit for review/);
+});
+
+test("approved editor rendering never labels the revision as a private draft", () => {
+  const html = render("editor", { principal: { user_id: "synthetic-author" }, draft: draft({ status: "approved" }) });
+  assert.match(html, /class="privacy-badge">Approved revision</);
+  assert.doesNotMatch(html, /Private draft|Your draft stays private\./);
 });

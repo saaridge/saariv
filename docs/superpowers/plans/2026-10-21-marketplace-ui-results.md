@@ -136,8 +136,8 @@ All commands ran in the assigned worktree. The shared Python runtime is `/Users/
 | Initial new UI tests | 25 failed for missing controllers/templates, before implementation. |
 | Initialization regression | Search button remained disabled in the fixture; observed failure, then fixed. |
 | Submission race regression | Text remained editable during review POST; observed failure, then fixed. |
-| `node --test tests/test_marketplace_ui.mjs` | **27 passed**, zero failures/skips. Includes isolated Flask/Jinja rendering. |
-| `node --test tests/*.mjs` | **50 passed**, zero failures/skips; the existing 23 dictation/import tests remain unchanged. |
+| `node --test tests/test_marketplace_ui.mjs` | **29 passed**, zero failures/skips. Includes isolated Flask/Jinja rendering and final review status regressions. |
+| `node --test tests/*.mjs` | **52 passed**, zero failures/skips; the existing 23 dictation/import tests remain unchanged. |
 | Full Python unittest discovery | **55 tests, 8 failures, 4 errors**, matching the unrelated starting baseline; names listed below. |
 | `python -m compileall -q app.py knowledge` | Passed. |
 | `node --check static/js/marketplace.js` and `node --check static/js/authoring.js` | Passed. |
@@ -171,6 +171,12 @@ Python baseline errors, unchanged:
 - `test_knowledge_providers.ProviderTests.test_ollama_native_adapter_and_prefixes`.
 
 Full logs are local under `/private/tmp/saariv-ui-{node,python}-final-20261021.log`. No existing assertion was weakened to hide these failures.
+
+## Final review
+
+A fresh `gpt-6-astra` reviewer inspected `33c6553..1ca5eec` and independently ran the then-current 27 passing UI tests. It found no Critical or Important issues and one Minor finding: approved revisions still displayed the unconditional “Private draft” badge, with generic status text. The executor treated truthful visibility/review status as important and fixed it in the single review-fix pass. Server-rendered and live badges now distinguish private drafts, awaiting review, approved revisions, and declined review; unknown status is read-only. Two new regression tests and the live post-submit badge assertion failed before the fix and pass afterward. The updated whole Node suite is 52/52, the Python baseline is unchanged, and the actual DOM browser pass was repeated with the new badge assertion. No minor findings were deferred.
+
+The reviewer explicitly set aside backend routing/authentication/durable resume/real authorization, money and vote ordering, vector/SQL/index behavior, draft-create retry idempotency, existing Python reliability work, and real production provider/payment acceptance. Those remain the documented integration responsibilities and release gates; the frontend review does not waive them. The review-fix pass was verified by the implementing agent; it did not trigger another full review cycle.
 
 ## Rulings and remaining gates
 

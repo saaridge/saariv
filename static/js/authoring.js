@@ -33,8 +33,11 @@
       });
       this.preview();
       this.updateControls();
-      this.status(this.state === "submitted" ? "Submitted for review. This revision is awaiting a decision."
-        : this.state === "draft" ? "Private draft. Save when you are ready." : "This revision is read-only. Its status comes from review.");
+      const messages = { draft: "Private draft. Save when you are ready.",
+        submitted: "Submitted for review. This revision is awaiting a decision.",
+        approved: "Approved revision. This version has passed review and is read-only.",
+        rejected: "Review declined. This submitted revision is read-only." };
+      this.status(messages[this.state] || "This revision is read-only. Its review status is unavailable.");
     }
 
     status(message, error = false) {
@@ -68,6 +71,9 @@
 
     updateControls() {
       const locked = this.state !== "draft" || this.submitting;
+      const labels = { draft: "Private draft", submitted: "Awaiting review", approved: "Approved revision", rejected: "Review declined" };
+      const badge = this.document.getElementById("draft-visibility");
+      if (badge) badge.textContent = labels[this.state] || "Read-only revision";
       this.document.getElementById("draft-save").disabled = this.pending || this.conflict || locked;
       this.document.getElementById("draft-submit").disabled = this.pending || this.conflict || locked;
       this.document.getElementById("draft-form").setAttribute("aria-busy", String(this.pending));
