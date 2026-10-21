@@ -128,6 +128,20 @@ test("source excerpts and filenames are rendered as text nodes", () => {
   assert.equal(root.children[0].children[1].textContent, "<img src=x onerror=alert(1)>");
 });
 
+test("first-person evidence is displayed without rewriting the raw citation", () => {
+  const f = setup(() => {});
+  const root = { children: [], appendChild(child) { this.children.push(child); } };
+  f.context.document.createElement = tag => ({
+    tag, children: [], textContent: "", appendChild(child) { this.children.push(child); },
+  });
+  f.context.sourceRoot = root;
+  vm.runInContext(`evidence = {citation_id: "S1", text: "You asked about housing.",
+    display_text: "I asked about housing.", source: {title: "Story", start: 0, end: 24}};
+    appendKnowledgeSources(sourceRoot, [evidence]);`, f.context);
+  assert.equal(root.children[0].children[1].textContent, "I asked about housing.");
+  assert.equal(vm.runInContext("evidence.text", f.context), "You asked about housing.");
+});
+
 function dictationFixture(supported = true) {
   const toggle = { disabled: false, setAttribute(name, value) { this[name] = value; } };
   const save = { disabled: false };

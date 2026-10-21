@@ -1077,7 +1077,7 @@ function appendKnowledgeSources(parent, sources) {
     summary.textContent = `[${source.citation_id}] ${location}`;
     const excerpt = document.createElement("p");
     excerpt.className = "mt-2 whitespace-pre-wrap text-xs text-gray-600";
-    excerpt.textContent = source.text;
+    excerpt.textContent = source.display_text ?? source.text;
     details.appendChild(summary);
     details.appendChild(excerpt);
     parent.appendChild(details);

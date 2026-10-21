@@ -12,6 +12,7 @@ from flask_mail import Mail, Message
 from knowledge.answers import answer_from_sources
 from knowledge.onboarding import export_sources, import_additional, import_story
 from knowledge.web import get_service, initialize_knowledge
+from marketplace import register_marketplace
 
 load_dotenv()
 
@@ -42,6 +43,7 @@ os.makedirs(TMP_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(QUESTIONS_LOG_PATH), exist_ok=True)
 
 initialize_knowledge(app)
+register_marketplace(app)
 
 
 def init_db():
@@ -330,7 +332,11 @@ def retrieve_relevant_experience(query: str, chunks: List[Dict[str, Any]]) -> Li
 
 @app.route("/", methods=["GET"])
 def index():
-    """Render Saariv Living Biography Landing Page."""
+    """Render the enabled marketplace, or the original landing page."""
+    if "marketplace_db" in app.extensions:
+        from marketplace.security import current_principal
+        return render_template("marketplace/home.html", principal=current_principal(),
+                               wallet=None, initial_query="", search_page=None)
     return render_template("index.html")
 
 

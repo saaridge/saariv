@@ -33,9 +33,9 @@ Each thread owns its branch and only its assigned files. No thread pushes, deplo
 ## Dispatch and integration evidence
 
 - [x] Three Codex threads created and started from checkpoint `33c6553`.
-- [ ] Reliability repair reviewed and integrated.
-- [ ] Foundation/contracts reviewed and integrated with native PostgreSQL results.
-- [ ] Reader/writer UI reviewed and integrated.
+- [x] Reliability repair reviewed and integrated from `codex/marketplace-rag-baseline`.
+- [x] Foundation/contracts reviewed and integrated from `codex/marketplace-foundation-auth`, with native PostgreSQL results.
+- [x] Reader/writer UI reviewed and integrated from `codex/marketplace-reader-writer-ui`.
 - [ ] Remaining publishing/search backend completed against the shared foundation.
 - [ ] Ledger/unlocks, manual payments, rewards/ratings dispatched after prerequisites.
 - [ ] Full acceptance and live-configuration gates verified before release.
@@ -55,3 +55,26 @@ Test URL: `postgresql+psycopg://saariv_dev@127.0.0.1:55432/saariv_marketplace_te
 The local cluster binds only to loopback and is for synthetic test data. No existing application environment file was modified. Tests must still enforce isolated schemas/cleanup and refuse non-test database names.
 
 Commit IDs and verification results will be added as work progresses. A running thread is not a completed deliverable.
+
+## Integrated local run and verification — 2026-10-21
+
+The integration branch now contains all three completed first-batch workstreams.
+Runtime registration mounts the new homepage, social login page and private editor;
+the existing `/try` route remains available. First-person display now consumes
+`display_text` while raw citation text/offsets stay unchanged.
+
+- Fresh combined Python suite: **114 passed**, including five real-entry-point runtime tests.
+- Fresh combined Node suite: **53 passed**, including the citation presentation regression.
+- Python compilation and `git diff --check`: passed.
+- Native Flask is running at `http://127.0.0.1:8080`, with debugger/reloader disabled.
+- Separate development database: `saariv_marketplace_dev`, migration `001_accounts_sessions` applied. The application never uses the disposable test database.
+- Live browser: homepage and `/try` load; Add experience redirects to `/login?next=%2Fexperiences%2Fnew`.
+- Live private RAG: one synthetic story imported with real configured embeddings in hybrid mode; retrieval returned one hit; another browser session was denied (401); playground returned one cited extractive answer; the synthetic story was deleted through its owning session.
+- No live Google, LinkedIn or Facebook login was attempted: all three provider applications are unconfigured locally.
+
+Public marketplace search, persisted publishing, entitlements, wallet, payments,
+rewards and ratings remain incomplete. Pending operations return an explicit 503
+instead of fake results, balances, saves or purchases. Passing the first-batch
+suites does not establish the full marketplace acceptance gate.
+
+Runtime instructions and detailed evidence: [local testing report](../../marketplace-local-testing.md).

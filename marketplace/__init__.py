@@ -27,6 +27,9 @@ def register_marketplace(app):
     app.extensions["marketplace_oauth"] = OAuthManager(app, settings, app.extensions["marketplace_accounts"])
     install_security(app)
     app.register_blueprint(blueprint)
+    from .runtime import blueprint as pages, install_page_headers
+    app.register_blueprint(pages)
+    install_page_headers(app)
 
     @app.errorhandler(MarketplaceError)
     def marketplace_error(error):
