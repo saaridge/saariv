@@ -32,7 +32,7 @@ Each thread owns its branch and only its assigned files. No thread pushes, deplo
 
 ## Dispatch and integration evidence
 
-- [ ] Three Codex threads created and started; record their IDs below.
+- [x] Three Codex threads created and started from checkpoint `33c6553`.
 - [ ] Reliability repair reviewed and integrated.
 - [ ] Foundation/contracts reviewed and integrated with native PostgreSQL results.
 - [ ] Reader/writer UI reviewed and integrated.
@@ -40,4 +40,18 @@ Each thread owns its branch and only its assigned files. No thread pushes, deplo
 - [ ] Ledger/unlocks, manual payments, rewards/ratings dispatched after prerequisites.
 - [ ] Full acceptance and live-configuration gates verified before release.
 
-Thread IDs, commit IDs and verification results will be added as work progresses. A running thread is not a completed deliverable.
+### Created threads
+
+- RAG reliability: `01a15f06-41b9-7480-90b3-163e7615c156`.
+- Accounts/social login: `01a15f06-554c-7f93-999f-a74892849232`.
+- Reader/author interface: `01a15f06-66a8-78f1-8a7f-ea3cfdfa39c6`.
+
+### Native database setup
+
+PostgreSQL 16.11 is running on `127.0.0.1:55432` with a dedicated synthetic-data database `saariv_marketplace_test`, user `saariv_dev`. Verified with PostgreSQL's own client on 2026-10-21. The cluster data and logs are ignored under `.local-dev/postgres/`; it does not use an existing application database.
+
+Test URL: `postgresql+psycopg://saariv_dev@127.0.0.1:55432/saariv_marketplace_test`.
+
+The local cluster binds only to loopback and is for synthetic test data. No existing application environment file was modified. Tests must still enforce isolated schemas/cleanup and refuse non-test database names.
+
+Commit IDs and verification results will be added as work progresses. A running thread is not a completed deliverable.
