@@ -1,5 +1,6 @@
 import io
 import json
+from dataclasses import replace
 from pathlib import Path
 import tempfile
 import unittest
@@ -8,6 +9,7 @@ from unittest.mock import patch
 import app as application
 from knowledge.config import Settings
 from knowledge.service import KnowledgeService
+from knowledge_fixtures import ConceptEmbeddings
 
 
 def two_page_pdf():
@@ -35,7 +37,7 @@ class KnowledgeAPITests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
         self.service = KnowledgeService(Settings(data_dir=Path(self.directory.name) / "knowledge"))
-        self.addCleanup(self.service.close)
+        self.addCleanup(lambda: self.service.close())
         self.override = patch.dict(application.app.config, {"TESTING": True, "KNOWLEDGE_SERVICE": self.service})
         self.override.start()
         self.addCleanup(self.override.stop)
@@ -49,6 +51,14 @@ class KnowledgeAPITests(unittest.TestCase):
         self.chat.start()
         self.addCleanup(self.chat.stop)
         self.client = application.app.test_client()
+
+    def use_embeddings(self, model="test-model"):
+        settings = replace(self.service.settings, embedding_provider="ollama",
+                           embedding_base_url="http://localhost:11434", embedding_model=model,
+                           embedding_dimensions=3)
+        self.service.close()
+        self.service = KnowledgeService(settings, ConceptEmbeddings())
+        application.app.config["KNOWLEDGE_SERVICE"] = self.service
 
     def import_story(self, client=None, text="You asked about apartment deposits."):
         response = (client or self.client).post("/api/onboarding/step4", json={
@@ -109,9 +119,26 @@ class KnowledgeAPITests(unittest.TestCase):
         response = self.client.post("/api/playground/rag-query", json={"query": "deposits"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["answer_mode"], "extractive")
-        self.assertIn("You asked", response.json["reply"])
+        self.assertIn("I asked", response.json["reply"])
+        self.assertNotIn("I paid", response.json["reply"])
         self.assertIn("[S1]", response.json["reply"])
         self.assertEqual(len(response.json["sources"]), 1)
+        self.assertEqual(response.json["sources"][0]["text"], "You asked about apartment deposits.")
+        self.assertEqual(response.json["sources"][0]["display_text"], "I asked about apartment deposits.")
+
+    def test_first_person_display_preserves_raw_unicode_citations_and_claim_states(self):
+        story = ("## Housing 🏡\nYou asked about apartment deposits.\n\n"
+                 "You planned to compare rents.\n\nYou paid one deposit.")
+        self.import_story(text=story)
+        response = self.client.post("/api/playground/rag-query", json={"query": "deposits"})
+        self.assertEqual(response.status_code, 200)
+        source = response.json["sources"][0]
+        self.assertEqual(source["text"], story[source["source"]["start"]:source["source"]["end"]])
+        self.assertEqual(source["text"], "You asked about apartment deposits.\n\nYou planned to compare rents.\n\nYou paid one deposit.")
+        self.assertEqual(source["display_text"], "I asked about apartment deposits.\n\nI planned to compare rents.\n\nI paid one deposit.")
+        self.assertIn("I asked", response.json["reply"])
+        self.assertIn("I planned", response.json["reply"])
+        self.assertIn("I paid", response.json["reply"])
 
     def test_file_upload_keeps_pdf_pages_and_distinct_sources(self):
         self.import_story()
@@ -184,8 +211,56 @@ class KnowledgeAPITests(unittest.TestCase):
     def test_failed_first_import_retries_using_the_signed_browser_cookie(self):
         first = self.client.post("/api/onboarding/step4", json={"experience_story": "## Empty"})
         self.assertEqual(first.status_code, 400)
+        with self.client.session_transaction() as session:
+            owner = session["knowledge_owner"]
+        self.assertEqual(self.service.store.documents(owner), [])
         retry = self.client.post("/api/onboarding/step4", json={"experience_story": "You asked about deposits."})
         self.assertEqual(retry.status_code, 200)
+        self.assertEqual(retry.json["session_id"], owner)
+
+    def test_failed_first_embedding_import_retries_with_same_signed_owner(self):
+        self.use_embeddings()
+        provider = self.service.provider
+        provider.fail = True
+        first = self.client.post("/api/onboarding/step4", json={"experience_story": "You asked about deposits."})
+        self.assertEqual(first.status_code, 503)
+        with self.client.session_transaction() as session:
+            owner = session["knowledge_owner"]
+        self.assertEqual(self.service.store.documents(owner), [])
+        self.assertFalse((Path(application.TMP_DIR) / owner).exists())
+        self.assertIs(self.service.provider, provider)
+        provider.fail = False
+        retry = self.client.post("/api/onboarding/step4", json={"experience_story": "You asked about deposits."})
+        self.assertEqual(retry.status_code, 200)
+        self.assertEqual(retry.json["session_id"], owner)
+        self.assertEqual(retry.json["indexing_mode"], "hybrid")
+
+    def test_embedding_failure_keeps_saved_story_and_other_owner_searchable(self):
+        self.use_embeddings()
+        owner = self.import_story()
+        self.service.ingest("other-owner", "housing", "You compared apartment deposits.", "Housing")
+        self.service.provider.fail = True
+        response = self.client.post("/api/onboarding/step4", json={"experience_story": "You practiced engineering interviews."})
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual((Path(application.TMP_DIR) / owner / "experiences.md").read_text(), "You asked about apartment deposits.")
+        self.service.provider.fail = False
+        hits = self.client.post("/api/knowledge/search", json={"query": "accommodation", "mode": "dense"})
+        self.assertEqual(hits.json["results"][0]["text"], "You asked about apartment deposits.")
+        self.assertEqual(self.service.search("other-owner", "accommodation", mode="dense")["results"][0]["document_id"], "housing")
+
+    def test_profile_change_returns_conflict_until_explicit_reindex(self):
+        self.use_embeddings()
+        owner = self.import_story()
+        self.service.ingest(owner, "career", "You practiced engineering interviews.", "Career")
+        self.use_embeddings(model="another-model")
+        documents = self.service.store.documents(owner)
+        response = self.client.post("/api/onboarding/step4", json={"experience_story": "You discussed astronomy."})
+        self.assertEqual(response.status_code, 409)
+        self.assertTrue(response.json["needs_reindex"])
+        self.assertEqual(self.service.store.documents(owner), documents)
+        self.assertEqual(self.service.store.vector_count(owner), 2)
+        self.assertEqual(self.client.post("/api/knowledge/reindex").status_code, 200)
+        self.assertEqual(self.client.post("/api/knowledge/search", json={"query": "accommodation", "mode": "dense"}).json["results"][0]["document_id"], "story")
 
     def test_different_files_with_same_name_are_preserved_and_identical_reuploads_deduplicate(self):
         owner = self.import_story()

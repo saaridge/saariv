@@ -1,0 +1,80 @@
+<!doctype html>
+{% set signed_in = principal and principal.user_id %}
+{% set cards = search_page['items'][:12 if signed_in else 4] if search_page else [] %}
+{% set bootstrap = namespace(items=[]) %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="description" content="Find thoughtful, first-person experiences to help you take your next step.">
+  <title>Explore experiences · Saariv</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  {% if mock_mode %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">{% endif %}
+  <script defer src="{{ url_for('static', filename='js/story-dictation.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
+</head>
+<body data-marketplace-home>
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% if mock_mode %}{% include 'marketplace/mock/banner.html' %}{% endif %}
+  <header class="site-header">
+    <nav class="header-inner" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a>
+      <div class="header-actions">
+        {% if signed_in %}
+        <a class="wallet-link" href="/wallet"><span class="coin-icon" aria-hidden="true">◈</span> {% if wallet is not none %}{{ wallet.available_coins }} coins{% else %}Wallet{% endif %}</a>
+        {% else %}<a id="home-login-link" class="login-link" href="/login?{{ {'next': '/', 'query_id': search_page.query_id}|urlencode if search_page else 'next=%2F' }}">Sign in <span aria-hidden="true">↗</span></a>{% endif %}
+        <a class="add-link" href="/experiences/new" aria-label="Add an experience"><span aria-hidden="true">＋</span><span class="add-label">Share an experience</span></a>
+      </div>
+    </nav>
+  </header>
+  <main id="main" class="page-shell">
+    {% if mock_mode %}{% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>{% endfor %}{% endif %}
+    <section class="search-hero" aria-labelledby="hero-title">
+      <p class="eyebrow"><span class="small-dot" aria-hidden="true"></span> A little perspective goes a long way</p>
+      <h1 id="hero-title">Your next step.<br><span>Someone’s lived experience.</span></h1>
+      <p class="hero-description">Big decisions feel smaller when someone has been there.<br class="desktop-break"> Find the stories, lessons, and perspectives that meet you where you are.</p>
+      <form id="search-form" class="query-panel" action="/api/search" method="post">
+        <label class="field-label" for="search-query">What’s on your mind?</label>
+        <textarea id="search-query" name="query" rows="3" maxlength="4000" aria-describedby="query-hint query-dictation-status" placeholder="I’m planning a move. How did others find a place to live?">{{ initial_query }}</textarea>
+        <div class="query-toolbar">
+          <div class="dictation-actions">
+            <button id="query-dictation-toggle" class="voice-button" type="button" aria-pressed="false" aria-controls="search-query" disabled><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg><span id="query-dictation-label">Dictate</span></button>
+            <button id="query-dictation-cancel" class="text-button" type="button" hidden>Cancel dictation</button>
+          </div>
+          <button id="search-submit" class="button button-primary" type="submit" disabled>Find experiences <span aria-hidden="true">↗</span></button>
+        </div>
+      </form>
+      <p id="query-hint" class="input-hint">Type it, say it, make it yours. Review your words before searching.</p>
+      {% if mock_mode %}<p class="input-hint">Demo search uses local keywords. Dictation uses your browser’s speech service.</p>{% endif %}
+      <p id="query-dictation-status" class="dictation-status" role="status" aria-live="polite"></p>
+      <p id="search-status" class="action-status" role="status" aria-live="polite"></p>
+      <noscript><p class="notice">Enable JavaScript to search or dictate. You can still sign in and open saved experience links.</p></noscript>
+    </section>
+    <section id="results" class="results-section" aria-labelledby="results-heading">
+      <div class="section-heading"><div><p class="eyebrow">People, paths, perspective</p><h2 id="results-heading">{% if search_page %}{{ cards|length }} experiences to explore{% else %}A good question is a good start.{% endif %}</h2></div><span id="search-mode" class="retrieval-mode">{% if search_page %}{% if search_page.retrieval_mode == 'hybrid' %}Semantic + keyword search{% elif search_page.retrieval_mode in ['lexical', 'lexical_fallback'] %}Keyword search{% elif search_page.retrieval_mode == 'dense' %}Semantic search{% else %}Search mode unavailable{% endif %}{% endif %}</span></div>
+      <div id="search-results" class="experience-grid" aria-busy="false">
+        {% for card in cards %}
+          {% set internal_path = '/experiences/' ~ (card.experience_id|string|urlencode|replace('/', '%2F')) %}
+          {% set votes = card.rating.upvotes + card.rating.downvotes %}
+          {% set safe_author = {'display_name': card.author.display_name} if signed_in and card.author else none %}
+          {% set bootstrap.items = bootstrap.items + [dict(experience_id=card.experience_id|string, title=card.title, teaser=card.teaser, taxonomy=card.taxonomy, price_coins=card.price_coins, author=safe_author, rating=dict(upvotes=card.rating.upvotes, downvotes=card.rating.downvotes), unlocked=(card.unlocked if signed_in else false))] %}
+          <a class="experience-card" href="{% if signed_in %}{{ internal_path }}?{{ {'query_id': search_page.query_id}|urlencode }}{% else %}/login?{{ {'next': internal_path, 'query_id': search_page.query_id}|urlencode }}{% endif %}">
+            <span class="card-eyebrow">{% if signed_in and card.unlocked %}Unlocked{% else %}Experience{% endif %}</span>
+            <h3 class="card-title">{{ card.title }}</h3><p class="card-teaser">{{ card.teaser }}</p>
+            <div class="taxonomy-tags">{% for tag in card.taxonomy %}<span class="taxonomy-tag">{{ tag }}</span>{% endfor %}</div>
+            <div class="card-author">{% if signed_in %}<span class="author-name">{{ card.author.display_name if card.author else 'Community author' }}</span><span class="card-rating">{% if votes %}{{ (card.rating.upvotes / votes * 100)|round|int }}% helpful · {{ votes }} {{ 'vote' if votes == 1 else 'votes' }}{% else %}New author{% endif %}</span>{% else %}<span class="author-placeholder" aria-hidden="true">Community author</span><span class="author-prompt">Sign in to see author</span>{% endif %}</div>
+            <div class="card-footer"><span class="card-price">{% if signed_in and card.unlocked %}Yours to read{% else %}{{ card.price_coins }} coins · one-time{% endif %}</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+          </a>
+        {% else %}
+          <div class="empty-state"><span class="empty-symbol" aria-hidden="true">↗</span><h3>{% if search_page %}No experiences matched this question.{% else %}Start with what’s on your mind.{% endif %}</h3><p>{% if search_page %}Try another topic or a little more detail.{% else %}A new chapter, a tricky decision, a path you’re curious about. Search above to see what others have shared.{% endif %}</p></div>
+        {% endfor %}
+      </div>
+      <div class="more-row"><a id="search-more" class="button button-secondary" href="{% if signed_in %}#results{% elif search_page %}/login?{{ {'next': '/', 'query_id': search_page.query_id}|urlencode }}{% else %}/login?next=%2F{% endif %}" {% if not search_page or (signed_in and not search_page.next_cursor) or (not signed_in and not search_page.login_required) %}hidden{% endif %}>{% if signed_in %}See more experiences{% else %}Sign in to explore more{% endif %}</a></div>
+    </section>
+    <section class="contribution-note"><span class="note-icon" aria-hidden="true">✳</span><div><h2>Your experience could be someone’s turning point.</h2><p>Write in your own words. Set your price. Share when you’re ready.</p></div><a href="/experiences/new">Share a story <span aria-hidden="true">↗</span></a></section>
+  </main>
+  <footer class="site-footer"><span>saariv. &nbsp; A little wisdom, passed along.</span><span>Real experiences. Your own perspective.</span></footer>
+  <script type="application/json" id="marketplace-state">{{ dict(authenticated=(true if signed_in else false), page=(dict(query_id=search_page.query_id|string, items=bootstrap.items, next_cursor=(search_page.next_cursor if signed_in else none), login_required=search_page.login_required, retrieval_mode=search_page.retrieval_mode) if search_page else none))|tojson }}</script>
+</body>
+</html>

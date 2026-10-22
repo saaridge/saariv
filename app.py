@@ -12,8 +12,10 @@ from flask_mail import Mail, Message
 from knowledge.answers import answer_from_sources
 from knowledge.onboarding import export_sources, import_additional, import_story
 from knowledge.web import get_service, initialize_knowledge
+from marketplace import register_marketplace
 
-load_dotenv()
+if os.getenv("MARKETPLACE_MOCK_MODE", "false").lower() not in {"true", "1", "yes"}:
+    load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "saariv-stepper-rag-secret-2025")
@@ -42,6 +44,7 @@ os.makedirs(TMP_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(QUESTIONS_LOG_PATH), exist_ok=True)
 
 initialize_knowledge(app)
+register_marketplace(app)
 
 
 def init_db():
@@ -330,7 +333,13 @@ def retrieve_relevant_experience(query: str, chunks: List[Dict[str, Any]]) -> Li
 
 @app.route("/", methods=["GET"])
 def index():
-    """Render Saariv Living Biography Landing Page."""
+    """Render the enabled marketplace, or the original landing page."""
+    if "marketplace_mock_home" in app.extensions:
+        return app.extensions["marketplace_mock_home"]()
+    if "marketplace_db" in app.extensions:
+        from marketplace.security import current_principal
+        return render_template("marketplace/home.html", principal=current_principal(),
+                               wallet=None, initial_query="", search_page=None)
     return render_template("index.html")
 
 
@@ -461,21 +470,7 @@ def onboarding_step2():
 @app.route("/api/onboarding/step4", methods=["POST"])
 def onboarding_step4():
     """Persist and index the narrative, retaining legacy JSON import support."""
-    try:
-        return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
-    except Exception as e:
-        error_msg = str(e)
-        # Handle reindex requirement gracefully
-        if "Reindex" in error_msg or "Embedding configuration changed" in error_msg:
-            from knowledge.service import ReindexRequired
-            # Force reindex and try again
-            owner = g.knowledge_owner
-            try:
-                get_service().reindex(owner)
-                return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
-            except Exception as retry_error:
-                return jsonify(ok=False, message=f"Failed to reindex: {retry_error}"), 500
-        return jsonify(ok=False, message=error_msg), 500
+    return jsonify(import_story(request.get_json(), TMP_DIR, experiences_from_story, index_experiences_from_json))
 
 
 def cleanup_old_sessions():
@@ -525,7 +520,8 @@ def playground_rag_query():
     sources = [] if answer.get("answer_mode") == "insufficient" else retrieved["results"]
     # Present stored experience stories in the creator's own first-person voice,
     # even when the source material was authored in second person.
-    sources = [dict(source, text=to_first_person(source["text"])) for source in sources]
+    # Raw text and its citation offsets remain paired; presentation is separate.
+    sources = [dict(source, display_text=to_first_person(source["text"])) for source in sources]
     # The extractive fallback reply is composed of raw source text, so convert it too.
     # Generated replies already speak in the first person and are left untouched.
     if answer.get("answer_mode") == "extractive":

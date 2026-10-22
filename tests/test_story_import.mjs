@@ -4,6 +4,7 @@ import vm from "node:vm";
 import test from "node:test";
 
 const script = fs.readFileSync(new URL("../static/js/main.js", import.meta.url), "utf8");
+const dictationScript = fs.readFileSync(new URL("../static/js/story-dictation.js", import.meta.url), "utf8");
 
 function setup(fetchResponse, extraElements = {}) {
   const hidden = new Set(["hidden"]);
@@ -27,6 +28,7 @@ function setup(fetchResponse, extraElements = {}) {
       return fetchResponse();
     },
   });
+  vm.runInContext(dictationScript, context);
   vm.runInContext(script, context);
   return { context, input, error, hidden, requests };
 }
@@ -60,7 +62,7 @@ test("a network error does not advance past an unsaved story", async () => {
 test("Load Sample fills the input with a readable story", () => {
   const f = setup(() => {});
   vm.runInContext("loadSampleExperiences()", f.context);
-  assert.ok(f.input.value.includes("You asked"));
+  assert.ok(f.input.value.includes("I asked"));
   assert.throws(() => JSON.parse(f.input.value));
 });
 
@@ -124,4 +126,85 @@ test("source excerpts and filenames are rendered as text nodes", () => {
     source: { title: "<script>unsafe</script>", section: "Housing", page_start: 1, page_end: 2 }
   }])`, f.context);
   assert.equal(root.children[0].children[1].textContent, "<img src=x onerror=alert(1)>");
+});
+
+test("first-person evidence is displayed without rewriting the raw citation", () => {
+  const f = setup(() => {});
+  const root = { children: [], appendChild(child) { this.children.push(child); } };
+  f.context.document.createElement = tag => ({
+    tag, children: [], textContent: "", appendChild(child) { this.children.push(child); },
+  });
+  f.context.sourceRoot = root;
+  vm.runInContext(`evidence = {citation_id: "S1", text: "You asked about housing.",
+    display_text: "I asked about housing.", source: {title: "Story", start: 0, end: 24}};
+    appendKnowledgeSources(sourceRoot, [evidence]);`, f.context);
+  assert.equal(root.children[0].children[1].textContent, "I asked about housing.");
+  assert.equal(vm.runInContext("evidence.text", f.context), "You asked about housing.");
+});
+
+function dictationFixture(supported = true) {
+  const toggle = { disabled: false, setAttribute(name, value) { this[name] = value; } };
+  const save = { disabled: false };
+  const status = { textContent: "" };
+  const f = setup(() => ({ ok: true, json: async () => ({ ok: true, indexed_count: 1 }) }), {
+    "story-dictation-toggle": toggle, "story-dictation-label": { textContent: "" },
+    "story-dictation-status": status, "step4-submit-btn": save,
+  });
+  const recognitions = [];
+  class Recognition {
+    constructor() { recognitions.push(this); }
+    start() {}
+    stop() {}
+    abort() {}
+  }
+  if (supported) f.context.window.SpeechRecognition = Recognition;
+  f.context.window.addEventListener = () => {};
+  f.context.navigator = { language: "en-IN" };
+  f.context.Event = class {};
+  f.input.dispatchEvent = () => {};
+  assert.equal(vm.runInContext("typeof initializeStoryDictation", f.context), "function");
+  vm.runInContext("initializeStoryDictation()", f.context);
+  return { ...f, toggle, save, status, recognitions };
+}
+
+test("dictation blocks early submission, then saves the reviewed text through the existing endpoint", async () => {
+  const f = dictationFixture();
+  f.input.value = "I compared deposits.";
+  vm.runInContext("toggleStoryDictation()", f.context);
+  f.recognitions[0].onstart();
+  assert.equal(f.input.readOnly, true);
+  assert.equal(f.save.disabled, true);
+  assert.equal(f.toggle["aria-pressed"], "true");
+  f.recognitions[0].onresult({ results: [[{ transcript: "I asked about leases." }]] });
+  await vm.runInContext("handleStep4Submit()", f.context);
+  assert.equal(f.requests.length, 0);
+  assert.match(f.error.textContent, /stop.*dictation/i);
+  vm.runInContext("toggleStoryDictation()", f.context);
+  assert.equal(f.save.disabled, true);
+  f.recognitions[0].onend();
+  assert.equal(f.input.readOnly, false);
+  assert.equal(f.save.disabled, false);
+  f.input.value += " No contract was signed.";
+  await vm.runInContext("handleStep4Submit()", f.context);
+  assert.equal(f.requests[0].url, "/api/onboarding/step4");
+  assert.equal(f.requests[0].body.experience_story, "I compared deposits.\n\nI asked about leases. No contract was signed.");
+});
+
+test("leaving the story panel cancels dictation without losing the transcript", () => {
+  const f = dictationFixture();
+  vm.runInContext("toggleStoryDictation()", f.context);
+  f.recognitions[0].onresult({ results: [[{ transcript: "I prepared for interviews." }]] });
+  vm.runInContext("goToStep(3)", f.context);
+  f.recognitions[0].onresult({ results: [[{ transcript: "Late words must be ignored." }]] });
+  assert.equal(f.input.value, "I prepared for interviews.");
+  assert.equal(f.input.readOnly, false);
+  assert.equal(f.toggle["aria-pressed"], "false");
+});
+
+test("an unsupported browser keeps manual story entry and Continue available", () => {
+  const f = dictationFixture(false);
+  assert.equal(f.toggle.disabled, true);
+  assert.equal(f.input.readOnly, false);
+  assert.equal(f.save.disabled, false);
+  assert.match(f.status.textContent, /not available.*browser/i);
 });

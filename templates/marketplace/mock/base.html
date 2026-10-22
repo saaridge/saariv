@@ -1,0 +1,36 @@
+<!doctype html>
+{% set signed_in = principal and principal.user_id %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Local demo{% endblock %} · Saariv</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">
+</head>
+<body class="mock-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% include 'marketplace/mock/banner.html' %}
+  <header class="site-header">
+    <nav class="header-inner mock-header" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a>
+      <div class="header-actions">
+        <a class="quiet-link" href="/">Explore</a>
+        <a class="quiet-link" href="/demo/mine">My experiences</a>
+        <a class="quiet-link" href="/demo/admin">Demo admin</a>
+        <a class="wallet-link" href="/wallet"><span class="coin-icon" aria-hidden="true">◈</span> {% if signed_in and wallet is not none %}{{ wallet.available_coins }} coins{% else %}Wallet{% endif %}</a>
+        <a class="add-link" href="/experiences/new"><span aria-hidden="true">＋</span><span>Share an experience</span></a>
+      </div>
+    </nav>
+  </header>
+  <main id="main" class="page-shell mock-shell {% block shell_class %}{% endblock %}">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer"><span>saariv. &nbsp; A little wisdom, passed along.</span><span>Local demo · All coins and transfers are simulated.</span></footer>
+</body>
+</html>

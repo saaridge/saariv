@@ -1,0 +1,50 @@
+<!doctype html>
+{% set signed_in = principal and principal.user_id %}
+{% set revision_status = draft.status if draft else 'draft' %}
+{% set status_labels = {'draft': 'Private draft', 'submitted': 'Awaiting review', 'approved': 'Approved revision', 'rejected': 'Review declined'} %}
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}"><meta name="robots" content="noindex, nofollow">
+  <title>Share an experience · Saariv</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  {% if mock_mode %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">{% endif %}
+  {% if signed_in %}<script defer src="{{ url_for('static', filename='js/story-dictation.js') }}"></script><script defer src="{{ url_for('static', filename='js/marketplace.js') }}"></script><script defer src="{{ url_for('static', filename='js/authoring.js') }}"></script>{% endif %}
+</head>
+<body {% if signed_in %}data-marketplace-editor{% endif %}>
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% if mock_mode %}{% include 'marketplace/mock/banner.html' %}{% endif %}
+  <header class="site-header"><nav class="header-inner" aria-label="Main navigation"><a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a><div class="header-actions"><a class="quiet-link" href="/">Explore</a>{% if signed_in %}<a class="wallet-link" href="/wallet">{% if wallet is not none %}{{ wallet.available_coins }} coins{% else %}Wallet{% endif %}</a>{% else %}<a class="login-link" href="/login?next=%2Fexperiences%2Fnew">Sign in</a>{% endif %}<a class="add-link compact" href="/experiences/new" aria-label="Add an experience">＋</a></div></nav></header>
+  <main id="main" class="page-shell editor-shell">
+    {% if mock_mode %}
+    {% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>{% endfor %}
+    {% if signed_in %}<p class="notice mock-editor-note">First approval of an experience awards 10 simulated coins once. After submitting, switch to Admin to review it, then return to <a href="/demo/mine">My experiences</a>.</p>{% endif %}
+    {% endif %}
+    {% if signed_in %}
+    <div class="page-intro"><a class="back-link" href="/">← Back to exploring</a><p class="eyebrow">Your perspective matters</p><h1>Somebody could use<br><span>your experience.</span></h1><p>{% if revision_status == 'draft' %}Tell it as you lived it. Your draft stays private until it’s reviewed and approved.{% elif revision_status == 'submitted' %}This revision is awaiting review and is read-only.{% elif revision_status == 'approved' %}This revision has passed review and is read-only.{% elif revision_status == 'rejected' %}Review was declined. This submitted revision is read-only.{% else %}This revision is read-only. Its review status is unavailable.{% endif %}</p></div>
+    <div class="editor-layout">
+      <form id="draft-form" class="editor-form" action="/api/experiences/drafts" method="post" novalidate>
+        <section class="editor-section" aria-labelledby="story-heading"><div class="editor-section-heading"><span class="step-number">01</span><div><h2 id="story-heading">Your story, in your words</h2><p>Keep what you asked, planned, and completed distinct.</p></div><span id="draft-visibility" class="privacy-badge">{{ status_labels.get(revision_status, 'Read-only revision') }}</span></div>
+          <label class="field-label" for="draft-body">Your experience</label>
+          <textarea id="draft-body" name="body" class="story-input" rows="14" maxlength="100000" placeholder="What was happening? What did you consider, ask, or do? What did you learn?" aria-describedby="story-hint story-dictation-status">{{ draft.body if draft else '' }}</textarea>
+          <div class="story-toolbar"><button id="story-dictation-toggle" class="voice-button" type="button" aria-controls="draft-body" aria-pressed="false" disabled><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg><span id="story-dictation-label">Dictate</span></button><button id="story-dictation-cancel" class="text-button" type="button" hidden>Cancel dictation</button><span id="story-hint" class="input-hint">Or type and paste from your own notes.</span></div>
+          <p id="story-dictation-status" class="dictation-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="editor-section" aria-labelledby="listing-heading"><div class="editor-section-heading"><span class="step-number">02</span><div><h2 id="listing-heading">A thoughtful introduction</h2><p>This is what people will see before unlocking.</p></div></div>
+          <label class="field-label" for="draft-title">Title</label><input id="draft-title" name="title" type="text" maxlength="180" value="{{ draft.title if draft else '' }}" placeholder="Give your experience a clear, specific title" autocomplete="off">
+          <label class="field-label" for="draft-teaser">Public teaser</label><textarea id="draft-teaser" name="teaser" rows="3" maxlength="600" aria-describedby="teaser-hint" placeholder="A few lines about what someone can learn from your experience.">{{ draft.teaser if draft else '' }}</textarea><p id="teaser-hint" class="input-hint">Keep names and identifying details out of your public introduction.</p>
+          <label class="field-label" for="draft-taxonomy">Taxonomy topics</label><input id="draft-taxonomy" name="taxonomy" type="text" maxlength="1000" value="{{ draft.taxonomy|join(', ') if draft else '' }}" placeholder="Relocation, Housing" aria-describedby="taxonomy-hint"><p id="taxonomy-hint" class="input-hint">Use comma-separated topics from your taxonomy. Topics describe the story; they don’t rewrite it.</p>
+          <div class="price-field"><div><label class="field-label" for="draft-price">One-time price</label><div class="price-input-wrap"><input id="draft-price" name="price_coins" type="text" inputmode="numeric" pattern="[1-9][0-9]*" value="{{ draft.price_coins if draft else '' }}" placeholder="25" aria-describedby="price-hint"><span>coins</span></div></div><p id="price-hint" class="input-hint">Choose a positive whole number.<br>Readers pay once for this experience.</p></div>
+        </section>
+        <div class="editor-savebar"><div><p id="draft-status" class="action-status" role="status" aria-live="polite">{{ status_labels.get(revision_status, 'Read-only revision') }}.</p>{% if revision_status == 'draft' %}<p class="input-hint">Submission starts a review. A reward follows first approval.</p>{% endif %}</div><div class="save-actions"><button id="draft-save" class="button button-secondary" type="submit" disabled>Save draft</button><button id="draft-submit" class="button button-primary" type="button" disabled>Submit for review <span aria-hidden="true">↗</span></button></div></div>
+        <p id="draft-conflict" class="notice notice-error" role="alert" hidden></p>
+        <noscript><p class="notice">Enable JavaScript to save and submit. You can select and copy your story from this page.</p></noscript>
+      </form>
+      <aside class="editor-preview" aria-labelledby="preview-heading"><p id="preview-heading" class="eyebrow">Public card preview</p><div class="experience-card preview-card"><span class="card-eyebrow">Experience</span><h2 id="preview-title" class="card-title">{{ draft.title if draft and draft.title else 'Your title' }}</h2><p id="preview-teaser" class="card-teaser">{{ draft.teaser if draft and draft.teaser else 'Your public teaser appears here.' }}</p><p id="preview-taxonomy" class="preview-taxonomy">{{ draft.taxonomy|join(' · ') if draft else '' }}</p><div class="card-author"><span class="author-placeholder" aria-hidden="true">Community author</span><span class="author-prompt">Guest authors are concealed</span></div><div class="card-footer"><span id="preview-price" class="card-price">{% if draft %}{{ draft.price_coins }} coins · one-time{% else %}Choose a coin price{% endif %}</span><span aria-hidden="true">↗</span></div></div><p class="preview-explanation">An introduction, not the whole story. Your exact experience is shared only with authorized readers after publication.</p><details class="story-review"><summary>Review your exact story</summary><pre id="preview-body" class="exact-story">{{ draft.body if draft else '' }}</pre></details><div class="writing-note"><span aria-hidden="true">✳</span><h3>Honest is helpful.</h3><p>A question you asked is still a question. A plan is still a plan. You don’t need a perfect ending to share a useful perspective.</p></div></aside>
+    </div>
+    <script type="application/json" id="authoring-state">{{ dict(draft=(dict(draft_id=draft.draft_id|string, version=draft.version, status=draft.status, title=draft.title, teaser=draft.teaser, taxonomy=draft.taxonomy, price_coins=draft.price_coins, body=draft.body) if draft else none))|tojson }}</script>
+    {% else %}<section class="access-notice"><p class="eyebrow">Your story starts here</p><h1>Make room for<br><span>your perspective.</span></h1><p>Sign in to write and save a private experience.</p><a class="button button-primary" href="/login?next=%2Fexperiences%2Fnew">Sign in to start writing ↗</a></section>{% endif %}
+  </main>
+  <footer class="site-footer"><span>saariv. &nbsp; A little wisdom, passed along.</span><span>Write in your own words.</span></footer>
+</body>
+</html>

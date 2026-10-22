@@ -16,10 +16,63 @@ let onboardingState = {
   indexedCount: 0
 };
 
+let storyDictation = null;
+let storyIsSaving = false;
+let storyDictationStatus = null;
+
+function renderStoryDictation(state = storyDictationStatus) {
+  if (!state) return;
+  storyDictationStatus = state;
+  const toggle = document.getElementById("story-dictation-toggle");
+  const label = document.getElementById("story-dictation-label");
+  const status = document.getElementById("story-dictation-status");
+  const input = document.getElementById("step4_story");
+  const save = document.getElementById("step4-submit-btn");
+  const sample = document.getElementById("step4-sample-btn");
+  if (toggle) {
+    toggle.disabled = !state.supported || state.phase === "stopping" || storyIsSaving;
+    toggle.setAttribute("aria-pressed", String(state.busy));
+  }
+  if (label) label.textContent = state.phase === "stopping" ? "Finishing…" : state.busy ? "Stop dictation" : "Start dictation";
+  if (status) {
+    status.textContent = state.message;
+    status.className = "text-sm " + (state.phase === "error" ? "text-red-700" : "text-gray-600");
+  }
+  if (input) input.readOnly = state.busy;
+  if (save) save.disabled = state.busy || storyIsSaving;
+  if (sample) sample.disabled = state.busy || storyIsSaving;
+}
+
+function initializeStoryDictation() {
+  const input = document.getElementById("step4_story");
+  if (!input || typeof StoryDictation !== "function") return;
+  storyDictation = new StoryDictation({
+    Recognition: window.SpeechRecognition || window.webkitSpeechRecognition,
+    lang: navigator.language || "en-US",
+    getText: () => input.value,
+    setText: text => {
+      input.value = text;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+    onState: renderStoryDictation,
+  });
+  window.addEventListener("pagehide", () => storyDictation.cancel());
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) storyDictation.cancel();
+  });
+}
+
+function toggleStoryDictation() {
+  if (!storyDictation || storyIsSaving) return;
+  if (storyDictation.busy) storyDictation.stop();
+  else storyDictation.start();
+}
+
 // ==========================================
 // STEPPER NAVIGATION & PROGRESS BAR
 // ==========================================
 function goToStep(stepNum) {
+  if (stepNum !== 4 && storyDictation) storyDictation.cancel();
   // Hide all panels
   for (let i = 1; i <= 6; i++) {
     const panel = document.getElementById(`step-panel-${i}`);
@@ -531,6 +584,7 @@ ${formattedTopics}`;
 // STEP 4: PROMPT 2 (UNIQUE EXPERIENCES)
 // ==========================================
 function loadSampleExperiences() {
+  if (storyIsSaving || storyDictation?.busy) return;
   const sampleStory = `## Hotel Research
 I asked about integrating boutique and luxury hotel inventory feeds. My main concerns were stale room availability and the latency of property searches. I explored Redis caching and asked whether room amenities should be prepared in advance or extracted when needed.
 
@@ -553,9 +607,16 @@ async function handleStep4Submit() {
   const errorDiv = document.getElementById("step4_error");
   errorDiv.classList.add("hidden");
 
+  if (storyDictation?.busy) {
+    errorDiv.textContent = "Stop dictation and review your story before continuing.";
+    errorDiv.classList.remove("hidden");
+    return;
+  }
+  if (storyIsSaving) return;
+
   const story = document.getElementById("step4_story").value.trim();
   if (!story) {
-    errorDiv.textContent = "Please paste your experience story or click 'Load Sample'.";
+    errorDiv.textContent = "Please paste or dictate your experience story, or choose 'Load Sample'.";
     errorDiv.classList.remove("hidden");
     return;
   }
@@ -570,6 +631,8 @@ async function handleStep4Submit() {
 
   const saveButton = document.getElementById("step4-submit-btn");
   const indexStatus = document.getElementById("step4-index-status");
+  storyIsSaving = true;
+  renderStoryDictation();
   if (saveButton) saveButton.disabled = true;
   if (indexStatus) indexStatus.textContent = "Saving and indexing your story…";
   try {
@@ -596,7 +659,9 @@ async function handleStep4Submit() {
     errorDiv.textContent = "Could not save your story. Please try again.";
     errorDiv.classList.remove("hidden");
   } finally {
+    storyIsSaving = false;
     if (saveButton) saveButton.disabled = false;
+    renderStoryDictation();
     if (indexStatus) indexStatus.textContent = "";
   }
 }
@@ -985,6 +1050,7 @@ async function handleWaitlistSubmit(e) {
 // On Page Load: Initialize stepper if try.html panel is present
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("step-panel-1")) {
+    initializeStoryDictation();
     goToStep(1);
   }
 });
@@ -1011,7 +1077,7 @@ function appendKnowledgeSources(parent, sources) {
     summary.textContent = `[${source.citation_id}] ${location}`;
     const excerpt = document.createElement("p");
     excerpt.className = "mt-2 whitespace-pre-wrap text-xs text-gray-600";
-    excerpt.textContent = source.text;
+    excerpt.textContent = source.display_text ?? source.text;
     details.appendChild(summary);
     details.appendChild(excerpt);
     parent.appendChild(details);

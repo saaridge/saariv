@@ -1,0 +1,15 @@
+{% extends 'marketplace/mock/base.html' %}
+{% block title %}My experiences{% endblock %}
+{% block content %}
+  <div class="mock-page-intro mock-intro-with-action"><div><p class="eyebrow">Your words, your perspective</p><h1>My experiences.</h1><p>Follow your story from a private draft to publication.</p></div><a class="button button-primary" href="/experiences/new">Write an experience <span aria-hidden="true">＋</span></a></div>
+  <p class="notice">First approval of each experience awards 10 simulated coins once. Saving, submitting, editing, and later approvals do not add another reward. Switch to Admin to review a submitted experience.</p>
+  <div class="mock-review-list">
+    {% for experience in experiences %}
+    <article class="mock-panel mock-owned-card">
+      <div><p class="eyebrow">Version {{ experience.version }} · {{ experience.price_coins }} coins</p><h2>{{ experience.title or 'Untitled experience' }}</h2><span class="mock-status">{{ experience.status|replace('_', ' ')|capitalize }}</span></div>
+      {% if experience.status in ['published', 'approved'] %}<a class="button button-secondary" href="/experiences/{{ experience.id|string|urlencode|replace('/', '%2F') }}">Read experience <span aria-hidden="true">↗</span></a>
+      {% elif experience.status in ['draft', 'submitted', 'rejected'] %}<a class="button button-secondary" href="/experiences/{{ experience.id|string|urlencode|replace('/', '%2F') }}/edit">{% if experience.status == 'draft' %}Continue writing{% else %}Review revision{% endif %} <span aria-hidden="true">↗</span></a>{% endif %}
+    </article>
+    {% else %}<div class="mock-empty"><span class="empty-symbol" aria-hidden="true">✳</span><h2>Your first perspective starts here.</h2><p>Write about something you asked, planned, or experienced. Save it privately, then submit when you’re ready.</p><a class="button button-primary" href="/experiences/new">Write an experience <span aria-hidden="true">↗</span></a></div>{% endfor %}
+  </div>
+{% endblock %}

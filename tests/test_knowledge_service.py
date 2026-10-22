@@ -67,9 +67,15 @@ class KnowledgeServiceTests(unittest.TestCase):
 
     def test_failed_import_preserves_previous_source_and_vectors(self):
         self.add_sources()
+        documents = self.service.store.documents("alice")
+        chunks = self.service.store.chunks("alice")
+        profile = self.service.store.owner_profile("alice")
         self.provider.fail = True
         with self.assertRaises(ProviderError):
             self.service.ingest("alice", "housing", "You discussed something new.", "Changed")
+        self.assertEqual(self.service.store.documents("alice"), documents)
+        self.assertEqual(self.service.store.chunks("alice"), chunks)
+        self.assertEqual(self.service.store.owner_profile("alice"), profile)
         self.provider.fail = False
         hits = self.service.search("alice", "deposits", mode="hybrid")["results"]
         self.assertIn("apartment deposits", hits[0]["text"])
@@ -86,16 +92,83 @@ class KnowledgeServiceTests(unittest.TestCase):
         self.assertFalse(self.service.status("alice")["needs_reindex"])
         self.assertEqual(self.service.search("alice", "accommodation")["results"][0]["document_id"], "housing")
 
+    def test_profile_change_rejects_import_before_deleting_sources(self):
+        self.add_sources()
+        documents = self.service.store.documents("alice")
+        chunks = self.service.store.chunks("alice")
+        self.service.close()
+        self.service = KnowledgeService(replace(self.settings, embedding_model="another-model"), ConceptEmbeddings())
+        with self.assertRaises(ReindexRequired):
+            self.service.ingest("alice", "housing", "You practiced hiring interviews.", "Updated")
+        self.assertEqual(self.service.store.documents("alice"), documents)
+        self.assertEqual(self.service.store.chunks("alice"), chunks)
+        self.assertEqual(self.service.store.vector_count("alice"), 2)
+        self.service.close()
+        self.service = KnowledgeService(self.settings, ConceptEmbeddings())
+        self.assertEqual(self.service.search("alice", "accommodation", mode="dense")["results"][0]["document_id"], "housing")
+
     def test_failed_rebuild_does_not_publish_a_partial_profile(self):
         self.add_sources()
+        documents = self.service.store.documents("alice")
+        profile = self.service.store.owner_profile("alice")
         self.service.close()
         provider = ConceptEmbeddings()
         provider.fail = True
         self.service = KnowledgeService(replace(self.settings, embedding_model="another-model"), provider)
         with self.assertRaises(ProviderError):
             self.service.reindex("alice")
+        self.assertEqual(self.service.store.documents("alice"), documents)
+        self.assertEqual(self.service.store.owner_profile("alice"), profile)
+        self.assertEqual(self.service.store.vector_count("alice"), 2)
         self.assertTrue(self.service.status("alice")["needs_reindex"])
         self.assertEqual(len(self.service.search("alice", "deposits", mode="lexical")["results"]), 1)
+        self.service.close()
+        self.service = KnowledgeService(self.settings, ConceptEmbeddings())
+        self.assertEqual(self.service.search("alice", "accommodation", mode="dense")["results"][0]["document_id"], "housing")
+
+    def test_later_embedding_batch_failure_does_not_replace_any_source(self):
+        self.add_sources()
+        documents = self.service.store.documents("alice")
+        self.service.close()
+        self.service = KnowledgeService(replace(self.settings, batch_size=1), self.provider)
+        with patch.object(self.provider, "embed_documents", side_effect=[
+            [[0.0, 1.0, 0.0]], ProviderError("Synthetic API outage"),
+        ]), self.assertRaises(ProviderError):
+            self.service.ingest_many("alice", [
+                {"document_id": "housing", "text": "You practiced hiring interviews.", "title": "Changed"},
+                {"document_id": "new", "text": "You discussed astronomy.", "title": "New"},
+            ])
+        self.assertEqual(self.service.store.documents("alice"), documents)
+        self.assertEqual(self.service.store.vector_count("alice"), 2)
+        self.assertEqual(self.service.search("alice", "accommodation", mode="dense")["results"][0]["document_id"], "housing")
+
+    def test_disabling_embeddings_requires_explicit_reindex_to_remove_vectors(self):
+        self.add_sources()
+        documents = self.service.store.documents("alice")
+        self.service.close()
+        self.service = KnowledgeService(Settings(data_dir=self.settings.data_dir))
+        self.assertTrue(self.service.status("alice")["needs_reindex"])
+        self.assertEqual(self.service.search("alice", "deposits")["mode"], "lexical")
+        with self.assertRaises(ReindexRequired):
+            self.service.ingest("alice", "new", "You discussed astronomy.")
+        self.assertEqual(self.service.store.documents("alice"), documents)
+        self.assertEqual(self.service.store.vector_count("alice"), 2)
+        self.service.reindex("alice")
+        self.assertEqual(self.service.store.owner_profile("alice"), "none")
+        self.assertEqual(self.service.store.vector_count("alice"), 0)
+        self.assertFalse(self.service.status("alice")["needs_reindex"])
+
+    def test_enabling_embeddings_requires_reindex_before_dense_search(self):
+        self.service.close()
+        self.service = KnowledgeService(Settings(data_dir=self.settings.data_dir))
+        self.service.ingest("alice", "housing", "You compared apartment deposits.", "Housing")
+        self.service.close()
+        self.service = KnowledgeService(self.settings, self.provider)
+        with self.assertRaises(ReindexRequired):
+            self.service.search("alice", "deposits", mode="dense")
+        self.assertEqual(self.service.search("alice", "deposits", mode="lexical")["mode"], "lexical")
+        self.service.reindex("alice")
+        self.assertEqual(self.service.search("alice", "accommodation", mode="dense")["results"][0]["document_id"], "housing")
 
     def test_owner_filter_applies_to_dense_keyword_and_deletion(self):
         self.add_sources()

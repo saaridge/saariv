@@ -80,37 +80,25 @@ class KnowledgeService:
                 self.metrics["embedded_chunks"] += len(result)
             except ProviderError as e:
                 logging.getLogger(__name__).warning(f"Embedding failed for batch {start//self.settings.batch_size}: {e}")
-                # Continue without embeddings for this batch - search will fall back to lexical
                 raise
         dimension = validate_vectors(list(vectors.values()), len(vectors), self.provider.dimension) if vectors else None
         return vectors, dimension
 
     def _needs_reindex(self, owner):
-        return bool(self.provider and self.store.documents(owner)
-                    and self.store.owner_profile(owner) != self.settings.profile_id)
+        profile_id = self.settings.profile_id if self.provider else "none"
+        return bool(self.store.documents(owner) and self.store.owner_profile(owner) != profile_id)
 
     def _check_profile(self, owner):
-        # No longer raise ReindexRequired - auto-clear is handled in ingest_many
-        pass
+        if self._needs_reindex(owner):
+            raise ReindexRequired("Embedding configuration changed. Rebuild the index explicitly before importing or using semantic search. Saved sources remain available through lexical search.")
 
     def _publish(self, owner, documents):
         chunks = [chunk for doc in documents for chunk in doc["chunks"]]
         profile_id = self.settings.profile_id if self.provider else "none"
         try:
             if self.provider:
-                try:
-                    vectors, dimension = self._embed(owner, chunks)
-                    self.store.write_vectors(owner, profile_id, chunks, vectors, dimension)
-                except ProviderError as e:
-                    logging.getLogger(__name__).warning(f"Embedding failed, falling back to lexical-only mode: {e}")
-                    # Fall back to lexical-only mode (no embeddings)
-                    profile_id = "none"
-                    self.store.publish(owner, documents, profile_id)
-                    self._cleanup(owner)
-                    # Add warning to indicate fallback
-                    warning = "Semantic search unavailable. Using keyword search only. Check your OpenAI API key and try reindexing."
-                    self.store.cleanup_warning(owner, warning, write=True)
-                    return
+                vectors, dimension = self._embed(owner, chunks)
+                self.store.write_vectors(owner, profile_id, chunks, vectors, dimension)
             self.store.publish(owner, documents, profile_id)
         except Exception:
             # Remove staged points; previously committed chunks stay authoritative.
@@ -138,27 +126,13 @@ class KnowledgeService:
 
     def ingest_many(self, owner, documents):
         with self.lock:
-            # Auto-clear old index if configuration changed instead of raising ReindexRequired
-            try:
-                if self._needs_reindex(owner):
-                    logging.getLogger(__name__).warning("Configuration changed, auto-clearing old index...")
-                    try:
-                        for doc in list(self.store.documents(owner)):
-                            try:
-                                self.store.delete_document(owner, doc["document_id"])
-                            except Exception as e:
-                                logging.getLogger(__name__).warning(f"Failed to delete old document {doc['document_id']}: {e}")
-                    except Exception as e:
-                        logging.getLogger(__name__).error(f"Failed to clear old index: {e}")
-            except Exception as e:
-                logging.getLogger(__name__).error(f"Error checking reindex status: {e}")
-            
             prepared = [self._prepare(owner, doc["document_id"], doc["text"], doc.get("title", "Experience story"),
                                       doc.get("source_type", "story"), doc.get("metadata", {})) for doc in documents]
             if not prepared:
                 return []
             if len({doc["document_id"] for doc in prepared}) != len(prepared):
                 raise ValueError("Document IDs must be distinct within an import.")
+            self._check_profile(owner)
             self._publish(owner, prepared)
             return [{"document_id": doc["document_id"], "version": doc["version"],
                      "chunks_count": len(doc["chunks"]), "mode": "hybrid" if self.provider else "lexical",

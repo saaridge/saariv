@@ -342,13 +342,29 @@ Before finalizing, check that every supported subject sits under the correct dom
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <label for="step4_story" class="block text-sm font-medium text-gray-700">
-            Paste Your Experience Story
+            Paste or Dictate Your Experience Story
           </label>
-          <button onclick="loadSampleExperiences()" type="button" class="btn btn-ghost text-sm">
+          <button id="step4-sample-btn" onclick="loadSampleExperiences()" type="button" class="btn btn-ghost text-sm">
             Load Sample
           </button>
         </div>
-        <textarea id="step4_story" rows="10" placeholder="Paste your story here. Topic headings are optional." class="form-input"></textarea>
+        <div class="story-dictation" role="group" aria-label="Voice dictation">
+          <button id="story-dictation-toggle" type="button" onclick="toggleStoryDictation()"
+                  class="btn btn-secondary text-sm" aria-controls="step4_story" aria-pressed="false" disabled>
+            <i data-lucide="mic" class="w-4 h-4" aria-hidden="true"></i>
+            <span id="story-dictation-label">Start dictation</span>
+          </button>
+          <div class="story-dictation-help">
+            <p id="story-dictation-status" role="status" aria-live="polite" aria-atomic="true" class="text-sm text-gray-600">
+              Checking whether voice dictation is available…
+            </p>
+            <p id="story-dictation-hint" class="text-xs text-gray-500 mt-1">
+              Your browser may use an online speech service. Review the transcript before continuing.
+            </p>
+          </div>
+        </div>
+        <textarea id="step4_story" rows="10" placeholder="Paste, type, or dictate your story here. Topic headings are optional."
+                  aria-describedby="story-dictation-status story-dictation-hint" class="form-input"></textarea>
         <p id="step4-index-status" role="status" class="text-sm text-gray-500"></p>
       </div>
 
@@ -579,6 +595,7 @@ Before finalizing, check that every supported subject sits under the correct dom
   </footer>
 
   <!-- Scripts -->
+  <script src="/static/js/story-dictation.js"></script>
   <script src="/static/js/main.js"></script>
   <script>
     if (window.lucide) {

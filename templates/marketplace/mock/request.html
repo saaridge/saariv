@@ -1,0 +1,41 @@
+{% extends 'marketplace/mock/base.html' %}
+{% block title %}Demo {{ funding.kind }} request{% endblock %}
+{% block shell_class %}mock-narrow-shell{% endblock %}
+{% block content %}
+  <a class="back-link" href="/wallet">← Back to wallet</a>
+  <div class="mock-page-intro"><p class="eyebrow">Simulated {{ funding.kind }}</p><h1>{{ funding.coins }} demo coins.</h1><p>Follow this request from creation to a demo admin decision.</p></div>
+  <p class="notice mock-payment-notice"><strong>Do not transfer real money.</strong> All transfers and payouts in this local demo are simulated.</p>
+  <section class="mock-panel" aria-labelledby="request-heading">
+    <div class="mock-panel-heading"><h2 id="request-heading">{{ funding.kind|capitalize }} request</h2><span class="mock-status">{{ funding.status|replace('_', ' ')|capitalize }}</span></div>
+    <dl class="mock-detail-list">
+      <div><dt>Account</dt><dd>{{ owner_name }}</dd></div>
+      <div><dt>Request ID</dt><dd><code>{{ funding.id }}</code></dd></div>
+      <div><dt>Demo user ID</dt><dd><code>{{ funding.user_id }}</code></dd></div>
+      <div><dt>Demo amount</dt><dd>{{ funding.currency }} {{ '%.2f'|format(funding.fiat_minor / 100) }} · {{ funding.coins }} coins</dd></div>
+      <div><dt>Created</dt><dd>{{ funding.created_at }}</dd></div>
+      <div><dt>Simulated transfer memo</dt><dd><code>{{ funding.user_id }} / {{ funding.id }}</code></dd></div>
+    </dl>
+    {% if funding.kind == 'recharge' and funding.status == 'pending_payment' %}
+    <div class="mock-request-step"><h3>Simulate the transfer</h3><p>This marks the request as submitted for demo admin review. Coins are credited only after approval.</p>
+      <form method="post" action="/demo/requests/{{ funding.id|string|urlencode|replace('/', '%2F') }}/submitted"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-primary" type="submit">Simulate transfer <span aria-hidden="true">↗</span></button></form>
+    </div>
+    {% elif funding.status == 'pending_review' %}
+    <div class="mock-request-step"><h3>Awaiting demo admin review</h3><p>Switch to <strong>Admin</strong> in the demo banner, then open <a class="mock-text-link" href="/demo/admin">Demo admin</a> to review this request. Return to the original persona to see the result.</p>
+      {% if funding.kind == 'withdrawal' %}<p>Your requested coins are reserved while this request is reviewed.</p><form method="post" action="/demo/requests/{{ funding.id|string|urlencode|replace('/', '%2F') }}/cancel"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-secondary" type="submit">Cancel demo withdrawal</button></form>{% endif %}
+    </div>
+    {% elif funding.status == 'processing' %}
+    <div class="mock-request-step"><h3>Demo payout is processing</h3><p>The coins remain reserved until the demo admin settles the simulated payout. Switch to Admin to complete this step.</p></div>
+    {% elif funding.status == 'credited' %}
+    <div class="mock-request-step"><h3>Demo coins credited</h3><p>{{ funding.coins }} coins have been added to this demo wallet. Approval does not purchase an experience.</p>
+      {% if funding.return_experience_id %}<a class="button button-primary" href="/experiences/{{ funding.return_experience_id|string|urlencode|replace('/', '%2F') }}?{{ {'query_id': funding.query_id|default('', true)}|urlencode }}">Return to your experience <span aria-hidden="true">↗</span></a><p class="input-hint">Review the price and choose Unlock to read it.</p>{% else %}<a class="button button-primary" href="/">Explore experiences <span aria-hidden="true">↗</span></a>{% endif %}
+    </div>
+    {% elif funding.status == 'settled' %}
+    <div class="mock-request-step"><h3>Demo withdrawal settled</h3><p>The reserved coins were consumed by the simulated payout. No real money was sent.</p></div>
+    {% elif funding.status in ['rejected', 'cancelled'] %}
+    <div class="mock-request-step"><h3>Request {{ funding.status }}</h3><p>{% if funding.kind == 'withdrawal' %}The reservation has been released to the demo wallet.{% else %}This request did not add coins. You can create another demo recharge from your wallet.{% endif %}</p></div>
+    {% else %}
+    <div class="mock-request-step"><h3>Request status: {{ funding.status|replace('_', ' ') }}</h3><p>Open your wallet or Demo admin to review the current state.</p></div>
+    {% endif %}
+  </section>
+  <p class="mock-bottom-link"><a class="mock-text-link" href="/wallet">View wallet and transaction history →</a></p>
+{% endblock %}

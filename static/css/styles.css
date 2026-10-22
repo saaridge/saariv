@@ -365,6 +365,33 @@
   line-height: 1.6;
 }
 
+/* Story Dictation */
+.story-dictation {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+}
+
+.story-dictation-help {
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+
+#story-dictation-toggle[aria-pressed="true"] {
+  color: #b91c1c;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+#step4_story[readonly] {
+  background: var(--bg-secondary);
+}
+
 /* Hierarchy Checklist */
 .hierarchy-checklist {
   max-height: 500px;

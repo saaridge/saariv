@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Sign in · Saariv</title>
+  {% if mock_mode %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">
+  {% else %}
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #20231f; background: #f5f3ec; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; }
+    main { box-sizing: border-box; width: min(28rem, 100%); padding: 2.5rem; }
+    .brand { color: #365344; text-decoration: none; font-weight: 700; }
+    h1 { font-size: 2rem; line-height: 1.15; margin-top: 2rem; }
+    p { line-height: 1.6; color: #535a52; }
+    ul { padding: 0; list-style: none; display: grid; gap: .8rem; margin: 2rem 0; }
+    .provider { display: block; box-sizing: border-box; border: 1px solid #c5cbc3; border-radius: .7rem; padding: 1rem; text-align: center; background: #fff; color: #24382d; text-decoration: none; font-weight: 600; }
+    a.provider:hover, a.provider:focus-visible { border-color: #365344; outline: 2px solid #365344; outline-offset: 3px; }
+    .unavailable { background: #eeeee8; color: #62685e; }
+    small { font-size: .8rem; font-weight: 400; display: block; margin-top: .3rem; }
+    .note { font-size: .85rem; }
+  </style>
+  {% endif %}
+</head>
+<body{% if mock_mode %} class="mock-login-page"{% endif %}>
+  {% if mock_mode %}
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% include 'marketplace/mock/banner.html' %}
+  <header class="site-header"><nav class="header-inner" aria-label="Main navigation"><a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a><a class="quiet-link" href="/">Explore experiences <span aria-hidden="true">↗</span></a></nav></header>
+  <main id="main" class="page-shell mock-login-shell">
+    {% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>{% endfor %}
+    <p class="eyebrow">Try the full local demo</p>
+    <h1>Continue with<br><span>a demo persona.</span></h1>
+    <p>Choose a mock provider and persona to read, write, and review sample experiences. We’ll bring you back to where you left off.</p>
+    <ul class="mock-provider-list" aria-label="Mock sign-in providers">
+      {% for provider_id, provider_name in [('google', 'Google'), ('linkedin', 'LinkedIn'), ('facebook', 'Facebook')] %}
+      <li>
+        <form class="mock-provider-form" method="post" action="/auth/mock/{{ provider_id }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="intent" value="{{ intent|default('', true) }}">
+          <label class="field-label" for="mock-persona-{{ provider_id }}">Demo persona for mock {{ provider_name }}</label>
+          <select id="mock-persona-{{ provider_id }}" name="persona">
+            <option value="reader" selected>Reader — discover and unlock</option>
+            <option value="author">Author — write and share</option>
+            <option value="admin">Admin — review the demo</option>
+          </select>
+          <button class="button button-primary" type="submit">Continue with mock {{ provider_name }} <span aria-hidden="true">↗</span></button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="notice mock-login-note">Mock sign-in does not connect to a real provider or spend coins. You’ll review the price and explicitly unlock each experience.</p>
+    <a class="mock-text-link" href="/">Back to discovery →</a>
+  </main>
+  <footer class="site-footer"><span>saariv. &nbsp; A little wisdom, passed along.</span><span>Local demo · All coins and transfers are simulated.</span></footer>
+  {% else %}
+  <main>
+    <a class="brand" href="/">Saariv</a>
+    <h1>Continue with your experience.</h1>
+    <p>Sign in to read, save, and share experiences. We’ll bring you back to where you left off.</p>
+    <ul aria-label="Sign-in providers">
+      {% for provider in providers %}
+      <li>
+        {% if provider.configured %}
+        <a class="provider" href="{{ url_for('marketplace_accounts.provider_login', provider=provider.id, intent=intent) }}">Continue with {{ provider.name }}</a>
+        {% else %}
+        <span class="provider unavailable" aria-disabled="true">{{ provider.name }}<small>Not configured</small></span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="note">Signing in does not spend coins. You’ll review the price before unlocking an experience.</p>
+    <a href="/">Back to discovery</a>
+  </main>
+  {% endif %}
+</body>
+</html>
