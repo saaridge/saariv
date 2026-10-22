@@ -10,23 +10,26 @@
   <meta name="description" content="Find thoughtful, first-person experiences to help you take your next step.">
   <title>Explore experiences · Saariv</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  {% if mock_mode %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">{% endif %}
   <script defer src="{{ url_for('static', filename='js/story-dictation.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/marketplace.js') }}"></script>
 </head>
 <body data-marketplace-home>
   <a class="skip-link" href="#main">Skip to content</a>
+  {% if mock_mode %}{% include 'marketplace/mock/banner.html' %}{% endif %}
   <header class="site-header">
     <nav class="header-inner" aria-label="Main navigation">
       <a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a>
       <div class="header-actions">
         {% if signed_in %}
         <a class="wallet-link" href="/wallet"><span class="coin-icon" aria-hidden="true">◈</span> {% if wallet is not none %}{{ wallet.available_coins }} coins{% else %}Wallet{% endif %}</a>
-        {% else %}<a class="login-link" href="/login?next=%2F">Sign in <span aria-hidden="true">↗</span></a>{% endif %}
+        {% else %}<a id="home-login-link" class="login-link" href="/login?{{ {'next': '/', 'query_id': search_page.query_id}|urlencode if search_page else 'next=%2F' }}">Sign in <span aria-hidden="true">↗</span></a>{% endif %}
         <a class="add-link" href="/experiences/new" aria-label="Add an experience"><span aria-hidden="true">＋</span><span class="add-label">Share an experience</span></a>
       </div>
     </nav>
   </header>
   <main id="main" class="page-shell">
+    {% if mock_mode %}{% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>{% endfor %}{% endif %}
     <section class="search-hero" aria-labelledby="hero-title">
       <p class="eyebrow"><span class="small-dot" aria-hidden="true"></span> A little perspective goes a long way</p>
       <h1 id="hero-title">Your next step.<br><span>Someone’s lived experience.</span></h1>
@@ -43,6 +46,7 @@
         </div>
       </form>
       <p id="query-hint" class="input-hint">Type it, say it, make it yours. Review your words before searching.</p>
+      {% if mock_mode %}<p class="input-hint">Demo search uses local keywords. Dictation uses your browser’s speech service.</p>{% endif %}
       <p id="query-dictation-status" class="dictation-status" role="status" aria-live="polite"></p>
       <p id="search-status" class="action-status" role="status" aria-live="polite"></p>
       <noscript><p class="notice">Enable JavaScript to search or dictate. You can still sign in and open saved experience links.</p></noscript>

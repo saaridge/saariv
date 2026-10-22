@@ -1,0 +1,65 @@
+{% extends 'marketplace/mock/base.html' %}
+{% block title %}{{ experience.title }}{% endblock %}
+{% block shell_class %}experience-shell{% endblock %}
+{% block content %}
+  <a class="back-link" href="/">← Back to exploring</a>
+  {% set experience_path = '/experiences/' ~ (experience.experience_id|string|urlencode|replace('/', '%2F')) %}
+  {% set action_path = '/demo/experiences/' ~ (experience.experience_id|string|urlencode|replace('/', '%2F')) %}
+  {% set votes = experience.rating.upvotes + experience.rating.downvotes %}
+  {% set can_read = signed_in and access_state in ['author', 'admin', 'unlocked'] and content %}
+  <article>
+    <header class="experience-intro">
+      <p class="eyebrow">A sample lived experience</p>
+      <h1>{{ experience.title }}</h1>
+      <p class="experience-teaser">{{ experience.teaser }}</p>
+      <div class="taxonomy-tags">{% for tag in experience.taxonomy %}<span class="taxonomy-tag">{{ tag }}</span>{% endfor %}</div>
+      <div class="detail-author">
+        {% if signed_in %}<span class="author-name">{{ experience.author.display_name if experience.author else 'Community author' }}</span>{% else %}<span class="author-placeholder" aria-hidden="true">Community author</span><span class="author-prompt">Sign in to see author</span>{% endif %}
+        <span class="card-rating">{% if votes %}{{ (experience.rating.upvotes / votes * 100)|round|int }}% helpful · {{ votes }} {{ 'vote' if votes == 1 else 'votes' }}{% else %}New author{% endif %}</span>
+        {% if can_read %}<span class="access-badge">{% if access_state == 'author' %}Your experience{% elif access_state == 'admin' %}Demo admin access{% else %}Unlocked · yours to read{% endif %}</span>{% endif %}
+      </div>
+    </header>
+    {% if can_read %}
+    <section class="story-section" aria-labelledby="story-heading">
+      <p id="story-heading" class="eyebrow">The exact story</p>
+      <pre class="exact-story purchased-story">{{ content.body }}</pre>
+    </section>
+    {% if access_state == 'unlocked' %}
+    <section class="mock-vote-panel" aria-labelledby="vote-heading">
+      <h2 id="vote-heading">Was this experience helpful?</h2>
+      <p>Your vote contributes to the author’s helpfulness rating.</p>
+      <div class="mock-form-actions">
+        {% for value, label in [(1, 'Helpful'), (-1, 'Not helpful'), (0, 'Remove vote')] %}
+        <form method="post" action="{{ action_path }}/vote">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="query_id" value="{{ query_id|default('', true) }}">
+          <input type="hidden" name="value" value="{{ value }}">
+          <button class="button button-secondary{% if owned_vote == value and value != 0 %} is-selected{% endif %}" type="submit"{% if value != 0 %} aria-pressed="{{ 'true' if owned_vote == value else 'false' }}"{% endif %}{% if value == 0 and not owned_vote %} disabled{% endif %}>{{ label }}</button>
+        </form>
+        {% endfor %}
+      </div>
+      <p class="input-hint">{% if owned_vote == 1 %}You marked this helpful.{% elif owned_vote == -1 %}You marked this not helpful.{% else %}You have not voted on this experience.{% endif %}</p>
+    </section>
+    {% endif %}
+    {% else %}
+    <section class="locked-panel" aria-labelledby="unlock-heading">
+      <span class="lock-symbol" aria-hidden="true">◈</span>
+      <p class="eyebrow">A one-time unlock</p>
+      <h2 id="unlock-heading">Read the full experience</h2>
+      <p>{{ experience.price_coins }} simulated coins, paid once. The author receives the coins.</p>
+      {% if signed_in %}
+      <form method="post" action="{{ action_path }}/unlock">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="quote_token" value="{{ quote_token|default('', true) }}">
+        <input type="hidden" name="query_id" value="{{ query_id|default('', true) }}">
+        <button class="button button-primary" type="submit">Unlock for {{ experience.price_coins }} coins <span aria-hidden="true">↗</span></button>
+      </form>
+      <p class="input-hint">{% if wallet is not none %}You have {{ wallet.available_coins }} available coins. {% endif %}If you need more, we’ll take you to your demo wallet.</p>
+      {% else %}
+      <a class="button button-primary" href="/login?{{ {'next': experience_path, 'query_id': query_id|default('', true)}|urlencode }}">Sign in to review the price <span aria-hidden="true">↗</span></a>
+      {% endif %}
+      <p class="input-hint">Adding coins or returning to this page does not unlock it. Use the unlock button when you’re ready.</p>
+    </section>
+    {% endif %}
+  </article>
+{% endblock %}

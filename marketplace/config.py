@@ -19,6 +19,7 @@ class Settings:
     oauth_ttl: int = 600
     provider_credentials: dict = field(default_factory=dict, repr=False)
     facebook_graph_version: str = ""
+    mock_mode: bool = False
 
     @classmethod
     def from_mapping(cls, mapping, *, environ=None):
@@ -29,6 +30,7 @@ class Settings:
             return env.get(name, default) if value is None else value
 
         enabled = str(get("MARKETPLACE_ENABLED", "false")).lower() in {"true", "1", "yes"}
+        mock_mode = str(get("MARKETPLACE_MOCK_MODE", "false")).lower() in {"true", "1", "yes"}
         environment = str(get("MARKETPLACE_ENV", "development")).lower()
         database_url = str(get("DATABASE_URL"))
         secret = str(get("SECRET_KEY") or get("FLASK_SECRET_KEY"))
@@ -36,6 +38,20 @@ class Settings:
         credentials = {name: (str(get(name.upper() + "_CLIENT_ID")),
                                str(get(name.upper() + "_CLIENT_SECRET")))
                        for name in ("google", "linkedin", "facebook")}
+        if mock_mode:
+            if not enabled or environment not in {"development", "test"}:
+                raise ValueError("Mock mode requires an enabled development or test marketplace")
+            try:
+                demo_db = make_url(database_url)
+                local = {"127.0.0.1", "localhost", "::1"}
+                if (demo_db.host not in local or not demo_db.database
+                        or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*_(mock|test)", demo_db.database)
+                        or set(demo_db.query) - {"options", "connect_timeout", "application_name"}
+                        or any(env.get(name) for name in ("PGHOSTADDR", "PGSERVICE", "PGSERVICEFILE"))
+                        or urlsplit(public_base).hostname not in local):
+                    raise ValueError()
+            except Exception:
+                raise ValueError("Mock mode requires a loopback origin and a dedicated local _mock or _test database") from None
         if enabled:
             if not database_url:
                 raise ValueError("DATABASE_URL is required when MARKETPLACE_ENABLED")
@@ -60,7 +76,7 @@ class Settings:
                (("MARKETPLACE_SESSION_TTL", 86400), ("MARKETPLACE_INTENT_TTL", 900), ("MARKETPLACE_OAUTH_TTL", 600))]
         if any(value <= 0 or value > 2592000 for value in ttl):
             raise ValueError("Marketplace expiry settings must be positive and at most 30 days")
-        return cls(enabled, environment, database_url, secret, public_base, *ttl, credentials, graph_version)
+        return cls(enabled, environment, database_url, secret, public_base, *ttl, credentials, graph_version, mock_mode)
 
     def provider_configured(self, provider):
         return bool(all(self.provider_credentials.get(provider, ()))) and (provider != "facebook" or bool(self.facebook_graph_version))

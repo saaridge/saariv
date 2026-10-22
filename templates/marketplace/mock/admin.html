@@ -1,0 +1,47 @@
+{% extends 'marketplace/mock/base.html' %}
+{% block title %}Demo admin{% endblock %}
+{% block content %}
+  <div class="mock-page-intro"><p class="eyebrow">The other side of the flow</p><h1>Review with<br><span>a little care.</span></h1><p>Approve sample publications and funding requests. Every action here is simulated; no external payment or provider account is used.</p></div>
+  <p class="notice"><strong>Demo reward treasury: {{ treasury_coins }} coins.</strong> First approval of an experience awards its author 10 simulated coins once. Later reviews cannot earn another first-publication reward.</p>
+  <section class="mock-section" aria-labelledby="submissions-heading">
+    <div class="section-heading"><div><p class="eyebrow">Read before publishing</p><h2 id="submissions-heading">Experience submissions</h2></div></div>
+    <div class="mock-review-list">
+      {% for submission in submissions %}
+      <article class="mock-panel mock-review-card">
+        <div class="mock-panel-heading"><div><p class="eyebrow">{{ submission.author_name }} · {{ submission.price_coins }} coins</p><h3>{{ submission.title }}</h3></div><span class="mock-status">{{ submission.status|replace('_', ' ')|capitalize }}</span></div>
+        <p>{{ submission.teaser }}</p>
+        <details class="mock-story-review"><summary>Read the exact submitted story</summary><pre class="exact-story">{{ submission.body }}</pre></details>
+        {% if submission.status == 'submitted' %}<div class="mock-form-actions">
+          <form method="post" action="/demo/admin/experiences/{{ submission.id|string|urlencode|replace('/', '%2F') }}/approve"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-primary" type="submit">Approve publication <span aria-hidden="true">↗</span></button></form>
+          <form method="post" action="/demo/admin/experiences/{{ submission.id|string|urlencode|replace('/', '%2F') }}/reject"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-secondary" type="submit">Decline publication</button></form>
+        </div>{% endif %}
+      </article>
+      {% else %}<div class="mock-empty"><p>No submissions to review. Switch to Author, write an experience, and submit it for review.</p><a class="mock-text-link" href="/experiences/new">Open the editor →</a></div>{% endfor %}
+    </div>
+  </section>
+  <section class="mock-section" aria-labelledby="funding-heading">
+    <div class="section-heading"><div><p class="eyebrow">Simulate the funding decision</p><h2 id="funding-heading">Recharge and withdrawal requests</h2></div></div>
+    <p class="mock-section-description">Approving a recharge credits the wallet once. Starting a withdrawal keeps its coins reserved; settling consumes the reservation. The server creates a unique demo transfer reference for each simulated credit or payout.</p>
+    <div class="mock-review-list">
+      {% for funding_request in requests %}
+      <article class="mock-panel mock-funding-card">
+        <div class="mock-panel-heading"><div><p class="eyebrow">{{ funding_request.owner_name }}</p><h3>{{ funding_request.kind|capitalize }} · {{ funding_request.coins }} coins</h3></div><span class="mock-status">{{ funding_request.status|replace('_', ' ')|capitalize }}</span></div>
+        <p class="mock-request-id">Demo request <code>{{ funding_request.id }}</code></p>
+        {% set funding_action = '/demo/admin/requests/' ~ (funding_request.id|string|urlencode|replace('/', '%2F')) %}
+        <div class="mock-form-actions">
+          {% if funding_request.kind == 'recharge' and funding_request.status == 'pending_review' %}
+          <form method="post" action="{{ funding_action }}/approve"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-primary" type="submit">Approve demo recharge</button></form>
+          <form method="post" action="{{ funding_action }}/reject"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-secondary" type="submit">Reject recharge</button></form>
+          {% elif funding_request.kind == 'withdrawal' and funding_request.status == 'pending_review' %}
+          <form method="post" action="{{ funding_action }}/start"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-primary" type="submit">Start demo payout</button></form>
+          <form method="post" action="{{ funding_action }}/reject"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-secondary" type="submit">Reject withdrawal</button></form>
+          {% elif funding_request.kind == 'withdrawal' and funding_request.status == 'processing' %}
+          <form method="post" action="{{ funding_action }}/settle"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-primary" type="submit">Settle simulated payout</button></form>
+          {% elif funding_request.status == 'pending_payment' %}<p class="input-hint">Awaiting the owner’s Simulate transfer action.</p>
+          {% else %}<p class="input-hint">This request has no pending demo admin action.</p>{% endif %}
+        </div>
+      </article>
+      {% else %}<div class="mock-empty"><p>No funding requests to review. Switch to Reader or Author and create a request from the wallet.</p><a class="mock-text-link" href="/wallet">Open wallet →</a></div>{% endfor %}
+    </div>
+  </section>
+{% endblock %}

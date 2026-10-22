@@ -8,12 +8,18 @@
   <meta name="csrf-token" content="{{ csrf_token() }}"><meta name="robots" content="noindex, nofollow">
   <title>Share an experience · Saariv</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  {% if mock_mode %}<link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">{% endif %}
   {% if signed_in %}<script defer src="{{ url_for('static', filename='js/story-dictation.js') }}"></script><script defer src="{{ url_for('static', filename='js/marketplace.js') }}"></script><script defer src="{{ url_for('static', filename='js/authoring.js') }}"></script>{% endif %}
 </head>
 <body {% if signed_in %}data-marketplace-editor{% endif %}>
   <a class="skip-link" href="#main">Skip to content</a>
+  {% if mock_mode %}{% include 'marketplace/mock/banner.html' %}{% endif %}
   <header class="site-header"><nav class="header-inner" aria-label="Main navigation"><a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a><div class="header-actions"><a class="quiet-link" href="/">Explore</a>{% if signed_in %}<a class="wallet-link" href="/wallet">{% if wallet is not none %}{{ wallet.available_coins }} coins{% else %}Wallet{% endif %}</a>{% else %}<a class="login-link" href="/login?next=%2Fexperiences%2Fnew">Sign in</a>{% endif %}<a class="add-link compact" href="/experiences/new" aria-label="Add an experience">＋</a></div></nav></header>
   <main id="main" class="page-shell editor-shell">
+    {% if mock_mode %}
+    {% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>{% endfor %}
+    {% if signed_in %}<p class="notice mock-editor-note">First approval of an experience awards 10 simulated coins once. After submitting, switch to Admin to review it, then return to <a href="/demo/mine">My experiences</a>.</p>{% endif %}
+    {% endif %}
     {% if signed_in %}
     <div class="page-intro"><a class="back-link" href="/">← Back to exploring</a><p class="eyebrow">Your perspective matters</p><h1>Somebody could use<br><span>your experience.</span></h1><p>{% if revision_status == 'draft' %}Tell it as you lived it. Your draft stays private until it’s reviewed and approved.{% elif revision_status == 'submitted' %}This revision is awaiting review and is read-only.{% elif revision_status == 'approved' %}This revision has passed review and is read-only.{% elif revision_status == 'rejected' %}Review was declined. This submitted revision is read-only.{% else %}This revision is read-only. Its review status is unavailable.{% endif %}</p></div>
     <div class="editor-layout">

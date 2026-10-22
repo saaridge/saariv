@@ -224,6 +224,9 @@
       more.hidden = this.authenticated ? !page.next_cursor : !page.login_required;
       more.textContent = this.authenticated ? "See more experiences" : "Sign in to explore more";
       more.href = this.authenticated ? "#results" : loginPath("/", page.query_id);
+      const signIn = document.getElementById("home-login-link");
+      if (signIn && !this.authenticated) signIn.href = loginPath("/", page.query_id);
+      for (const input of document.querySelectorAll?.("[data-demo-query]") || []) input.value = page.query_id;
     }
   }
 

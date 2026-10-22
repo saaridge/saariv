@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Sign in · Saariv</title>
+  {% if mock_mode %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketplace.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mock.css') }}">
+  {% else %}
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #20231f; background: #f5f3ec; }
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; }
@@ -19,8 +23,40 @@
     small { font-size: .8rem; font-weight: 400; display: block; margin-top: .3rem; }
     .note { font-size: .85rem; }
   </style>
+  {% endif %}
 </head>
-<body>
+<body{% if mock_mode %} class="mock-login-page"{% endif %}>
+  {% if mock_mode %}
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% include 'marketplace/mock/banner.html' %}
+  <header class="site-header"><nav class="header-inner" aria-label="Main navigation"><a class="brand" href="/" aria-label="Saariv home"><span class="brand-mark" aria-hidden="true">s</span>saariv<span class="brand-dot" aria-hidden="true">.</span></a><a class="quiet-link" href="/">Explore experiences <span aria-hidden="true">↗</span></a></nav></header>
+  <main id="main" class="page-shell mock-login-shell">
+    {% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice mock-flash{% if category == 'error' %} notice-error{% endif %}" role="status">{{ message }}</p>{% endfor %}
+    <p class="eyebrow">Try the full local demo</p>
+    <h1>Continue with<br><span>a demo persona.</span></h1>
+    <p>Choose a mock provider and persona to read, write, and review sample experiences. We’ll bring you back to where you left off.</p>
+    <ul class="mock-provider-list" aria-label="Mock sign-in providers">
+      {% for provider_id, provider_name in [('google', 'Google'), ('linkedin', 'LinkedIn'), ('facebook', 'Facebook')] %}
+      <li>
+        <form class="mock-provider-form" method="post" action="/auth/mock/{{ provider_id }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="intent" value="{{ intent|default('', true) }}">
+          <label class="field-label" for="mock-persona-{{ provider_id }}">Demo persona for mock {{ provider_name }}</label>
+          <select id="mock-persona-{{ provider_id }}" name="persona">
+            <option value="reader" selected>Reader — discover and unlock</option>
+            <option value="author">Author — write and share</option>
+            <option value="admin">Admin — review the demo</option>
+          </select>
+          <button class="button button-primary" type="submit">Continue with mock {{ provider_name }} <span aria-hidden="true">↗</span></button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="notice mock-login-note">Mock sign-in does not connect to a real provider or spend coins. You’ll review the price and explicitly unlock each experience.</p>
+    <a class="mock-text-link" href="/">Back to discovery →</a>
+  </main>
+  <footer class="site-footer"><span>saariv. &nbsp; A little wisdom, passed along.</span><span>Local demo · All coins and transfers are simulated.</span></footer>
+  {% else %}
   <main>
     <a class="brand" href="/">Saariv</a>
     <h1>Continue with your experience.</h1>
@@ -39,5 +75,6 @@
     <p class="note">Signing in does not spend coins. You’ll review the price before unlocking an experience.</p>
     <a href="/">Back to discovery</a>
   </main>
+  {% endif %}
 </body>
 </html>

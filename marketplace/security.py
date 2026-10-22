@@ -106,5 +106,5 @@ def install_security(app):
                                 path="/", secure=settings.environment == "production", httponly=True, samesite="Lax")
         if request.path == "/login" or request.path.startswith("/auth/") or g.get("marketplace_ticket"):
             response.headers["Cache-Control"] = "no-store"
-            response.headers["Referrer-Policy"] = "no-referrer"
+            response.headers["Referrer-Policy"] = "same-origin" if settings.mock_mode else "no-referrer"
         return response

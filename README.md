@@ -62,6 +62,14 @@ Open your browser at **[http://127.0.0.1:8080](http://127.0.0.1:8080)**.
 
 The current development environment is `.venv-rag`; use `.venv-rag/bin/python` in this checkout. See the [portable RAG guide](docs/rag.md) for embedding providers, source citations, agent access keys, index migration and evaluation. The sample environment uses keyword search until you configure an embedding provider.
 
+### Try the local mock marketplace
+
+Run `python run_mock.py` with the existing Python environment and local PostgreSQL
+to try synthetic Google/LinkedIn/Facebook sign-in, search, authoring, one-time
+unlocks, voting, publication rewards, and simulated wallet requests. See the
+[complete mock walkthrough](docs/mock-end-to-end.md) for Reader/Author/Admin steps,
+startup options, and the production boundary. All demo payments and coins are simulated.
+
 ### Dictate an experience story
 
 On the **Experience** step, choose **Start dictation** above the existing story box. Allow microphone access, speak in your browser's language, and choose **Stop dictation** to review or edit the transcript. Existing typed text is preserved. **Continue** saves and indexes the reviewed story through the existing import flow. Dictation stops when you leave the step or hide the page.

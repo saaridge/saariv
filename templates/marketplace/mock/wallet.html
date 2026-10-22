@@ -1,0 +1,49 @@
+{% extends 'marketplace/mock/base.html' %}
+{% block title %}Demo wallet{% endblock %}
+{% block content %}
+  <div class="mock-page-intro"><p class="eyebrow">Your demo wallet</p><h1>A little more<br><span>perspective in reach.</span></h1><p>Use simulated coins to unlock sample experiences and try the funding flow. $1 = 100 demo coins. No real account or payment is involved.</p></div>
+  {% if return_experience_id %}<p class="notice">Your selected experience is saved. <a href="/experiences/{{ return_experience_id|string|urlencode|replace('/', '%2F') }}?{{ {'query_id': query_id|default('', true)}|urlencode }}">Return to the experience →</a> You’ll choose whether to unlock it after coins are credited.</p>{% endif %}
+  <dl class="mock-balances" aria-label="Wallet balances">
+    <div><dt>Available coins</dt><dd>{{ wallet.available_coins }}<span>ready to use</span></dd></div>
+    <div><dt>Reserved coins</dt><dd>{{ wallet.reserved_coins }}<span>held for withdrawals</span></dd></div>
+    <div><dt>Withdrawable coins</dt><dd>{{ wallet.withdrawable_coins }}<span>eligible in 100-coin steps</span></dd></div>
+  </dl>
+  <div class="mock-two-column">
+    <section class="mock-panel" aria-labelledby="recharge-heading">
+      <p class="eyebrow">Explore the recharge flow</p><h2 id="recharge-heading">Add demo coins</h2>
+      <p>Create a request, simulate the transfer, then switch to Admin to approve it. Approval credits your wallet; unlocking is a separate choice.</p>
+      <form class="mock-stacked-form" method="post" action="/demo/recharges">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="return_experience_id" value="{{ return_experience_id|default('', true) }}">
+        <input type="hidden" name="query_id" value="{{ query_id|default('', true) }}">
+        <label class="field-label" for="recharge-coins">Demo coins to add</label>
+        <input id="recharge-coins" name="coins" type="number" min="1" step="1" value="200" required aria-describedby="recharge-hint">
+        <p id="recharge-hint" class="input-hint">200 demo coins represents $2.00 in the simulation. Do not transfer real money.</p>
+        <button class="button button-primary" type="submit">Create demo recharge <span aria-hidden="true">↗</span></button>
+      </form>
+    </section>
+    <section class="mock-panel" aria-labelledby="withdraw-heading">
+      <p class="eyebrow">Explore the withdrawal flow</p><h2 id="withdraw-heading">Request a demo withdrawal</h2>
+      <p>Purchased and earned coins are eligible. Withdraw at least 100 coins, in steps of 100, while leaving at least 10 available coins.</p>
+      <form class="mock-stacked-form" method="post" action="/demo/withdrawals">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="field-label" for="withdraw-coins">Demo coins to withdraw</label>
+        <input id="withdraw-coins" name="coins" type="number" min="100" step="100" value="100" required aria-describedby="withdraw-hint">
+        <p id="withdraw-hint" class="input-hint">A request reserves these coins immediately. Reserved coins cannot be spent; cancellation or rejection releases them. Demo settlement consumes the reservation.</p>
+        <button class="button button-secondary" type="submit">Request demo withdrawal</button>
+      </form>
+    </section>
+  </div>
+  <section class="mock-section" aria-labelledby="requests-heading">
+    <div class="section-heading"><div><p class="eyebrow">Follow the next step</p><h2 id="requests-heading">Funding requests</h2></div></div>
+    {% if requests %}<div class="mock-table-scroll"><table class="mock-table"><thead><tr><th scope="col">Request</th><th scope="col">Coins</th><th scope="col">Status</th><th scope="col">Details</th></tr></thead><tbody>
+      {% for funding_request in requests %}<tr><td>{{ funding_request.kind|capitalize }}<small>{{ funding_request.id }}</small></td><td>{{ funding_request.coins }}</td><td><span class="mock-status">{{ funding_request.status|replace('_', ' ')|capitalize }}</span></td><td><a class="mock-text-link" href="/wallet/requests/{{ funding_request.id|string|urlencode|replace('/', '%2F') }}">View request →</a></td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<div class="mock-empty"><p>No funding requests yet. Create a recharge or withdrawal above to try the flow.</p></div>{% endif %}
+  </section>
+  <section class="mock-section" aria-labelledby="transactions-heading">
+    <div class="section-heading"><div><p class="eyebrow">Every coin has a record</p><h2 id="transactions-heading">Transaction history</h2></div></div>
+    {% if transactions %}<div class="mock-table-scroll"><table class="mock-table"><thead><tr><th scope="col">Activity</th><th scope="col">Coins</th><th scope="col">Date</th></tr></thead><tbody>
+      {% for transaction in transactions %}<tr><td>{{ transaction.description }}<small>{{ transaction.kind|replace('_', ' ')|capitalize }}</small></td><td class="mock-coin-amount">{{ '+' if transaction.coins > 0 else '' }}{{ transaction.coins }}</td><td>{{ transaction.created_at }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<div class="mock-empty"><p>Your demo transactions will appear here.</p></div>{% endif %}
+  </section>
+{% endblock %}

@@ -1,5 +1,9 @@
 # Local marketplace run and testing
 
+For the separately enabled local mock implementation, see the
+[end-to-end demo walkthrough](mock-end-to-end.md). The foundation-only results
+below describe the earlier build with mock mode disabled.
+
 ## Current build
 
 The RAG reliability, account/authentication foundation and reader/writer screens

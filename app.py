@@ -14,7 +14,8 @@ from knowledge.onboarding import export_sources, import_additional, import_story
 from knowledge.web import get_service, initialize_knowledge
 from marketplace import register_marketplace
 
-load_dotenv()
+if os.getenv("MARKETPLACE_MOCK_MODE", "false").lower() not in {"true", "1", "yes"}:
+    load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "saariv-stepper-rag-secret-2025")
@@ -333,6 +334,8 @@ def retrieve_relevant_experience(query: str, chunks: List[Dict[str, Any]]) -> Li
 @app.route("/", methods=["GET"])
 def index():
     """Render the enabled marketplace, or the original landing page."""
+    if "marketplace_mock_home" in app.extensions:
+        return app.extensions["marketplace_mock_home"]()
     if "marketplace_db" in app.extensions:
         from marketplace.security import current_principal
         return render_template("marketplace/home.html", principal=current_principal(),

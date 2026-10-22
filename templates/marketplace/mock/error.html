@@ -1,0 +1,12 @@
+{% extends 'marketplace/mock/base.html' %}
+{% block title %}Demo request needs attention{% endblock %}
+{% block shell_class %}mock-narrow-shell{% endblock %}
+{% block content %}
+  <section class="mock-error-state" aria-labelledby="error-heading">
+    <p class="eyebrow">{{ status|default('Request needs attention', true) }}{% if code %} · {{ code|replace('_', ' ') }}{% endif %}</p>
+    <h1 id="error-heading">Let’s take<br><span>another look.</span></h1>
+    <p class="notice notice-error" role="alert">{{ message }}</p>
+    <p class="mock-section-description">Use the demo controls above to select the appropriate persona, or return to discovery to continue.</p>
+    <a class="button button-primary" href="/">Back to discovery <span aria-hidden="true">↗</span></a>
+  </section>
+{% endblock %}

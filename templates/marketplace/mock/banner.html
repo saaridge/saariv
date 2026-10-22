@@ -1,0 +1,31 @@
+{% if mock_mode %}
+<aside class="mock-banner" aria-label="Local demo controls">
+  <div class="mock-banner-inner">
+    <div class="mock-banner-copy">
+      <span class="mock-demo-label">Saariv demo</span>
+      <p>Local demo — mock sign-in, sample experiences, simulated coins. No real payments.</p>
+    </div>
+    <div class="mock-personas" role="group" aria-label="Switch demo persona">
+      <span class="mock-persona-label">Try as</span>
+      {% for persona_id, persona_name in [('reader', 'Reader'), ('author', 'Author'), ('admin', 'Admin')] %}
+      <form method="post" action="/demo/persona/{{ persona_id }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ mock_return_path|default('/', true) }}">
+        {% if intent %}<input type="hidden" name="intent" value="{{ intent }}">{% endif %}
+        <input type="hidden" name="query_id" data-demo-query value="{{ search_page.query_id if search_page else '' }}">
+        <button type="submit" class="mock-persona-button{% if mock_persona == persona_id %} is-current{% endif %}" aria-pressed="{{ 'true' if mock_persona == persona_id else 'false' }}">{{ persona_name }}</button>
+      </form>
+      {% endfor %}
+      <span class="mock-current-persona">Current: {{ mock_persona|capitalize if mock_persona else 'Guest' }}</span>
+    </div>
+    <nav class="mock-demo-links" aria-label="Demo navigation">
+      <a href="/demo/mine">My experiences</a>
+      <a href="/wallet">Wallet</a>
+      <a href="/demo/admin">Demo admin</a>
+      {% if principal and principal.user_id %}
+      <form method="post" action="/demo/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Sign out of demo</button></form>
+      {% endif %}
+    </nav>
+  </div>
+</aside>
+{% endif %}

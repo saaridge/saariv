@@ -42,7 +42,7 @@ class Element {
 
 function environment(options = {}) {
   const ids = ["search-form", "search-query", "search-submit", "search-status", "search-results",
-    "results-heading", "search-mode", "search-more", "query-dictation-toggle", "query-dictation-label",
+    "results-heading", "search-mode", "search-more", "home-login-link", "query-dictation-toggle", "query-dictation-label",
     "query-dictation-status", "query-dictation-cancel", "draft-form", "draft-title", "draft-teaser",
     "draft-taxonomy", "draft-price", "draft-body", "draft-save", "draft-submit", "draft-status",
     "draft-conflict", "draft-visibility", "story-dictation-toggle", "story-dictation-label", "story-dictation-status",
@@ -140,6 +140,16 @@ test("test_dictated_query_remains_editable_and_submits_once", async () => {
   finish(response(page()));
   await pending;
   assert.match(e["search-results"].textContent, /Planning a move/);
+});
+
+test("guest header sign-in and demo persona forms retain the active query", async () => {
+  const f = searchFixture();
+  const queryFields = [new Element("input"), new Element("input"), new Element("input")];
+  f.document.querySelectorAll = selector => selector === "[data-demo-query]" ? queryFields : [];
+  f.elements["search-query"].value = "moving";
+  await f.elements["search-form"].dispatch("submit");
+  assert.equal(f.elements["home-login-link"].href, "/login?next=%2F&query_id=opaque-query-1");
+  assert.ok(queryFields.every(input => input.value === "opaque-query-1"));
 });
 
 test("submitting while recognition is busy stops and requires review before search", async () => {
